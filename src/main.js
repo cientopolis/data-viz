@@ -1,5 +1,12 @@
 import Vue from 'vue'
-import App from './App.vue'
+import Antd from 'ant-design-vue'
+import App from '@/App.vue'
+// import { Button, Table } from 'ant-design-vue'
+import 'ant-design-vue/dist/antd.css'
+
+// Vue.use(Button)
+// Vue.use(Table)
+Vue.use(Antd)
 
 Vue.config.productionTip = false
 
