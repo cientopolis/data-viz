@@ -277,9 +277,24 @@ export default {
 
     async createNiceTable () {
       let ComponentClass = Vue.extend(NiceTable)
+      // searcheable fields
       this.curatedColumns.forEach(column => {
-
+        if (column['type'] === 'String') {
+          let field = column['dataIndex']
+          column['sorter'] = (a, b) => a[field].length - b[field].length
+          column['scopedSlots'] = {
+            filterDropdown: 'filterDropdown',
+            filterIcon: 'filterIcon',
+            customRender: 'customRender'
+          }
+          column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
+        }
+        if (column['type'] === 'Number') {
+          let field = column['dataIndex']
+          column['sorter'] = (a, b) => a[field] - b[field]
+        }
       })
+      console.log('columns', this.curatedColumns)
       let niceTable = new ComponentClass({
         propsData: {
           columns: this.curatedColumns,

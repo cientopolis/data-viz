@@ -149,53 +149,6 @@ export default {
     }
   },
 
-  // watch: {
-  //   columns: function (newValue) {
-  //     console.log('columns', newValue)
-  //     let tableColumns = []
-  //     newValue.forEach(element => {
-  //       let column = element
-  //       if (column['type'] === 'String') {
-  //         let field = column['dataIndex']
-  //         column['sorter'] = (a, b) => a[field].length - b[field].length
-  //         column['scopedSlots'] = {
-  //           filterDropdown: 'filterDropdown',
-  //           filterIcon: 'filterIcon',
-  //           customRender: 'customRender'
-  //         }
-  //         column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
-  //         column['onFilterDropdownVisibleChange'] = (visible) => {
-  //           if (visible) {
-  //             setTimeout(() => {
-  //               this.searchInput.focus()
-  //             }, 0)
-  //           }
-  //         }
-  //       }
-  //       if (column['type'] === 'Number') {
-  //         let field = column['dataIndex']
-  //         column['sorter'] = (a, b) => a[field] - b[field]
-  //       }
-  //       tableColumns.push(column)
-  //     })
-  //     this.tableColumns = tableColumns
-  //     if (tableColumns.length > 0) {
-  //       this.showTable = true
-  //     } else  {
-  //       this.showTable = false
-  //     }
-  //     this.columnsOptions = newValue.map(column => {
-  //       return {
-  //         label: column.title,
-  //         value: column.dataIndex
-  //       }
-  //     })
-  //     this.columnsChecked = this.columnsOptions.map(column => {
-  //       return column.value
-  //     })
-  //   }
-  // },
-
   data() {
     return {
       tableColumns: [],
