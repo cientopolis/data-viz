@@ -7,7 +7,7 @@
       <a-col :span="3" id="chart-hover">
       </a-col>
     </a-row>
-    <a-row type="flex" justify="start" style="margin-top: 15px;">
+    <!-- <a-row type="flex" justify="start" style="margin-top: 15px;">
       <div>
         <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
         <a-select style="width: 200px" @change="handleChartChange">
@@ -36,7 +36,7 @@
           banner
         />
       </div>
-    </a-row>
+    </a-row> -->
     <a-row type="flex" justify="space-between" style="margin: 10px 0;">
       <a-col>
         <span style="margin-left: 8px">
@@ -59,7 +59,7 @@
             </a-row>
           </a-menu>
         </a-dropdown>
-        <a-dropdown>
+        <!-- <a-dropdown>
           <a class="ant-dropdown-link" href="#">
             Selected Columns<a-icon type="down" />
           </a>
@@ -71,11 +71,10 @@
               />
             </a-row>
           </a-menu>
-        </a-dropdown>
+        </a-dropdown> -->
       </a-col>
     </a-row>
     <a-table
-      v-if="showTable"
       :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
       :columns="visibleColumns"
       :dataSource="data"
@@ -150,51 +149,52 @@ export default {
     }
   },
 
-  watch: {
-    columns: function (newValue) {
-      let tableColumns = []
-      newValue.forEach(element => {
-        let column = element
-        if (column['type'] === 'String') {
-          let field = column['dataIndex']
-          column['sorter'] = (a, b) => a[field].length - b[field].length
-          column['scopedSlots'] = {
-            filterDropdown: 'filterDropdown',
-            filterIcon: 'filterIcon',
-            customRender: 'customRender'
-          }
-          column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
-          column['onFilterDropdownVisibleChange'] = (visible) => {
-            if (visible) {
-              setTimeout(() => {
-                this.searchInput.focus()
-              }, 0)
-            }
-          }
-        }
-        if (column['type'] === 'Number') {
-          let field = column['dataIndex']
-          column['sorter'] = (a, b) => a[field] - b[field]
-        }
-        tableColumns.push(column)
-      })
-      this.tableColumns = tableColumns
-      if (tableColumns.length > 0) {
-        this.showTable = true
-      } else  {
-        this.showTable = false
-      }
-      this.columnsOptions = newValue.map(column => {
-        return {
-          label: column.title,
-          value: column.dataIndex
-        }
-      })
-      this.columnsChecked = this.columnsOptions.map(column => {
-        return column.value
-      })
-    }
-  },
+  // watch: {
+  //   columns: function (newValue) {
+  //     console.log('columns', newValue)
+  //     let tableColumns = []
+  //     newValue.forEach(element => {
+  //       let column = element
+  //       if (column['type'] === 'String') {
+  //         let field = column['dataIndex']
+  //         column['sorter'] = (a, b) => a[field].length - b[field].length
+  //         column['scopedSlots'] = {
+  //           filterDropdown: 'filterDropdown',
+  //           filterIcon: 'filterIcon',
+  //           customRender: 'customRender'
+  //         }
+  //         column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
+  //         column['onFilterDropdownVisibleChange'] = (visible) => {
+  //           if (visible) {
+  //             setTimeout(() => {
+  //               this.searchInput.focus()
+  //             }, 0)
+  //           }
+  //         }
+  //       }
+  //       if (column['type'] === 'Number') {
+  //         let field = column['dataIndex']
+  //         column['sorter'] = (a, b) => a[field] - b[field]
+  //       }
+  //       tableColumns.push(column)
+  //     })
+  //     this.tableColumns = tableColumns
+  //     if (tableColumns.length > 0) {
+  //       this.showTable = true
+  //     } else  {
+  //       this.showTable = false
+  //     }
+  //     this.columnsOptions = newValue.map(column => {
+  //       return {
+  //         label: column.title,
+  //         value: column.dataIndex
+  //       }
+  //     })
+  //     this.columnsChecked = this.columnsOptions.map(column => {
+  //       return column.value
+  //     })
+  //   }
+  // },
 
   data() {
     return {
@@ -216,8 +216,25 @@ export default {
       return this.selectedRowKeys.length > 0
     },
     visibleColumns () {
-      return this.tableColumns.filter(column => this.columnsChecked.indexOf(column.dataIndex) >= 0)
+      let visibleColumns = this.columns.filter(column => this.columnsChecked.indexOf(column.dataIndex) >= 0)
+      console.log('visible columns', visibleColumns)
+      return visibleColumns
     }
+  },
+
+  created () {
+    console.log('columns', this.columns)
+    this.columnsOptions = this.columns.map(column => {
+      return {
+        label: column.title,
+        value: column.dataIndex
+      }
+    })
+    console.log('columns options', this.columnsOptions)
+    this.columnsChecked = this.columnsOptions.map(column => {
+      return column.value
+    })
+    console.log('columns checked', this.columnsChecked)
   },
 
   methods: {

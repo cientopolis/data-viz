@@ -1,19 +1,25 @@
 <template>
   <div id="app" style="padding: 0 50px;">
-    <nice-table :columns=columns :data=data />
+    <!-- <nice-table :columns=columns :data=data /> -->
     <!-- <div><timeline-with-labels :data=data /></div> -->
+    <example1 />
+    <infovis table-id="appear" />
   </div>
 </template>
 
 <script>
 // import Vue from 'vue'
-import NiceTable from '@/components/NiceTable'
+// import NiceTable from '@/components/NiceTable'
+import Example1 from '@/components/Example1'
+import Infovis from '@/components/Infovis'
 // import TimelineWithLabels from '@/components/TimelineWithLabels'
 
 export default {
   name: 'app',
   components: {
-    NiceTable
+    // NiceTable,
+    Example1,
+    Infovis
   },
   data () {
     return {

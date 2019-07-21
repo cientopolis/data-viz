@@ -12,7 +12,9 @@
     "core-js": "^2.6.5",
     "d3": "^4.13.0",
     "moment": "^2.24.0",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "vue-good-wizard": "^1.4.1",
+    "vue-scrollto": "^2.15.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.9.0",
