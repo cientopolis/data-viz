@@ -7,36 +7,55 @@
       <a-col :span="3" id="chart-hover">
       </a-col>
     </a-row>
-    <!-- <a-row type="flex" justify="start" style="margin-top: 15px;">
-      <div>
-        <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
-        <a-select style="width: 200px" @change="handleChartChange">
-          <a-select-option value="timeline-with-labels">Timeline with Labels</a-select-option>
-        </a-select>
-        <a-button
-          v-if="(currentInstruction && selectedRowKeys.length > 1 && chartColumns.length === 3)"
-          style="margin-left: 10px;"
-          type="primary"
-          @click="createChart"
-        >
-          Create Chart
-        </a-button>
-        <a-button
-          style="margin-left: 10px;"
-          type="primary"
-          @click="clearChart"
-        >
-          Clear Chart
-        </a-button>
-         <a-alert
-          v-if="currentInstruction"
-          style="margin-top: 15px; margin-left: 5x;"
-          :showIcon="false"
-          :message="currentInstruction"
-          banner
-        />
-      </div>
-    </a-row> -->
+    <a-row>
+      <a-button
+        style="margin-left: 10px; left: left;"
+        type="primary"
+        :disabled="selectedRowKeys.length === 0"
+        @click="chartModalVisible = true"
+      >
+        Create Chart
+      </a-button>
+    </a-row>
+    <a-modal
+      v-model="chartModalVisible"
+      :footer="null"
+    >
+      <vue-good-wizard
+        :steps="steps"
+        :onNext="nextClicked"
+        :onBack="backClicked"
+      >
+        <div slot="selectChartType">
+          <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
+          <a-select style="width: 200px" @change="handleChartChange">
+            <a-select-option
+              v-for="(chartType, index) in chartTypes"
+              :key="index"
+              :value="chartType.value"
+            >
+              {{chartType.title}}
+            </a-select-option>
+          </a-select>
+        </div>
+        <div slot="selectColumns">
+          <div v-if="selectedChartType">
+            <span 
+              style="margin: 10px;"
+            >
+              Select {{selectedChartType.title}} columns
+            </span>
+            <a-alert :message="selectedChartType.instruction" banner />
+            <a-row>
+              <a-checkbox-group
+                :options="columnsOptions"
+                v-model="chartColumns"
+              />
+            </a-row>
+          </div>
+        </div>
+      </vue-good-wizard>
+    </a-modal>
     <a-row type="flex" justify="space-between" style="margin: 10px 0;">
       <a-col>
         <span style="margin-left: 8px">
@@ -59,19 +78,6 @@
             </a-row>
           </a-menu>
         </a-dropdown>
-        <!-- <a-dropdown>
-          <a class="ant-dropdown-link" href="#">
-            Selected Columns<a-icon type="down" />
-          </a>
-          <a-menu slot="overlay" style="padding: 5px; width: 300px;">
-            <a-row>
-              <a-checkbox-group
-                :options="columnsOptions"
-                v-model="chartColumns"
-              />
-            </a-row>
-          </a-menu>
-        </a-dropdown> -->
       </a-col>
     </a-row>
     <a-table
@@ -133,6 +139,35 @@ const colors = [
   '#FA8072'
 ]
 
+const steps = [
+  {
+    label: 'Select Chart Type',
+    slot: 'selectChartType'
+  },
+  {
+    label: 'Select Chart Columns',
+    slot: 'selectColumns'
+  }
+]
+
+const chartTypes = [
+  {
+    value: 'timeline-with-labels',
+    title: 'Timeline with labels',
+    instruction: 'You have to select a date, a label, and a data field',
+    columns: [{
+      type: 'Date',
+      name: 'Date'
+    }, {
+      type: 'String',
+      name: 'Label'
+    }, {
+      type: 'Any',
+      name: 'Data'
+    }]
+  }
+]
+
 function randomColor () {
   return colors[Math.floor(Math.random() * colors.length)];
 }
@@ -151,16 +186,17 @@ export default {
 
   data() {
     return {
-      tableColumns: [],
       selectedRowKeys: [], // Check here to configure the default column
       columnsOptions: [],
       columnsChecked: [],
       chartColumns: [],
-      selectedChart : null,
-      currentInstruction: null,
+      selectedChartType : null,
       showTable: false,
       searchText: '',
-      searchInput: null
+      searchInput: null,
+      chartModalVisible: false,
+      steps,
+      chartTypes
     }
   },
 
@@ -176,48 +212,45 @@ export default {
   },
 
   created () {
-    console.log('columns', this.columns)
     this.columnsOptions = this.columns.map(column => {
       return {
         label: column.title,
         value: column.dataIndex
       }
     })
-    console.log('columns options', this.columnsOptions)
     this.columnsChecked = this.columnsOptions.map(column => {
       return column.value
     })
-    console.log('columns checked', this.columnsChecked)
   },
 
   methods: {
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
     },
+
     index (row) {
       return this.data.indexOf(row)
     },
+
     handleChartChange (value) {
-      // console.log(`selected ${value}`);
-      this.selectedChart = value
-      if (value === 'timeline-with-labels') {
-        this.currentInstruction = 'You have to select a date, a label, and a data field'
-      }
+      this.selectedChartType = this.chartTypes.find(item => item.value = value)
     },
+
     clearChart () {
       var myNode = document.getElementById('chart')
       while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild)
       }
     },
+
     createChart () {
       this.clearChart()
       let dateColumn = null
       let labelColumn = null
       let dataColumn = null
       this.chartColumns.forEach(column => {
-        const index = this.tableColumns.map(e => e.dataIndex).indexOf(column)
-        const col = this.tableColumns[index]
+        const index = this.columns.map(e => e.dataIndex).indexOf(column)
+        const col = this.columns[index]
         if (col.type === 'Date') {
           dateColumn = col
         }
@@ -264,9 +297,7 @@ export default {
               }
             )
           }
-
           dates.push(moment(date, "DD/MM/YYYY"))
-
         }
 
       })
@@ -285,14 +316,38 @@ export default {
       var container = this.$el.querySelector("#chart")
       container.scrollTop = container.scrollHeight
     },
+
     handleSearch (selectedKeys, confirm) {
       confirm()
       this.searchText = selectedKeys[0]
     },
+
     handleReset (clearFilters) {
       clearFilters()
       this.searchText = ''
     },
+
+    nextClicked (currentPage) {
+      if (currentPage === 0) {
+        if (this.selectedChart !== null) {
+          return true
+        }
+      }
+      if (currentPage === this.steps.length - 1) {
+        console.log(this.selectedChartType.columns.length)
+        console.log(this.chartColumns.length)
+        if (this.selectedChartType.columns.length === this.chartColumns.length) {
+          console.log('create chart!')
+          this.createChart()
+          this.chartModalVisible = false
+        }
+      }
+      return false
+    },
+
+    backClicked (currentPage) {
+      return true
+    }
   }
 }
 </script>
