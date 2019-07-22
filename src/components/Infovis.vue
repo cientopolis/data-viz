@@ -252,9 +252,11 @@ export default {
         })
         this.curatedColumns.push({
           'dataIndex': column,
-          'title': column
+          'title': column,
+          'type': this.predictType(column)
         })
       })
+      this.selectedType = this.curatedColumns[0].type
       this.modalVisible1 = false
       this.modalVisible2 = true
     },
@@ -355,6 +357,29 @@ export default {
         return isCoordinate(value)
       }
       return true
+    },
+
+    predictType (column) {
+      let example = this.example[column]
+      if (isNumeric(example)) {
+        return 'Number'
+      }
+      if (isDate(example)) {
+        return 'Date'
+      }
+      if (isCoordinate(example)) {
+        if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
+          return 'Latitude'
+        }
+        if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
+          return 'Longitude'
+        }
+        if (this.curatedColumns.some(column => column.type == 'Latitude')) {
+          return 'Longitude'
+        }
+        return 'Latitude'
+      }
+      return 'String'
     }
   }
 }
