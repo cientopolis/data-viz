@@ -67,6 +67,7 @@
               <a-alert
                 v-if="columnsError"
                 :message="columnsError"
+                type="error"
                 banner
               />
             </a-row>

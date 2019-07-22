@@ -80,6 +80,13 @@
                 {{type}}
               </a-select-option>
             </a-select>
+            <a-alert
+              style="margin-top: 10px;"
+              v-if="columnsError"
+              type="error"
+              :message="columnsError"
+              banner
+            />
           </a-card>
         </div>
         <div slot="page4">
@@ -142,16 +149,16 @@ function isNumeric (str) {
   return !isNaN(str)
 }
 
-function isDate(str) {
-  var dateFormat;
-  if (toString.call(str) === '[object Date]') {
-      return true;
+function isDate(value) {
+  var dateFormat
+  if (toString.call(value) === '[object Date]') {
+      return true
   }
-  if (typeof str.replace === 'function') {
-      str.replace(/^\s+|\s+$/gm, '');
+  if (typeof value.replace === 'function') {
+      value.replace(/^\s+|\s+$/gm, '')
   }
   dateFormat = /(^\d{1,4}[\.|\\/|-]\d{1,2}[\.|\\/|-]\d{1,4})(\s*(?:0?[1-9]:[0-5]|1(?=[012])\d:[0-5])\d\s*[ap]m)?$/;
-  return dateFormat.test(str);
+  return dateFormat.test(value)
 }
 
 function isCoordinate (str) {
@@ -198,6 +205,7 @@ export default {
       example: {},
       tableCreated: false,
       tableVisible: true,
+      columnsError: null
     }
   },
 
@@ -252,20 +260,30 @@ export default {
     },
 
     nextClicked (currentPage) {
+      this.columnsError = null
       if ((this.selectedType === null) || (this.selectedType === undefined)) {
+        this.columnsError = `No type selected`
         return false
       }
       // else
-      this.curatedColumns[currentPage]['type'] = this.selectedType
-      if (currentPage == this.steps.length - 1) {
-        // last page
-        this.createNiceTable()
-        this.modalVisible2 = false
+      let column = this.curatedColumns[currentPage]
+      let example = this.example[column.dataIndex]
+      let validate = this.checkType(example, this.selectedType)
+      if (validate) {
+        column['type'] = this.selectedType
+        if (currentPage == this.steps.length - 1) {
+          // last page
+          this.createNiceTable()
+          this.modalVisible2 = false
+        } else {
+          this.selectedType = this.curatedColumns[currentPage+1]['type']
+        }
+        //return false if you want to prevent moving to next page
+        return true 
       } else {
-        this.selectedType = this.curatedColumns[currentPage+1]['type']
+        this.columnsError = `Column ${column.dataIndex} is not a ${this.selectedType}`
+        return false
       }
-      //return false if you want to prevent moving to next page
-      return true
     },
 
     backClicked (currentPage) {
@@ -321,6 +339,22 @@ export default {
       let table = document.querySelector(`#${this.tableId}`)
       table.style.display = ''
       this.tableVisible = true
+    },
+
+    checkType (value, type) {
+      if (type === 'Number') {
+        console.log('is numeric', value)
+        return isNumeric(value)
+      }
+      if (type === 'Date') {
+        console.log('is date', value)
+        return isDate(value)
+      }
+      if (type === 'Longitude' || type === 'Latitude') {
+        console.log('is coordinate', value)
+        return isCoordinate(value)
+      }
+      return true
     }
   }
 }
