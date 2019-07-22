@@ -47,9 +47,27 @@
             </span>
             <a-alert :message="selectedChartType.instruction" banner />
             <a-row>
-              <a-checkbox-group
+              <!-- <a-checkbox-group
                 :options="columnsOptions"
                 v-model="chartColumns"
+              /> -->
+              <a-select
+                mode="multiple"
+                style="width: 100%; margin-top: 10px;"
+                placeholder="Please select"
+                :maxTagCount="3"
+                v-model="chartColumns"
+              >
+                <a-select-option
+                  v-for="(column, index) in columnsOptions"
+                  :key="index">
+                  {{column.value}}
+                </a-select-option>
+              </a-select>
+              <a-alert
+                v-if="columnsError"
+                :message="columnsError"
+                banner
               />
             </a-row>
           </div>
@@ -154,7 +172,7 @@ const chartTypes = [
   {
     value: 'timeline-with-labels',
     title: 'Timeline with labels',
-    instruction: 'You have to select a date, a label, and a data field',
+    instruction: 'You have to select a date, a label, and a data field in the corresponding order',
     columns: [{
       type: 'Date',
       name: 'Date'
@@ -195,6 +213,7 @@ export default {
       searchText: '',
       searchInput: null,
       chartModalVisible: false,
+      columnsError: null,
       steps,
       chartTypes
     }
@@ -204,9 +223,9 @@ export default {
     hasSelected() {
       return this.selectedRowKeys.length > 0
     },
+
     visibleColumns () {
       let visibleColumns = this.columns.filter(column => this.columnsChecked.indexOf(column.dataIndex) >= 0)
-      console.log('visible columns', visibleColumns)
       return visibleColumns
     }
   },
@@ -218,6 +237,7 @@ export default {
         value: column.dataIndex
       }
     })
+
     this.columnsChecked = this.columnsOptions.map(column => {
       return column.value
     })
@@ -248,8 +268,8 @@ export default {
       let dateColumn = null
       let labelColumn = null
       let dataColumn = null
-      this.chartColumns.forEach(column => {
-        const index = this.columns.map(e => e.dataIndex).indexOf(column)
+      this.chartColumns.forEach(index => {
+        // const index = this.columns.map(e => e.dataIndex).indexOf(column)
         const col = this.columns[index]
         if (col.type === 'Date') {
           dateColumn = col
@@ -328,18 +348,30 @@ export default {
     },
 
     nextClicked (currentPage) {
+      this.columnsError = null
       if (currentPage === 0) {
         if (this.selectedChart !== null) {
           return true
         }
       }
       if (currentPage === this.steps.length - 1) {
-        console.log(this.selectedChartType.columns.length)
-        console.log(this.chartColumns.length)
         if (this.selectedChartType.columns.length === this.chartColumns.length) {
-          console.log('create chart!')
-          this.createChart()
-          this.chartModalVisible = false
+          this.selectedChartType.columns.forEach((column, index) => {
+            let columnIndex = this.chartColumns[index]
+            let chartColumn = this.columns[columnIndex]
+            if ((column.type !== chartColumn.type) && (column.type !== 'Any')) {
+              this.columnsError = `${column.name} should be type ${column.type}`
+            }
+          })
+          if (this.columnsError) {
+            console.log('error', this.columnsError)
+          } else {
+            console.log('create chart!')
+            this.createChart()
+            this.chartModalVisible = false
+          }
+        } else {
+          this.columnsError = `Must be selected ${this.selectedChartType.columns.length} columns` 
         }
       }
       return false

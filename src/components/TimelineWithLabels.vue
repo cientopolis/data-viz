@@ -55,8 +55,8 @@ import * as d3 from 'd3'
       labelMargin = 0,
       ending = 0,
       margin = {
-        left: 30,
-        right: 30,
+        left: 50,
+        right: 50,
         top: 30,
         bottom: 30
       },
@@ -364,17 +364,17 @@ import * as d3 from 'd3'
           //     return d.label;
           //   });
 
-          if (rowSeparatorsColor) {
-            var lineYAxis = (itemHeight + itemMargin / 2 + margin.top + (itemHeight + itemMargin) * yAxisMapping[index]);
-            gParent.append("svg:line")
-              .attr("class", "row-separator")
-              .attr("x1", 0 + margin.left)
-              .attr("x2", width - margin.right)
-              .attr("y1", lineYAxis)
-              .attr("y2", lineYAxis)
-              .attr("stroke-width", 1)
-              .attr("stroke", rowSeparatorsColor);
-          }
+          // if (rowSeparatorsColor) {
+          //   var lineYAxis = (itemHeight + itemMargin / 2 + margin.top + (itemHeight + itemMargin) * yAxisMapping[index]);
+          //   gParent.append("svg:line")
+          //     .attr("class", "row-separator")
+          //     .attr("x1", 0 + margin.left)
+          //     .attr("x2", width - margin.right)
+          //     .attr("y1", lineYAxis)
+          //     .attr("y2", lineYAxis)
+          //     .attr("stroke-width", 1)
+          //     .attr("stroke", rowSeparatorsColor);
+          // }
 
           // add the label
           if (hasLabel) {
