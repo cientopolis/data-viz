@@ -143,7 +143,7 @@
 <script>
 import moment from 'moment'
 import Vue from 'vue'
-import TimelineWithLabels from '@/components/TimelineWithLabels'
+import Multiline from '@/components/charts/Multiline'
 import { setTimeout } from 'timers';
 
 const colors = [
@@ -171,19 +171,11 @@ const steps = [
 
 const chartTypes = [
   {
-    value: 'timeline-with-labels',
-    title: 'Timeline with labels',
-    instruction: 'You have to select a date, a label, and a data field in the corresponding order',
-    columns: [{
-      type: 'Date',
-      name: 'Date'
-    }, {
-      type: 'String',
-      name: 'Label'
-    }, {
-      type: 'Any',
-      name: 'Data'
-    }]
+    value: 'multilines',
+    title: 'Multilines',
+    instruction: 'You have to select a date and values',
+    minColumns: 2,
+    exactColumns: 0,
   }
 ]
 
@@ -266,70 +258,25 @@ export default {
 
     createChart () {
       this.clearChart()
-      let dateColumn = null
-      let labelColumn = null
-      let dataColumn = null
-      this.chartColumns.forEach(index => {
-        // const index = this.columns.map(e => e.dataIndex).indexOf(column)
-        const col = this.columns[index]
-        if (col.type === 'Date') {
-          dateColumn = col
-        }
-        else {
-          if (!labelColumn) {
-            labelColumn = col
-          } else {
-            dataColumn = col
-          }
-        }
-      })
       let chartData = []
-      let dates = []
       this.selectedRowKeys.forEach(rowIndex => {
         const row = this.data[rowIndex]
-        const label = row[labelColumn.dataIndex]
-        const date = row[dateColumn.dataIndex]
-        const data = row[dataColumn.dataIndex]
-
-        if (date) {
-
-          let chartItem = chartData.find(data => data.label === label)
-          if (!chartItem) {
-            chartData.push({
-              'label': label,
-              'times': [
-                {
-                  'label_label': String(label),
-                  'color': randomColor(),
-                  'label': String(data),
-                  'starting_time': moment(date, "DD/MM/YYYY").valueOf(),
-                  'ending_time': moment(date, "DD/MM/YYYY").valueOf()
-                }
-              ]
-            })
+        let chartItem = {}
+        this.chartColumns.forEach(index => {
+          // const index = this.columns.map(e => e.dataIndex).indexOf(column)
+          const col = this.columns[index]
+          if (col.type === 'Date') {
+            chartItem['date'] = moment(row[col.dataIndex], "DD/MM/YYYY")
           } else {
-            chartItem['times'].push(
-              {
-                'label_label': String(label),
-                'color': randomColor(),
-                'label': String(data),
-                'starting_time': moment(date, "DD/MM/YYYY").valueOf(),
-                'ending_time': moment(date, "DD/MM/YYYY").valueOf()
-              }
-            )
+            chartItem[col.dataIndex] = +row[col.dataIndex]
           }
-          dates.push(moment(date, "DD/MM/YYYY"))
-        }
-
+          chartData.push(chartItem)
+        })
       })
-      let sortedDates = dates.sort((a, b) => a.valueOf() - b.valueOf())
-      let ComponentClass = Vue.extend(TimelineWithLabels)
+      let ComponentClass = Vue.extend(Multiline)
       let chart = new ComponentClass({
         propsData: {
           data: chartData,
-          beggining: sortedDates[0],
-          ending: sortedDates[sortedDates.length-1],
-          selector: '#chart'
         }
       })
       chart.$mount() // pass nothing
@@ -351,28 +298,17 @@ export default {
     nextClicked (currentPage) {
       this.columnsError = null
       if (currentPage === 0) {
-        if (this.selectedChart !== null) {
+        if (this.selectedChartType !== null) {
           return true
         }
       }
       if (currentPage === this.steps.length - 1) {
-        if (this.selectedChartType.columns.length === this.chartColumns.length) {
-          this.selectedChartType.columns.forEach((column, index) => {
-            let columnIndex = this.chartColumns[index]
-            let chartColumn = this.columns[columnIndex]
-            if ((column.type !== chartColumn.type) && (column.type !== 'Any')) {
-              this.columnsError = `${column.name} should be type ${column.type}`
-            }
-          })
-          if (this.columnsError) {
-            console.log('error', this.columnsError)
-          } else {
-            console.log('create chart!')
-            this.createChart()
-            this.chartModalVisible = false
-          }
+        if ((this.selectedChartType.exactColumns === 0) || (this.selectedChart.exactColumns === this.chartColumns.length)) {
+          // no exact columns needed or exact columns same as selected
+          this.createChart()
+          this.chartModalVisible = false
         } else {
-          this.columnsError = `Must be selected ${this.selectedChartType.columns.length} columns` 
+          this.columnsError = `Must be selected ${this.selectedChartType.columns.length} columns`
         }
       }
       return false
