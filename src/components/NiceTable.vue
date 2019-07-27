@@ -1,5 +1,5 @@
 <template>
-  <div ref="niceTableContainer" >
+  <div ref="niceTableContainer">
     <a-row type="flex" justify="center">
       <a-col :span="12" id="chart">
       </a-col>
@@ -7,6 +7,13 @@
       </a-col>
     </a-row>
     <a-row>
+      <a-button
+        style="margin-left: 5px; margin-top: 50px; float: left;"
+        type="primary"
+        @click="removeTable()"
+      >
+        Remove Table
+      </a-button>
       <a-button
         style="margin-left: 5px; margin-top: 50px; float: left;"
         type="primary"
@@ -133,25 +140,14 @@
         <template v-else>{{text}}</template>
       </template>
     </a-table>
+    <div ref="charts">
+    </div>
   </div>
 </template>
 <script>
 import moment from 'moment'
 import Vue from 'vue'
 import Multiline from '@/components/charts/Multiline'
-import { setTimeout } from 'timers';
-
-const colors = [
-  '#00FFFF',
-  '#0000FF',
-  '#000080',
-  '#FF00FF',
-  '#800080',
-  '#00FF00',
-  '#FF0000',
-  '#000000',
-  '#FA8072'
-]
 
 const steps = [
   {
@@ -174,8 +170,8 @@ const chartTypes = [
   }
 ]
 
-function randomColor () {
-  return colors[Math.floor(Math.random() * colors.length)];
+function isNumeric (str) {
+  return !isNaN(str)
 }
 
 export default {
@@ -260,7 +256,7 @@ export default {
         this.chartColumns.forEach(index => {
           const col = this.columns[index]
           if (col.type === 'Date') {
-            chartItem['date'] = moment(row[col.dataIndex], col.format)
+            chartItem['date'] = moment(row[col.dataIndex], col.format)._d
           } else {
             let value = row[col.dataIndex]
             if ((value === '') || (value === 'null')) {
@@ -269,8 +265,17 @@ export default {
             chartItem[col.dataIndex] = +value
           }
         })
-        if (String(chartItem['date']._d) !== 'Invalid Date'){
-          chartData.push(chartItem)
+        // date and numbers validation
+        if (String(chartItem['date']) !== 'Invalid Date'){
+          let allNumerics = true
+          Object.keys(chartItem).forEach(key => {
+            if (key !== 'Date' && !isNumeric(chartItem[key])) {
+              allNumerics = false
+            }
+          })
+          if (allNumerics) {
+            chartData.push(chartItem)
+          }
         }
       })
       let ComponentClass = Vue.extend(Multiline)
@@ -280,7 +285,7 @@ export default {
         }
       })
       chart.$mount() // pass nothing
-      this.$refs.niceTableContainer.appendChild(chart.$el)
+      this.$refs.charts.appendChild(chart.$el)
       console.log(chart.$el)
       await this.$nextTick()
       this.$scrollTo(chart.$el)
@@ -327,6 +332,13 @@ export default {
 
     backClicked (currentPage) {
       return true
+    },
+
+    removeTable () {
+      // destroy the vue listeners, etc
+      this.$destroy()
+      // remove the element from the DOM
+      this.$el.parentNode.removeChild(this.$el)
     }
   }
 }

@@ -2,7 +2,6 @@
   <div ref="tableContainer">
     <a-row ref="buttons">
       <a-button
-        v-show="showCreateButton"
         style="float: left; margin: 10px 5px;"
         ref="button"
         @click="parseTable()"

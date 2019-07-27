@@ -1,5 +1,14 @@
 <template>
-  <div id="multiline"></div>
+  <div>
+    <a-button
+      style="margin-left: 5px; margin-top: 50px; float: left;"
+      type="primary"
+      @click="removeChart()"
+    >
+      Remove Chart
+    </a-button>
+    <div ref="chart"></div>
+  </div>
 </template>
 
 <script>
@@ -15,12 +24,13 @@ export default {
     this.draw()
   },
   methods: {
-    draw () {
+    async draw () {
+      this.$nextTick()
       var margin = { top: 20, right: 100, bottom: 40, left: 100 };
       var height = 500 - margin.top - margin.bottom;
       var width = 960 - margin.left - margin.right;
 
-      var svg = d3.select("#multiline").append("svg")
+      var svg = d3.select(this.$refs.chart).append("svg")
           .attr("width",width + margin.left + margin.right)
           .attr("height",height + margin.top + margin.bottom)
         .append("g")
@@ -181,7 +191,7 @@ export default {
         });
 
       // mousemove function
-      function mousemove() {
+      function mousemove () {
         var x0 = xScale.invert(d3.mouse(this)[0]);
         var i = bisectDate(data, x0, 1); // gives index of element which has date higher than x0
         var d0 = data[i - 1], d1 = data[i];
@@ -203,6 +213,13 @@ export default {
         .attr("transform", "translate(0," 
           + (yScale(close)) + ")");
       }
+    },
+
+    removeChart () {
+      // destroy the vue listeners, etc
+      this.$destroy()
+      // remove the element from the DOM
+      this.$el.parentNode.removeChild(this.$el)
     }
   }
 }
