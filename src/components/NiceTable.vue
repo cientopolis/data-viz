@@ -46,10 +46,6 @@
             </span>
             <a-alert :message="selectedChartType.instruction" banner />
             <a-row>
-              <!-- <a-checkbox-group
-                :options="columnsOptions"
-                v-model="chartColumns"
-              /> -->
               <a-select
                 mode="multiple"
                 style="width: 100%; margin-top: 10px;"
@@ -308,12 +304,22 @@ export default {
         }
       }
       if (currentPage === this.steps.length - 1) {
-        if ((this.selectedChartType.exactColumns === 0) || (this.selectedChart.exactColumns === this.chartColumns.length)) {
-          // no exact columns needed or exact columns same as selected
+        // Validate selected columns for selected chart
+        if (this.selectedChartType.value === 'multilines') {
+          // Should be one DATE column
+          let dateColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Date')
+          if (dateColumns.length !== 1) {
+            this.columnsError = `Must be selected one date column`
+            return false
+          }
+          // The rest of selected columns should be type number
+          let numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
+          if (numberColumns.length + 1 !== this.chartColumns.length) {
+            this.columnsError = `All column values should be Number type`
+            return false
+          }
           this.createMultilineChart()
           this.chartModalVisible = false
-        } else {
-          this.columnsError = `Must be selected ${this.selectedChartType.columns.length} columns`
         }
       }
       return false
