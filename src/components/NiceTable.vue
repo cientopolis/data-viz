@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <div ref="container" />
+  <div ref="niceTableContainer" >
     <a-row type="flex" justify="center">
       <a-col :span="12" id="chart">
       </a-col>
@@ -9,7 +8,7 @@
     </a-row>
     <a-row>
       <a-button
-        style="margin-left: 10px; left: left;"
+        style="margin-left: 5px; margin-top: 50px; float: left;"
         type="primary"
         :disabled="selectedRowKeys.length === 0"
         @click="chartModalVisible = true"
@@ -234,6 +233,7 @@ export default {
     this.columnsChecked = this.columnsOptions.map(column => {
       return column.value
     })
+
   },
 
   methods: {
@@ -256,22 +256,26 @@ export default {
       }
     },
 
-    createChart () {
-      this.clearChart()
+    async createMultilineChart () {
       let chartData = []
       this.selectedRowKeys.forEach(rowIndex => {
         const row = this.data[rowIndex]
         let chartItem = {}
         this.chartColumns.forEach(index => {
-          // const index = this.columns.map(e => e.dataIndex).indexOf(column)
           const col = this.columns[index]
           if (col.type === 'Date') {
-            chartItem['date'] = moment(row[col.dataIndex], "DD/MM/YYYY")
+            chartItem['date'] = moment(row[col.dataIndex], col.format)
           } else {
-            chartItem[col.dataIndex] = +row[col.dataIndex]
+            let value = row[col.dataIndex]
+            if ((value === '') || (value === 'null')) {
+              value = 0
+            }
+            chartItem[col.dataIndex] = +value
           }
-          chartData.push(chartItem)
         })
+        if (String(chartItem['date']._d) !== 'Invalid Date'){
+          chartData.push(chartItem)
+        }
       })
       let ComponentClass = Vue.extend(Multiline)
       let chart = new ComponentClass({
@@ -280,9 +284,10 @@ export default {
         }
       })
       chart.$mount() // pass nothing
-      this.$refs.container.appendChild(chart.$el)
-      var container = this.$el.querySelector("#chart")
-      container.scrollTop = container.scrollHeight
+      this.$refs.niceTableContainer.appendChild(chart.$el)
+      console.log(chart.$el)
+      await this.$nextTick()
+      this.$scrollTo(chart.$el)
     },
 
     handleSearch (selectedKeys, confirm) {
@@ -305,7 +310,7 @@ export default {
       if (currentPage === this.steps.length - 1) {
         if ((this.selectedChartType.exactColumns === 0) || (this.selectedChart.exactColumns === this.chartColumns.length)) {
           // no exact columns needed or exact columns same as selected
-          this.createChart()
+          this.createMultilineChart()
           this.chartModalVisible = false
         } else {
           this.columnsError = `Must be selected ${this.selectedChartType.columns.length} columns`

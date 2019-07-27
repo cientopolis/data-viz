@@ -1,5 +1,5 @@
 <template>
-  <h1></h1>
+  <div id="multiline"></div>
 </template>
 
 <script>
@@ -12,7 +12,6 @@ export default {
     }
   },
   mounted () {
-    console.log('mounted 2')
     this.draw()
   },
   methods: {
@@ -21,7 +20,7 @@ export default {
       var height = 500 - margin.top - margin.bottom;
       var width = 960 - margin.left - margin.right;
 
-      var svg = d3.select("body").append("svg")
+      var svg = d3.select("#multiline").append("svg")
           .attr("width",width + margin.left + margin.right)
           .attr("height",height + margin.top + margin.bottom)
         .append("g")
@@ -56,8 +55,6 @@ export default {
       data.sort(function(a,b) {
         return a.date - b.date;
       });
-
-      console.log('data2', data)
 
       // color domain
       color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
@@ -98,7 +95,7 @@ export default {
           .attr("y",-60)
           .attr("dy",".71em")
           .style("text-anchor","end")
-          .text("Price ($)");
+          // .text("Price ($)");
 
       // add circle at intersection
       focus.append("circle")
@@ -189,7 +186,6 @@ export default {
         var i = bisectDate(data, x0, 1); // gives index of element which has date higher than x0
         var d0 = data[i - 1], d1 = data[i];
         var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-        console.log('d', d)
         var keys = Object.keys(d).filter(item => item !== 'date')
         var values = keys.map(key => +d[key])
         var close = d3.max(values)

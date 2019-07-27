@@ -10,7 +10,7 @@
         Create Infovis Table
       </a-button>
       <a-button
-        v-show="tableCreated && !tableVisible"
+        v-show="!tableVisible"
         style="float: left; margin: 10px 5px;"
         ref="eye"
         @click="showTable"
@@ -18,7 +18,7 @@
         <a-icon type="eye" />
       </a-button>
       <a-button
-        v-show="tableCreated && tableVisible"
+        v-show="tableVisible"
         style="float: left; margin: 10px 5px;"
         ref="eyeInvisible"
         @click="hideTable"
@@ -67,6 +67,7 @@
           <a-card>
             <p><strong>Column name:</strong> {{column}}</p>
             <p><strong>Example:</strong> {{example[column]}}</p>
+            <p>Select a data type</p>
             <a-select
               style="width: 100%"
               placeholder="Select data type"
@@ -80,6 +81,25 @@
                 {{type}}
               </a-select-option>
             </a-select>
+            <div
+              style="margin-top: 10px;"
+              v-if="selectedType === 'Date'"
+            >
+              <p>Select a date format</p>
+              <a-select
+                style="width: 100%;"
+                placeholder="Select date format"
+                v-model="dateFormat"
+              >
+                <a-select-option
+                  v-for="(dateFormat, index) in dateFormats"
+                  :key="index"
+                  :value="dateFormat"
+                >
+                  {{dateFormat}}
+                </a-select-option>
+              </a-select>
+            </div>
             <a-alert
               style="margin-top: 10px;"
               v-if="columnsError"
@@ -101,6 +121,7 @@
 <script>
 import NiceTable from '@/components/NiceTable'
 import Vue from 'vue'
+import moment from 'moment'
 /**
  * converts array-like object to array
  * @param  collection the object to be converted
@@ -175,12 +196,7 @@ const dataTypes = [
   'Other'
 ]
 
-const dateFormats = [
-  'DD/MM/YYYY',
-  'MM/DD/YYYY',
-  'DD-MM-YYYY',
-  'MM-DD-YYYY'
-]
+const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
 export default {
   props: {
@@ -199,13 +215,15 @@ export default {
       allColumns: [],
       selectedColumns: [],
       curatedColumns: [],
-      dataTypes: dataTypes,
       selectedType: null,
       steps: [],
       example: {},
       tableCreated: false,
       tableVisible: true,
-      columnsError: null
+      columnsError: null,
+      dateFormat: dateFormats[0],
+      dataTypes,
+      dateFormats
     }
   },
 
@@ -271,6 +289,9 @@ export default {
       let column = this.curatedColumns[currentPage]
       let example = this.example[column.dataIndex]
       let validate = this.checkType(example, this.selectedType)
+      if (this.selectedType == 'Date') {
+        column['format'] = this.dateFormat
+      }
       if (validate) {
         column['type'] = this.selectedType
         if (currentPage == this.steps.length - 1) {
@@ -284,19 +305,20 @@ export default {
         return true 
       } else {
         this.columnsError = `Column ${column.dataIndex} is not a ${this.selectedType}`
+        if (this.selectedType == 'Date'){
+          this.columnsError += ` with format ${this.dateFormat}`
+        }
         return false
       }
     },
 
     backClicked (currentPage) {
-      console.log('back clicked', currentPage)
       this.selectedType = this.curatedColumns[currentPage-1]['type']
       //return false if you want to prevent moving to previous page
       return true
     },
 
     async createNiceTable () {
-      let ComponentClass = Vue.extend(NiceTable)
       // searcheable fields
       this.curatedColumns.forEach(column => {
         if (column['type'] === 'String') {
@@ -314,11 +336,21 @@ export default {
           column['sorter'] = (a, b) => a[field] - b[field]
         }
       })
-      console.log('columns', this.curatedColumns)
+      let filteredData = this.data.filter(element => {
+        let dataIndexes = this.curatedColumns.map(col => col['dataIndex'])
+        let toRemove = true
+        dataIndexes.forEach(col => {
+          if ((element[col] !== '') && element[col] !== 'null') {
+            toRemove = false
+          }
+        })
+        return !toRemove
+      })
+      let ComponentClass = Vue.extend(NiceTable)
       let niceTable = new ComponentClass({
         propsData: {
           columns: this.curatedColumns,
-          data: this.data
+          data: filteredData
         }
       })
       niceTable.$mount()
@@ -330,14 +362,12 @@ export default {
     },
 
     hideTable () {
-      console.log('hide table')
       let table = document.querySelector(`#${this.tableId}`)
       table.style.display = 'none'
       this.tableVisible = false
     },
 
     showTable () {
-      console.log('show table')
       let table = document.querySelector(`#${this.tableId}`)
       table.style.display = ''
       this.tableVisible = true
@@ -345,15 +375,16 @@ export default {
 
     checkType (value, type) {
       if (type === 'Number') {
-        console.log('is numeric', value)
         return isNumeric(value)
       }
       if (type === 'Date') {
-        console.log('is date', value)
-        return isDate(value)
+        if (isDate(value) && this.dateFormat) {
+          let date = moment(value, this.dateFormat)
+          return String(date._d) !== 'Invalid Date'
+        }
+        return false
       }
       if (type === 'Longitude' || type === 'Latitude') {
-        console.log('is coordinate', value)
         return isCoordinate(value)
       }
       return true
