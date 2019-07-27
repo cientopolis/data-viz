@@ -40,7 +40,7 @@
         </a-button>
       </template>
       <a-row>
-        <h3>Select columns that you what to include in your new table</h3>
+        <h3>What columns do you want to include in your new table?</h3>
         <a-checkbox-group
           style="margin: 0 30px;"
           :options="allColumns"
