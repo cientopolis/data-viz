@@ -286,7 +286,6 @@ export default {
       })
       chart.$mount() // pass nothing
       this.$refs.charts.appendChild(chart.$el)
-      console.log(chart.$el)
       await this.$nextTick()
       this.$scrollTo(chart.$el)
     },
