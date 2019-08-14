@@ -148,6 +148,7 @@
 import moment from 'moment'
 import Vue from 'vue'
 import Multiline from '@/components/charts/Multiline'
+import Pie from '@/components/charts/Pie'
 
 const steps = [
   {
@@ -164,9 +165,11 @@ const chartTypes = [
   {
     value: 'multilines',
     title: 'Multilines',
-    instruction: 'You have to select a date and values',
-    minColumns: 2,
-    exactColumns: 0,
+    instruction: 'You have to select a date and number columns'
+  }, {
+    value: 'piechart',
+    title: 'Piechart',
+    instruction: 'Select number columns'
   }
 ]
 
@@ -238,7 +241,7 @@ export default {
     },
 
     handleChartChange (value) {
-      this.selectedChartType = this.chartTypes.find(item => item.value = value)
+      this.selectedChartType = this.chartTypes.find(item => item.value == value)
     },
 
     clearChart () {
@@ -290,6 +293,47 @@ export default {
       this.$scrollTo(chart.$el)
     },
 
+    async createPieChart () {
+      let chartData = []
+
+      // selected columns
+      this.chartColumns.forEach(index => {
+        const col = this.columns[index]
+        let chartItem = {
+          legend: col.dataIndex,
+          value: 0,
+          color: this.getRandomColor()
+        }
+        chartData.push(chartItem)
+      })
+
+      // selected rows
+      this.selectedRowKeys.forEach(rowIndex => {
+        const row = this.data[rowIndex]
+        chartData.forEach(item => {
+          let value = row[item['legend']]
+          if (isNumeric(value) && (value!=='')) {
+            item['value'] += parseFloat(value)
+          }
+        })
+      })
+
+      let ComponentClass = Vue.extend(Pie)
+      let chart = new ComponentClass({
+        propsData: {
+          data: chartData,
+        }
+      })
+      chart.$mount() // pass nothing
+      this.$refs.charts.appendChild(chart.$el)
+      await this.$nextTick()
+      this.$scrollTo(chart.$el)
+    },
+
+    getRandomColor () {
+      return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
+    },
+
     handleSearch (selectedKeys, confirm) {
       confirm()
       this.searchText = selectedKeys[0]
@@ -323,6 +367,14 @@ export default {
             return false
           }
           this.createMultilineChart()
+          this.chartModalVisible = false
+        } else if (this.selectedChartType.value === 'piechart') {
+          let numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
+          if (numberColumns.length !== this.chartColumns.length) {
+            this.columnsError = `All columns should be number type`
+            return false
+          }
+          this.createPieChart()
           this.chartModalVisible = false
         }
       }

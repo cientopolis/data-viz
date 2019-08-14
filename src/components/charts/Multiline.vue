@@ -7,7 +7,7 @@
     >
       Remove Chart
     </a-button>
-    <div ref="chart"></div>
+    <div ref="chart" />
   </div>
 </template>
 
