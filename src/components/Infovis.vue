@@ -6,7 +6,7 @@
         ref="button"
         @click="parseTable()"
       >
-        Create Infovis Table
+        Crear Tabla Infovis
       </a-button>
       <a-button
         v-show="!tableVisible"
@@ -25,8 +25,38 @@
         <a-icon type="eye-invisible" />
       </a-button>
     </a-row>
+    <!-- select columns names -->
     <a-modal
-      title="Create Infovis Table"
+      title="Crear Tabla Infovis"
+      v-model="modalVisible0"
+    >
+      <template slot="footer">
+        <a-button
+          key="submit"
+          type="primary"
+          @click="saveColumnNames()"
+        >
+          Guardar
+        </a-button>
+      </template>
+      <h3>Completa con un nombre descriptivo para tus columnas</h3>
+      <a-row
+        v-for="(column, index) in allColumns"
+        :key="index"
+      >
+        <a-col style="text-align: center;">
+          <a-input 
+            :addonBefore="column.value"
+            v-model="column.label"
+            style="width: 250px; margin-top: 5px;"
+          />
+        </a-col>
+      </a-row>
+    </a-modal>
+    <!-- end select columns names -->
+    <!-- filter columns -->
+    <a-modal
+      title="Crear Tabla Infovis"
       v-model="modalVisible1"
     >
       <template slot="footer">
@@ -36,11 +66,11 @@
           :disabled="selectedColumns.length === 0"
           @click="handleSaveColumns"
         >
-          Save
+          Guardar
         </a-button>
       </template>
       <a-row>
-        <h3>What columns do you want to include in your new table?</h3>
+        <h3>Selecciona las columnas que quieras incluir en tu nueva tabla</h3>
         <a-checkbox-group
           style="margin: 0 30px;"
           :options="allColumns"
@@ -48,8 +78,10 @@
         />
       </a-row>
     </a-modal>
+    <!-- end filtering columns -->
+    <!-- select data types -->
     <a-modal
-      title="Create Infovis Table"
+      title="Crear Tabla Infovis"
       v-model="modalVisible2"
       :footer="null"
     >
@@ -59,13 +91,13 @@
         :onBack="backClicked"
       >
         <div
-          v-for="(column, index) in selectedColumns"
+          v-for="(column, index) in curatedColumns"
           :key="index"
-          :slot="column"
+          :slot="column.dataIndex"
         >
           <a-card>
-            <p><strong>Column name:</strong> {{column}}</p>
-            <p><strong>Example:</strong> {{example[column]}}</p>
+            <p><strong>Nombre:</strong> {{column.title}}</p>
+            <p><strong>Ejemplo:</strong> {{example[column.dataIndex]}}</p>
             <p>Select a data type</p>
             <a-select
               style="width: 100%"
@@ -114,6 +146,7 @@
         </div>
       </vue-good-wizard>
     </a-modal>
+    <!-- end selecting data types -->
   </div>
 </template>
 
@@ -206,6 +239,7 @@ export default {
   data () {
     return {
       showCreateButton: false,
+      modalVisible0: false,
       modalVisible1: false,
       modalVisible2: false,
       data: [],
@@ -243,19 +277,25 @@ export default {
     parseTable () {
       var table = document.querySelector(`#${this.tableId}`)
       let columns = parseHead(table)
-      this.allColumns = columns
+      this.allColumns = columns.map(column => {
+        return {
+          'value': column,
+          'label': column
+        }
+      })
       this.data = parseTable(table)
-      this.allColumns.forEach(column => {
+      this.allColumns.forEach(col => {
+        let column = col['value']
         let filtered = this.data.filter(element => element[column] !== '')
         this.example[column] = filtered ? filtered[0][column] : 'No data example' 
       })
-      this.modalVisible1 = true
+      this.modalVisible0 = true
     },
 
-    // handleTypeChange (value, column) {
-    //   console.log(value)
-    //   console.log(column)
-    // },
+    saveColumnNames () {
+      this.modalVisible0 = false
+      this.modalVisible1 = true
+    },
 
     handleSaveColumns () {
       this.steps = []
@@ -265,9 +305,10 @@ export default {
           label: 'Select type',
           slot: column
         })
+        let completeColumn = this.allColumns.find(col => col.value == column)
         this.curatedColumns.push({
           'dataIndex': column,
-          'title': column,
+          'title': completeColumn['label'],
           'type': this.predictType(column)
         })
       })
