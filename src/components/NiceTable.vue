@@ -28,6 +28,7 @@
       :footer="null"
     >
       <vue-good-wizard
+        ref="my-wizard"
         :steps="steps"
         :onNext="nextClicked"
         :onBack="backClicked"
@@ -291,6 +292,7 @@ export default {
       this.$refs.charts.appendChild(chart.$el)
       await this.$nextTick()
       this.$scrollTo(chart.$el)
+      this.chartColumns = []
     },
 
     async createPieChart () {
@@ -328,6 +330,7 @@ export default {
       this.$refs.charts.appendChild(chart.$el)
       await this.$nextTick()
       this.$scrollTo(chart.$el)
+      this.chartColumns = []
     },
 
     getRandomColor () {
@@ -367,7 +370,6 @@ export default {
             return false
           }
           this.createMultilineChart()
-          this.chartModalVisible = false
         } else if (this.selectedChartType.value === 'piechart') {
           let numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
           if (numberColumns.length !== this.chartColumns.length) {
@@ -375,10 +377,11 @@ export default {
             return false
           }
           this.createPieChart()
-          this.chartModalVisible = false
         }
       }
-      return false
+      this.chartModalVisible = false
+      this.selectedChartType = null
+      this.$refs['my-wizard'].goTo(0)
     },
 
     backClicked (currentPage) {

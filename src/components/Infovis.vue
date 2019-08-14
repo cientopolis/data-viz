@@ -187,12 +187,10 @@ function isCoordinate (str) {
 
 const dataTypes = [
   'Date',
-  'Date and Time',
   'Number',
   'String',
   'Latitude',
-  'Longitude',
-  'Other'
+  'Longitude'
 ]
 
 const dateFormats = ['DDMMYYY', 'MMDDYYY']

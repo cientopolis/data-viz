@@ -110,8 +110,6 @@ export default {
           return d;
         })
         .on("mouseover",function(d,i) {
-          console.log('d', d)
-          console.log('i', i)
           let j
           i = i - 1
           for (j=0; j < 6; j++) {
@@ -122,8 +120,6 @@ export default {
           };
         })
         .on("mouseout", function(d,i) {
-          console.log('d', d)
-          console.log('i', i)
           let j
           for (j=0; j < 6; j++) {
             d3.select("#id"+j).style("opacity",1);
