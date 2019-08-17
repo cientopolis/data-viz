@@ -150,6 +150,7 @@ import moment from 'moment'
 import Vue from 'vue'
 import Multiline from '@/components/charts/Multiline'
 import Pie from '@/components/charts/Pie'
+import axios from 'axios'
 
 const steps = [
   {
@@ -178,14 +179,23 @@ function isNumeric (str) {
   return !isNaN(str)
 }
 
+const domain = document.domain
+
 export default {
   props: {
+    id: {
+      type: Number
+    },
     columns: {
       type: Array,
       required: true
     },
     data: {
       type: Array,
+      required: true
+    },
+    backend: {
+      type: Boolean,
       required: true
     }
   },
@@ -389,6 +399,13 @@ export default {
     },
 
     removeTable () {
+      if (this.backend) {
+        // remove from backend
+        const url = `http://${domain}:8000/delete/${this.id}`
+        axios.delete(url).then(response =>{
+          console.log(response)
+        })
+      }
       // destroy the vue listeners, etc
       this.$destroy()
       // remove the element from the DOM

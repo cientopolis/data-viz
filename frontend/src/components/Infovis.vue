@@ -4,7 +4,7 @@
       <a-button
         style="float: left; margin: 10px 5px;"
         ref="button"
-        @click="parseTable()"
+        @click="createInfovisTable()"
       >
         Crear Tabla Infovis
       </a-button>
@@ -154,6 +154,8 @@
 import NiceTable from '@/components/NiceTable'
 import Vue from 'vue'
 import moment from 'moment'
+import axios from 'axios'
+
 /**
  * converts array-like object to array
  * @param  collection the object to be converted
@@ -228,6 +230,9 @@ const dataTypes = [
 
 const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
+const domain = document.domain
+const url = `http://${domain}:8000/nice_table/`
+
 export default {
   props: {
     tableId: {
@@ -238,6 +243,7 @@ export default {
 
   data () {
     return {
+      backend: false,
       showCreateButton: false,
       modalVisible0: false,
       modalVisible1: false,
@@ -262,18 +268,36 @@ export default {
     var table = document.querySelector(`#${this.tableId}`)
     if (table) {
       var buttons = this.$refs.buttons.$el
-      // var eye = this.$refs.eye.$el
-      // var eyeInvisible = this.$refs.eyeInvisible.$el
-      // table.parentElement.insertBefore(button, table)
-      // table.parentElement.insertBefore(eye, table)
       table.parentElement.insertBefore(buttons, table)
       this.showCreateButton = true
+      this.parseTable()
+      this.getNiceTables()
     } else {
       console.log('No table id found')
     }
   },
 
   methods: {
+
+    getNiceTables () {
+      const params = {
+        domain: domain,
+        table_id: this.tableId
+      }
+      axios.get(url, {params})
+        .then(response => {
+          this.backend = true
+          const niceTables = response.data
+          niceTables.forEach(niceTable => {
+            const columns = JSON.parse(niceTable.columns_conf)
+            this.displayNiceTable(niceTable.id, columns)
+          })
+        })
+        .catch(error => {
+          this.backend = false
+        })
+    },
+
     parseTable () {
       var table = document.querySelector(`#${this.tableId}`)
       let columns = parseHead(table)
@@ -289,6 +313,9 @@ export default {
         let filtered = this.data.filter(element => element[column] !== '')
         this.example[column] = filtered ? filtered[0][column] : 'No data example' 
       })
+    },
+
+    createInfovisTable () {
       this.modalVisible0 = true
     },
 
@@ -334,7 +361,7 @@ export default {
         column['type'] = this.selectedType
         if (currentPage == this.steps.length - 1) {
           // last page
-          this.createNiceTable()
+          this.createNiceTable(this.curatedColumns)
           this.modalVisible2 = false
         } else {
           this.selectedType = this.curatedColumns[currentPage+1]['type']
@@ -356,9 +383,27 @@ export default {
       return true
     },
 
-    async createNiceTable () {
-      // searcheable fields
-      this.curatedColumns.forEach(column => {
+    createNiceTable (columns) {
+      let id
+      if (this.backend) {
+        // save columns and display
+        axios.post(url, {
+          domain: domain,
+          table_id: this.tableId,
+          columns_conf: JSON.stringify(columns)
+        }).then(response => {
+          const newTable = response.data
+          const columns = JSON.parse(newTable.columns_conf)
+        })
+      }
+      this.displayNiceTable(id, columns)
+    },
+
+    async displayNiceTable (id, columns) {
+      // searcheable and sorteable columns
+      let columnsWithFunctions = []
+      columns.forEach(col => {
+        let column = Object.assign({}, col)
         if (column['type'] === 'String') {
           let field = column['dataIndex']
           column['sorter'] = (a, b) => a[field].length - b[field].length
@@ -373,9 +418,10 @@ export default {
           let field = column['dataIndex']
           column['sorter'] = (a, b) => a[field] - b[field]
         }
+        columnsWithFunctions.push(column)
       })
       let filteredData = this.data.filter(element => {
-        let dataIndexes = this.curatedColumns.map(col => col['dataIndex'])
+        let dataIndexes = columnsWithFunctions.map(col => col['dataIndex'])
         let toRemove = true
         dataIndexes.forEach(col => {
           if ((element[col] !== '') && element[col] !== 'null') {
@@ -387,8 +433,10 @@ export default {
       let ComponentClass = Vue.extend(NiceTable)
       let niceTable = new ComponentClass({
         propsData: {
-          columns: this.curatedColumns,
-          data: filteredData
+          id,
+          columns: columnsWithFunctions,
+          data: filteredData,
+          backend: this.backend
         }
       })
       niceTable.$mount()

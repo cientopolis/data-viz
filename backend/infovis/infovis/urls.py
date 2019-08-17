@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from nicetable import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('nice_table/', views.nice_table),
+    # delete table
+    path('delete/<int:pk>', views.NiceTableDetail.as_view(), name='delete_table'),
 ]
