@@ -4,7 +4,7 @@
       <a-button
         style="float: left; margin: 10px 5px;"
         ref="button"
-        @click="createInfovisTable()"
+        @click="showCreateModal()"
       >
         Crear Tabla Infovis
       </a-button>
@@ -278,7 +278,6 @@ export default {
   },
 
   methods: {
-
     getNiceTables () {
       const params = {
         domain: domain,
@@ -295,6 +294,7 @@ export default {
         })
         .catch(error => {
           this.backend = false
+          console.log('no backend installed')
         })
     },
 
@@ -315,7 +315,7 @@ export default {
       })
     },
 
-    createInfovisTable () {
+    showCreateModal () {
       this.modalVisible0 = true
     },
 
