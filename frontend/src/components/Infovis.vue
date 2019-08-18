@@ -384,7 +384,7 @@ export default {
     },
 
     createNiceTable (columns) {
-      let id
+      let niceTableId
       if (this.backend) {
         // save columns and display
         axios.post(url, {
@@ -393,10 +393,12 @@ export default {
           columns_conf: JSON.stringify(columns)
         }).then(response => {
           const newTable = response.data
-          const columns = JSON.parse(newTable.columns_conf)
+          niceTableId = newTable.id
+          this.displayNiceTable(niceTableId, columns)
         })
+      } else {
+        this.displayNiceTable(niceTableId, columns)
       }
-      this.displayNiceTable(id, columns)
     },
 
     async displayNiceTable (id, columns) {

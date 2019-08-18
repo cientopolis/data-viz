@@ -20,6 +20,7 @@ from nicetable import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('nice_table/', views.nice_table),
-    # delete table
-    path('delete/<int:pk>', views.NiceTableDetail.as_view(), name='delete_table'),
+    path('delete_table/<int:pk>', views.NiceTableDetail.as_view(), name='delete_table'),
+    path('chart/', views.chart),
+    path('delete_chart/<int:pk>', views.ChartDetail.as_view(), name='delete_chart'),
 ]

@@ -239,10 +239,55 @@ export default {
     this.columnsChecked = this.columnsOptions.map(column => {
       return column.value
     })
-
+    
+    if (this.backend) {
+      this.getCharts()
+    }
   },
 
   methods: {
+    getCharts () {
+      const url = `http://${domain}:8000/chart/`
+      const params = {
+        domain: domain,
+        nice_table: this.id
+      }
+      axios.get(url, {params})
+        .then(response => {
+          this.backend = true
+          const charts = response.data
+          charts.forEach(chart => {
+            const chartData = JSON.parse(chart.data)
+            this.renderChart(chart.id, chart.chart_type, chartData)
+          })
+        })
+    },
+
+    async renderChart(id, chart_type, data) {
+      let componentClass
+      switch (chart_type) {
+        case 'multiline':
+          componentClass = Multiline
+          break
+        case 'pie':
+          componentClass = Pie
+        default:
+          break
+      }
+      let ComponentClass = Vue.extend(componentClass)
+      let chart = new ComponentClass({
+        propsData: {
+          id,
+          backend: this.backend,
+          data
+        }
+      })
+      chart.$mount() // pass nothing
+      this.$refs.charts.appendChild(chart.$el)
+      await this.$nextTick()
+      this.$scrollTo(chart.$el)
+    },
+
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
     },
@@ -263,6 +308,8 @@ export default {
     },
 
     async createMultilineChart () {
+      const chartType = 'multiline'
+      // process data
       let chartData = []
       this.selectedRowKeys.forEach(rowIndex => {
         const row = this.data[rowIndex]
@@ -270,7 +317,7 @@ export default {
         this.chartColumns.forEach(index => {
           const col = this.columns[index]
           if (col.type === 'Date') {
-            chartItem['date'] = moment(row[col.dataIndex], col.format)._d
+            chartItem['date'] = moment(row[col.dataIndex], col.format)
           } else {
             let value = row[col.dataIndex]
             if ((value === '') || (value === 'null')) {
@@ -279,35 +326,50 @@ export default {
             chartItem[col.dataIndex] = +value
           }
         })
-        // date and numbers validation
-        if (String(chartItem['date']) !== 'Invalid Date'){
+        // date validation
+        if (String(chartItem['date']._d) !== 'Invalid Date') {
+          // number validation
           let allNumerics = true
-          Object.keys(chartItem).forEach(key => {
-            if (key !== 'Date' && !isNumeric(chartItem[key])) {
+          Object.keys(chartItem).filter(key => key !== 'date').forEach(key => {
+            if (!isNumeric(chartItem[key])) {
               allNumerics = false
             }
           })
           if (allNumerics) {
             chartData.push(chartItem)
+          } else {
+            console.log('numbers not valid')
           }
         }
       })
-      let ComponentClass = Vue.extend(Multiline)
-      let chart = new ComponentClass({
-        propsData: {
-          data: chartData,
-        }
-      })
-      chart.$mount() // pass nothing
-      this.$refs.charts.appendChild(chart.$el)
-      await this.$nextTick()
-      this.$scrollTo(chart.$el)
+      // end process data
+      // persists
+      let chartId
+      if (this.backend) {
+        this.persistChart(chartType, chartData)
+      } else {
+        this.renderChart(chartId, chartType, chartData)
+      }
+      // end persists
       this.chartColumns = []
     },
 
-    async createPieChart () {
-      let chartData = []
+    persistChart (type, data) {
+      const url = `http://${domain}:8000/chart/`
+      axios.post(url, {
+        nice_table: this.id,
+        chart_type: type,
+        data: JSON.stringify(data)
+      }).then(response => {
+        const newChart = response.data
+        this.renderChart(newChart.id, type, data)
+      })
+    },
 
+    async createPieChart () {
+      const chartType = 'pie'
+      // process data
+      let chartData = []
       // selected columns
       this.chartColumns.forEach(index => {
         const col = this.columns[index]
@@ -318,7 +380,6 @@ export default {
         }
         chartData.push(chartItem)
       })
-
       // selected rows
       this.selectedRowKeys.forEach(rowIndex => {
         const row = this.data[rowIndex]
@@ -329,17 +390,14 @@ export default {
           }
         })
       })
-
-      let ComponentClass = Vue.extend(Pie)
-      let chart = new ComponentClass({
-        propsData: {
-          data: chartData,
-        }
-      })
-      chart.$mount() // pass nothing
-      this.$refs.charts.appendChild(chart.$el)
-      await this.$nextTick()
-      this.$scrollTo(chart.$el)
+      // end process data
+      // persist
+      let chartId
+      if (this.backend) {
+        this.persistChart(chartType, chartData)
+      } else {
+        this.renderChart(chartId, chartTypes, chartData)
+      }
       this.chartColumns = []
     },
 
@@ -401,7 +459,7 @@ export default {
     removeTable () {
       if (this.backend) {
         // remove from backend
-        const url = `http://${domain}:8000/delete/${this.id}`
+        const url = `http://${domain}:8000/delete_table/${this.id}`
         axios.delete(url).then(response =>{
           console.log(response)
         })

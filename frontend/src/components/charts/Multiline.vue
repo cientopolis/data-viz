@@ -13,16 +13,27 @@
 
 <script>
 import * as d3 from 'd3'
+import axios from 'axios'
 
 export default {
   props: {
+    id: {
+      type: Number
+    },
     data: {
       type: Array,
+      required: true
+    },
+    backend: {
+      type: Boolean,
       required: true
     }
   },
 
   mounted () {
+    this.data.forEach(data => {
+      data['date'] = new Date(data['date'])
+    })
     this.draw()
   },
 
@@ -225,6 +236,13 @@ export default {
     },
 
     removeChart () {
+      if (this.backend) {
+        // remove from backend
+        const url = `http://${document.domain}:8000/delete_chart/${this.id}`
+        axios.delete(url).then(response =>{
+          console.log(response)
+        })
+      }
       // destroy the vue listeners, etc
       this.$destroy()
       // remove the element from the DOM
