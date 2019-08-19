@@ -150,15 +150,16 @@ import moment from 'moment'
 import Vue from 'vue'
 import Multiline from '@/components/charts/Multiline'
 import Pie from '@/components/charts/Pie'
+import Mapvis from '@/components/charts/Mapvis'
 import axios from 'axios'
 
 const steps = [
   {
-    label: 'Select Chart Type',
+    label: 'Selecciona un tipo de grafico',
     slot: 'selectChartType'
   },
   {
-    label: 'Select Chart Columns',
+    label: 'Selecciona las columnas del grafico',
     slot: 'selectColumns'
   }
 ]
@@ -167,11 +168,15 @@ const chartTypes = [
   {
     value: 'multilines',
     title: 'Multilines',
-    instruction: 'You have to select a date and number columns'
+    instruction: 'Selecciona una fecha y valores numericos'
   }, {
     value: 'piechart',
     title: 'Piechart',
-    instruction: 'Select number columns'
+    instruction: 'Selecciona columnas con valores numericos'
+  }, {
+    value: 'map',
+    title: 'Map',
+    instruction: 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
   }
 ]
 
@@ -271,6 +276,10 @@ export default {
           break
         case 'pie':
           componentClass = Pie
+          break
+        case 'map':
+          componentClass = Mapvis
+          break
         default:
           break
       }
@@ -307,7 +316,7 @@ export default {
       }
     },
 
-    async createMultilineChart () {
+    createMultilineChart () {
       const chartType = 'multiline'
       // process data
       let chartData = []
@@ -366,7 +375,7 @@ export default {
       })
     },
 
-    async createPieChart () {
+    createPieChart () {
       const chartType = 'pie'
       // process data
       let chartData = []
@@ -401,6 +410,35 @@ export default {
       this.chartColumns = []
     },
 
+    createMapChart (categories) {
+      const chartType = 'map'
+      // process data
+      let chartData = {
+        categories: [],
+        data: []
+      }
+      // selected columns
+      this.selectedRowKeys.forEach(rowIndex => {
+        const row = this.data[rowIndex]
+        let chartItem = {}
+        this.chartColumns.forEach(index => {
+          const col = this.columns[index]
+          if (col.type == 'Longitude') {
+            chartItem['longitude'] = row[col.dataIndex]
+          } else if (col.type == 'Latitude') {
+            chartItem['latitude'] = row[col.dataIndex]
+          } else {
+            chartItem[col.dataIndex] = row[col.dataIndex]
+          }
+        })
+        chartData.data.push(chartItem)
+      })
+      // end process data
+      // persist
+      let chartId
+      this.renderChart(chartId, chartType, chartData)
+    },
+
     getRandomColor () {
       return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
     },
@@ -423,28 +461,47 @@ export default {
         }
       }
       if (currentPage === this.steps.length - 1) {
-        // Validate selected columns for selected chart
-        if (this.selectedChartType.value === 'multilines') {
-          // Should be one DATE column
-          let dateColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Date')
-          if (dateColumns.length !== 1) {
-            this.columnsError = `Must be selected one date column`
-            return false
-          }
-          // The rest of selected columns should be type number
-          let numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
-          if (numberColumns.length + 1 !== this.chartColumns.length) {
-            this.columnsError = `All column values should be Number type`
-            return false
-          }
-          this.createMultilineChart()
-        } else if (this.selectedChartType.value === 'piechart') {
-          let numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
-          if (numberColumns.length !== this.chartColumns.length) {
-            this.columnsError = `All columns should be number type`
-            return false
-          }
-          this.createPieChart()
+        let numberColumns
+        switch (this.selectedChartType.value) {
+          case 'multilines':
+            // Validate selected data
+            // Should be one DATE column
+            let dateColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Date')
+            if (dateColumns.length !== 1) {
+              this.columnsError = `Debes seleccionar una columna de tipo fecha`
+              return false
+            }
+            // The rest of selected columns should be type number
+            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
+            if (numberColumns.length + 1 !== this.chartColumns.length) {
+              this.columnsError = `Todos los valores deben ser de tipo numerico`
+              return false
+            }
+            this.createMultilineChart()
+            break
+          case 'piechart':
+            // Validate selected data
+            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
+            if (numberColumns.length !== this.chartColumns.length) {
+              this.columnsError = `Todas las columnas deben ser de tipo numerico`
+              return false
+            }
+            this.createPieChart()
+            break
+          case 'map':
+            let lngColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Longitude')
+            let latColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Latitude')
+            if (latColumn.length !== 1 && lngColumn !== 1) {
+              this.columnsError = `Debes seleccionar una columna de tipo longitud y una de tipo latitud`
+              return false
+            }
+            if (this.chartColumns.length == 2) {
+              let categories = []
+              this.createMapChart(categories)
+            } else {
+              console.log('create map categories')
+            }
+            break
         }
       }
       this.chartModalVisible = false
