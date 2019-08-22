@@ -1,5 +1,14 @@
 <template>
-  <div id="mapid">
+  <div>
+    <a-button
+      style="margin-left: 5px; margin-top: 50px; float: left;"
+      type="primary"
+      @click="removeChart()"
+    >
+      Remove Chart
+    </a-button>
+    <div id="mapid">
+    </div>
   </div>
 </template>
 
@@ -25,6 +34,12 @@ export default {
 
   mounted () {
     this.$nextTick(() => {
+      this.draw()
+    })
+  },
+
+  methods: {
+    draw () {
       let data = this.data.data
       let view = data[0]
       let lat = data[0]['latitude']
@@ -52,21 +67,21 @@ export default {
       //   fillOpacity: 0.5,
       //   radius: 500
       // }).addTo(mymap);
-    })
-  },
+    },
 
-  removeChart () {
-    if (this.backend) {
-      // remove from backend
-      const url = `http://${document.domain}:8000/delete_map/${this.id}`
-      axios.delete(url).then(response =>{
-        console.log(response)
-      })
+    removeChart () {
+      // if (this.backend) {
+      //   // remove from backend
+      //   const url = `http://${document.domain}:8000/delete_map/${this.id}`
+      //   axios.delete(url).then(response =>{
+      //     console.log(response)
+      //   })
+      // }
+      // destroy the vue listeners, etc
+      this.$destroy()
+      // remove the element from the DOM
+      this.$el.parentNode.removeChild(this.$el)
     }
-    // destroy the vue listeners, etc
-    this.$destroy()
-    // remove the element from the DOM
-    this.$el.parentNode.removeChild(this.$el)
   }
 }
 </script>

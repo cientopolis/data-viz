@@ -143,6 +143,53 @@
     </a-table>
     <div ref="charts">
     </div>
+    <!-- modal for selecting map category -->
+    <a-modal
+      title="Crear Mapa"
+      v-model="modalMapCategory"
+    >
+      <h3>Elije un campo para categorizar tu mapa</h3>
+      <a-select style="width: 200px; margin-bottom: 20px" @change="handleCategoryChange">
+        <a-select-option
+          v-for="(category, index) in mapCategoryOptions"
+          :key="index"
+          :value="category.dataIndex"
+        >
+          {{category.title}}
+        </a-select-option>
+      </a-select>
+      <div
+        v-if="mapCategory"
+      >
+        <div v-if="mapCategory.type === 'Number'">
+          <p style="margin-bottom: 10px">Se agruparan la informacion para {{mapCategory.dataIndex}} con los siguientes rangos:</p>
+          <div
+            v-for="(range, index) in mapCategoryRanges"
+            :key="index"
+          >
+            <p>De {{range[0]}} a {{range[1]}}</p>
+          </div>
+        </div>
+        <div v-if="mapCategory.type == 'String'">
+          <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
+          <div
+            v-for="(category, index) in mapStringCategories"
+            :key="index"
+          >
+            <p>{{category}}</p>
+          </div>
+        </div>
+      </div>
+      <template slot="footer">
+        <a-button
+          key="submit"
+          type="primary"
+          @click="createMapChart()"
+        >
+          Crear Mapa
+        </a-button>
+      </template>
+    </a-modal>
   </div>
 </template>
 <script>
@@ -216,7 +263,13 @@ export default {
       searchText: '',
       searchInput: null,
       chartModalVisible: false,
+      modalMapCategory: false,
       columnsError: null,
+      mapCategoryOptions: [],
+      mapCategory: null,
+      mapCategoryRangesCant: 3,
+      mapCategoryRanges: [],
+      mapStringCategories: [],
       steps,
       chartTypes
     }
@@ -307,6 +360,45 @@ export default {
 
     handleChartChange (value) {
       this.selectedChartType = this.chartTypes.find(item => item.value == value)
+    },
+
+    handleCategoryChange (category) {
+      let column = this.columns.filter(col => col.dataIndex === category)
+      if (column) {
+        column = column[0]
+        this.mapCategory = column
+        let selectedData = this.data.filter(item => this.selectedRowKeys.includes(this.data.indexOf(item)))
+        if (column.type === "Number") {
+          let validatedNumbers = selectedData.filter(item => item[category] !== '' && isNumeric(item[category]))
+          let maxValue = 0
+          validatedNumbers.forEach(element => {
+            let value = parseFloat(element[category])
+            if (value > maxValue) {
+              maxValue = value
+            }
+          })
+          let limit = Math.round(maxValue/this.mapCategoryRangesCant)
+          let rangeValue = limit
+          for (let i = 0; i < this.mapCategoryRangesCant; i++) {
+            let range
+            if (i === 0) {
+              range = [0, rangeValue]
+            } else {
+              let lastLimit = this.mapCategoryRanges[i-1][1]
+              rangeValue += limit
+              range = [lastLimit, rangeValue]
+            }
+            this.mapCategoryRanges.push(range)
+          }
+        } else if (column.type === 'String') {
+          this.mapStringCategories = []
+          selectedData.forEach(element => {
+            if (this.mapStringCategories.indexOf(element[category]) < 0) {
+              this.mapStringCategories.push(element[category])
+            }
+          })
+        }
+      }
     },
 
     clearChart () {
@@ -410,7 +502,7 @@ export default {
       this.chartColumns = []
     },
 
-    createMapChart (categories) {
+    createMapChart () {
       const chartType = 'map'
       // process data
       let chartData = {
@@ -437,6 +529,7 @@ export default {
       // persist
       let chartId
       this.renderChart(chartId, chartType, chartData)
+      this.chartColumns = []
     },
 
     getRandomColor () {
@@ -495,11 +588,13 @@ export default {
               this.columnsError = `Debes seleccionar una columna de tipo longitud y una de tipo latitud`
               return false
             }
-            if (this.chartColumns.length == 2) {
-              let categories = []
-              this.createMapChart(categories)
+            let strColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'String')
+            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Number')
+            if (strColumns.length >=1 || numberColumns.length >= 1) {
+              this.mapCategoryOptions = this.columns.filter(col => strColumns.includes(this.columns.indexOf(col)) || numberColumns.includes(this.columns.indexOf(col)))
+              this.modalMapCategory = true
             } else {
-              console.log('create map categories')
+              this.createMapChart()
             }
             break
         }
