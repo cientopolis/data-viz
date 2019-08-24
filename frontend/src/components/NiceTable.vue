@@ -252,7 +252,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       selectedRowKeys: [], // Check here to configure the default column
       columnsOptions: [],
@@ -363,6 +363,9 @@ export default {
     },
 
     handleCategoryChange (category) {
+      this.mapCategory = null
+      this.mapStringCategories = []
+      this.mapCategoryRanges = []
       let column = this.columns.filter(col => col.dataIndex === category)
       if (column) {
         column = column[0]
@@ -391,9 +394,8 @@ export default {
             this.mapCategoryRanges.push(range)
           }
         } else if (column.type === 'String') {
-          this.mapStringCategories = []
           selectedData.forEach(element => {
-            if (this.mapStringCategories.indexOf(element[category]) < 0) {
+            if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
               this.mapStringCategories.push(element[category])
             }
           })
@@ -504,9 +506,22 @@ export default {
 
     createMapChart () {
       const chartType = 'map'
+      let ranges = []
+      let type
+      let field
+      if (this.mapCategory) {
+        type = this.mapCategory.type
+        ranges = type === 'Number' ? this.mapCategoryRanges : this.mapStringCategories
+        field = this.mapCategory.dataIndex
+      }
+      let category = {
+        type,
+        field,
+        ranges
+      }
       // process data
       let chartData = {
-        categories: [],
+        category,
         data: []
       }
       // selected columns
@@ -528,8 +543,18 @@ export default {
       // end process data
       // persist
       let chartId
-      this.renderChart(chartId, chartType, chartData)
+      if (this.backend) {
+        this.persistChart(chartType, chartData)
+      } else {
+        this.renderChart(chartId, chartType, chartData)
+      }
+      // end persists
+      this.modalMapCategory = false
       this.chartColumns = []
+      this.mapCategory = null
+      this.mapCategoryOptions = []
+      this.mapCategoryRanges = []
+      this.mapStringCategories = []
     },
 
     getRandomColor () {
