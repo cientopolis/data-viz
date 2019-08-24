@@ -196,7 +196,8 @@
 import moment from 'moment'
 import Vue from 'vue'
 import Multiline from '@/components/charts/Multiline'
-import Pie from '@/components/charts/Pie'
+import Piechart from '@/components/charts/Piechart'
+import Barchart from '@/components/charts/Barchart'
 import Mapvis from '@/components/charts/Mapvis'
 import axios from 'axios'
 
@@ -219,6 +220,10 @@ const chartTypes = [
   }, {
     value: 'piechart',
     title: 'Piechart',
+    instruction: 'Selecciona columnas con valores numericos'
+  }, {
+    value: 'barchart',
+    title: 'Barchart',
     instruction: 'Selecciona columnas con valores numericos'
   }, {
     value: 'map',
@@ -321,14 +326,17 @@ export default {
         })
     },
 
-    async renderChart(id, chart_type, data) {
+    async renderChart(id, chartType, data) {
       let componentClass
-      switch (chart_type) {
+      switch (chartType) {
         case 'multiline':
           componentClass = Multiline
           break
         case 'pie':
-          componentClass = Pie
+          componentClass = Piechart
+          break
+        case 'bar':
+          componentClass = Barchart
           break
         case 'map':
           componentClass = Mapvis
@@ -499,6 +507,41 @@ export default {
       if (this.backend) {
         this.persistChart(chartType, chartData)
       } else {
+        this.renderChart(chartId, chartType, chartData)
+      }
+      this.chartColumns = []
+    },
+
+    createBarChart () {
+      const chartType = 'bar'
+      // process data
+      let chartData = []
+      // selected columns
+      this.chartColumns.forEach(index => {
+        const col = this.columns[index]
+        let chartItem = {
+          legend: col.dataIndex,
+          value: 0,
+          color: this.getRandomColor()
+        }
+        chartData.push(chartItem)
+      })
+      // selected rows
+      this.selectedRowKeys.forEach(rowIndex => {
+        const row = this.data[rowIndex]
+        chartData.forEach(item => {
+          let value = row[item['legend']]
+          if (isNumeric(value) && (value!=='')) {
+            item['value'] += parseFloat(value)
+          }
+        })
+      })
+      // end process data
+      // persist
+      let chartId
+      if (this.backend) {
+        this.persistChart(chartType, chartData)
+      } else {
         this.renderChart(chartId, chartTypes, chartData)
       }
       this.chartColumns = []
@@ -605,6 +648,15 @@ export default {
               return false
             }
             this.createPieChart()
+            break
+          case 'barchart':
+            // Validate selected data
+            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
+            if (numberColumns.length !== this.chartColumns.length) {
+              this.columnsError = `Todas las columnas deben ser de tipo numerico`
+              return false
+            }
+            this.createBarChart()
             break
           case 'map':
             let lngColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Longitude')
