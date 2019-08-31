@@ -23,61 +23,6 @@
         Create Chart
       </a-button>
     </a-row>
-    <a-modal
-      v-model="chartModalVisible"
-      :footer="null"
-    >
-      <vue-good-wizard
-        ref="my-wizard"
-        :steps="steps"
-        :onNext="nextClicked"
-        :onBack="backClicked"
-      >
-        <div slot="selectChartType">
-          <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
-          <a-select style="width: 200px" @change="handleChartChange">
-            <a-select-option
-              v-for="(chartType, index) in chartTypes"
-              :key="index"
-              :value="chartType.value"
-            >
-              {{chartType.title}}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div slot="selectColumns">
-          <div v-if="selectedChartType">
-            <span 
-              style="margin: 10px;"
-            >
-              Select {{selectedChartType.title}} columns
-            </span>
-            <a-alert :message="selectedChartType.instruction" banner />
-            <a-row>
-              <a-select
-                mode="multiple"
-                style="width: 100%; margin-top: 10px;"
-                placeholder="Please select"
-                :maxTagCount="3"
-                v-model="chartColumns"
-              >
-                <a-select-option
-                  v-for="(column, index) in columnsOptions"
-                  :key="index">
-                  {{column.value}}
-                </a-select-option>
-              </a-select>
-              <a-alert
-                v-if="columnsError"
-                :message="columnsError"
-                type="error"
-                banner
-              />
-            </a-row>
-          </div>
-        </div>
-      </vue-good-wizard>
-    </a-modal>
     <a-row type="flex" justify="space-between" style="margin: 10px 0;">
       <a-col>
         <span style="margin-left: 8px">
@@ -141,8 +86,69 @@
         <template v-else>{{text}}</template>
       </template>
     </a-table>
+    <!-- in this div charts will be inserted -->
     <div ref="charts">
     </div>
+    <!-- end chart's div -->
+    <!-- modals -->
+    <!-- create chart modal -->
+    <a-modal
+      v-model="chartModalVisible"
+      @cancel="createChartCancel()"
+      :footer="null"
+    >
+      <vue-good-wizard
+        ref="my-wizard"
+        :steps="steps"
+        :onNext="nextClicked"
+        :onBack="backClicked"
+      >
+        <div slot="selectChartType">
+          <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
+          <a-select style="width: 200px" @change="handleChartChange">
+            <a-select-option
+              v-for="(chartType, index) in chartTypes"
+              :key="index"
+              :value="chartType.value"
+            >
+              {{chartType.title}}
+            </a-select-option>
+          </a-select>
+        </div>
+        <div slot="selectColumns">
+          <div v-if="selectedChartType">
+            <span 
+              style="margin: 10px;"
+            >
+              Select {{selectedChartType.title}} columns
+            </span>
+            <a-alert :message="selectedChartType.instruction" banner />
+            <a-row>
+              <a-select
+                mode="multiple"
+                style="width: 100%; margin-top: 10px;"
+                placeholder="Please select"
+                :maxTagCount="3"
+                v-model="chartColumns"
+              >
+                <a-select-option
+                  v-for="(column, index) in columnsOptions"
+                  :key="index">
+                  {{column.value}}
+                </a-select-option>
+              </a-select>
+              <a-alert
+                v-if="columnsError"
+                :message="columnsError"
+                type="error"
+                banner
+              />
+            </a-row>
+          </div>
+        </div>
+      </vue-good-wizard>
+    </a-modal>
+    <!-- end create chart modal -->
     <!-- modal for selecting map category -->
     <a-modal
       title="Crear Mapa"
@@ -162,13 +168,93 @@
         v-if="mapCategory"
       >
         <div v-if="mapCategory.type === 'Number'">
-          <p style="margin-bottom: 10px">Se agruparan la informacion para {{mapCategory.dataIndex}} con los siguientes rangos:</p>
-          <div
-            v-for="(range, index) in mapCategoryRanges"
-            :key="index"
+          <p>Cuantos rangos de categorias queres crear? Maximo valor: <b>{{maxRangeValue}}</b></p>
+          <a-input-group compact>
+            <a-select
+              defaultValue="1"
+              @change="handleRangeChange"
+            >
+              <a-select-option
+                v-for="(amountCountRange, index) in amountCountRanges"
+                :key="index"
+                :value="amountCountRange"
+              >
+                {{amountCountRange}}
+              </a-select-option>
+            </a-select>
+          </a-input-group> <br>
+          <a-input-group compact v-if="mapCategoryRangesCant >= 1">
+            <a-input
+              style="width: 100px; text-align: center"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="from1"
+              placeholder="Desde 1"
+            />
+            <a-input
+              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="~"
+              disabled
+            />
+            <a-input
+              style="width: 100px; text-align: center; border-left: 0"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="to1"
+              placeholder="Hasta 1"
+            />
+          </a-input-group>
+          <a-input-group compact v-if="mapCategoryRangesCant >= 2">
+            <a-input
+              style="width: 100px; text-align: center"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="from2"
+              placeholder="Desde 2"
+            />
+            <a-input
+              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="~"
+              disabled
+            />
+            <a-input
+              style="width: 100px; text-align: center; border-left: 0"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="to2"
+              placeholder="Hasta 2"
+            />
+          </a-input-group>
+          <a-input-group
+            compact
+            v-if="mapCategoryRangesCant === 3"
           >
-            <p>De {{range[0]}} a {{range[1]}}</p>
-          </div>
+            <a-input
+              style="width: 100px; text-align: center"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="from3"
+              placeholder="Desde 3"
+            />
+            <a-input
+              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="~"
+              disabled
+            />
+            <a-input
+              style="width: 100px; text-align: center; border-left: 0"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="to3"
+              placeholder="Hasta 3"
+            />
+          </a-input-group>
         </div>
         <div v-if="mapCategory.type == 'String'">
           <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
@@ -179,17 +265,25 @@
             <p>{{category}}</p>
           </div>
         </div>
+        <a-alert
+          v-if="mapRangeError"
+          :message="mapRangeError"
+          type="error"
+          banner
+        />
       </div>
       <template slot="footer">
         <a-button
           key="submit"
           type="primary"
-          @click="createMapChart()"
+          @click="validateMapRanges()"
         >
           Crear Mapa
         </a-button>
       </template>
     </a-modal>
+    <!-- end map modal -->
+    <!-- end modals -->
   </div>
 </template>
 <script>
@@ -232,8 +326,14 @@ const chartTypes = [
   }
 ]
 
+const amountCountRanges = [1, 2, 3]
+
 function isNumeric (str) {
   return !isNaN(str)
+}
+
+function getRandomColor () {
+  return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
 }
 
 const domain = document.domain
@@ -272,9 +372,17 @@ export default {
       columnsError: null,
       mapCategoryOptions: [],
       mapCategory: null,
-      mapCategoryRangesCant: 3,
-      mapCategoryRanges: [],
+      amountCountRanges,
+      mapCategoryRangesCant: 1,
+      maxRangeValue: 0,
+      from1: null,
+      to1: null,
+      from2: null,
+      to2: null,
+      from3: null,
+      to3: null,
       mapStringCategories: [],
+      mapRangeError: '',
       steps,
       chartTypes
     }
@@ -309,6 +417,7 @@ export default {
   },
 
   methods: {
+    // charts
     getCharts () {
       const url = `http://${domain}:8000/chart/`
       const params = {
@@ -358,57 +467,8 @@ export default {
       this.$scrollTo(chart.$el)
     },
 
-    onSelectChange (selectedRowKeys) {
-      this.selectedRowKeys = selectedRowKeys
-    },
-
     index (row) {
       return this.data.indexOf(row)
-    },
-
-    handleChartChange (value) {
-      this.selectedChartType = this.chartTypes.find(item => item.value == value)
-    },
-
-    handleCategoryChange (category) {
-      this.mapCategory = null
-      this.mapStringCategories = []
-      this.mapCategoryRanges = []
-      let column = this.columns.filter(col => col.dataIndex === category)
-      if (column) {
-        column = column[0]
-        this.mapCategory = column
-        let selectedData = this.data.filter(item => this.selectedRowKeys.includes(this.data.indexOf(item)))
-        if (column.type === "Number") {
-          let validatedNumbers = selectedData.filter(item => item[category] !== '' && isNumeric(item[category]))
-          let maxValue = 0
-          validatedNumbers.forEach(element => {
-            let value = parseFloat(element[category])
-            if (value > maxValue) {
-              maxValue = value
-            }
-          })
-          let limit = Math.round(maxValue/this.mapCategoryRangesCant)
-          let rangeValue = limit
-          for (let i = 0; i < this.mapCategoryRangesCant; i++) {
-            let range
-            if (i === 0) {
-              range = [0, rangeValue]
-            } else {
-              let lastLimit = this.mapCategoryRanges[i-1][1]
-              rangeValue += limit
-              range = [lastLimit, rangeValue]
-            }
-            this.mapCategoryRanges.push(range)
-          }
-        } else if (column.type === 'String') {
-          selectedData.forEach(element => {
-            if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
-              this.mapStringCategories.push(element[category])
-            }
-          })
-        }
-      }
     },
 
     clearChart () {
@@ -487,7 +547,7 @@ export default {
         let chartItem = {
           legend: col.dataIndex,
           value: 0,
-          color: this.getRandomColor()
+          color: getRandomColor()
         }
         chartData.push(chartItem)
       })
@@ -522,7 +582,7 @@ export default {
         let chartItem = {
           legend: col.dataIndex,
           value: 0,
-          color: this.getRandomColor()
+          color: getRandomColor()
         }
         chartData.push(chartItem)
       })
@@ -554,7 +614,7 @@ export default {
       let field
       if (this.mapCategory) {
         type = this.mapCategory.type
-        ranges = type === 'Number' ? this.mapCategoryRanges : this.mapStringCategories
+        ranges = type === 'Number' ? this.getMapNumberRanges() : this.mapStringCategories
         field = this.mapCategory.dataIndex
       }
       let category = {
@@ -596,12 +656,91 @@ export default {
       this.chartColumns = []
       this.mapCategory = null
       this.mapCategoryOptions = []
-      this.mapCategoryRanges = []
       this.mapStringCategories = []
     },
 
-    getRandomColor () {
-      return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
+    getMapNumberRanges () {
+      let ranges = []
+      if (this.mapCategoryRangesCant >=1) {
+        let range1 = [this.from1, this.to1]
+        ranges.push(range1)
+      }
+      if (this.mapCategoryRangesCant >=2) {
+        let range2 = [this.from2, this.to2]
+        ranges.push(range2)
+      }
+      if (this.mapCategoryRangesCant === 3) {
+        let range3 = [this.from3, this.to3]
+        ranges.push(range3)
+      }
+      return ranges
+    },
+
+    validateMapRanges () {
+      this.mapRangeError = ''
+      let validate = true
+      if (this.mapCategory.type == 'String' && this.mapStringCategories) {
+        this.createMapChart()
+        return
+      }
+      if (this.mapCategory.type == 'Number') {
+        if (this.mapCategoryRangesCant === 1) {
+          if (this.from1 && this.to1) {
+            this.createMapChart()
+            return
+          }
+        }
+        if (this.mapCategoryRangesCant === 2) {
+          if (this.from1 && this.to1 && this.from2 && this.to2) {
+            this.createMapChart()
+            return
+          }
+        }
+        if (this.mapCategoryRangesCant === 3) {
+          if (this.from1 && this.to1 && this.from2 && this.to2 && this.from3 && this.to3) {
+            this.createMapChart()
+            return
+          }
+        }
+      }
+      this.mapRangeError = 'Campos requeridos faltantes'
+    },
+
+    // handlers
+
+    onSelectChange (selectedRowKeys) {
+      this.selectedRowKeys = selectedRowKeys
+    },
+
+    handleChartChange (value) {
+      this.selectedChartType = this.chartTypes.find(item => item.value == value)
+    },
+
+    handleCategoryChange (category) {
+      this.mapStringCategories = []
+      let column = this.columns.filter(col => col.dataIndex === category)
+      if (column) {
+        column = column[0]
+        this.mapCategory = column
+        let selectedData = this.data.filter(item => this.selectedRowKeys.includes(this.data.indexOf(item)))
+        if (column.type === "Number") {
+          let validatedNumbers = selectedData.filter(item => item[category] !== '' && isNumeric(item[category]))
+          let maxValue = 0
+          validatedNumbers.forEach(element => {
+            let value = parseFloat(element[category])
+            if (value > maxValue) {
+              maxValue = value
+            }
+          })
+          this.maxRangeValue = maxValue
+        } else if (column.type === 'String') {
+          selectedData.forEach(element => {
+            if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
+              this.mapStringCategories.push(element[category])
+            }
+          })
+        }
+      }
     },
 
     handleSearch (selectedKeys, confirm) {
@@ -697,6 +836,23 @@ export default {
       this.$destroy()
       // remove the element from the DOM
       this.$el.parentNode.removeChild(this.$el)
+    },
+
+    handleRangeChange (value) {
+      this.mapCategoryRangesCant = value
+      console.log(this.mapCategoryRangesCant)
+    },
+
+    createChartTypeCancel () {
+      this.mapCategoryOptions = []
+      this.mapCategory = null
+      this.mapStringCategories = []
+      this.from1 = null
+      this.to1 = null
+      this.from2 = null
+      this.to2 = null
+      this.from3 = null
+      this.to3 = null
     }
   }
 }

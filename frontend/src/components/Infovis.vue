@@ -83,9 +83,11 @@
     <a-modal
       title="Crear Tabla Infovis"
       v-model="modalVisible2"
+      @cancel="wizardClosed()"
       :footer="null"
     >
       <vue-good-wizard 
+        ref="my-wizard"
         :steps="steps"
         :onNext="nextClicked" 
         :onBack="backClicked"
@@ -499,6 +501,11 @@ export default {
         return 'Latitude'
       }
       return 'String'
+    },
+
+    wizardClosed () {
+      console.log('wizard clos')
+      this.$refs['my-wizard'].goTo(0)
     }
   }
 }
