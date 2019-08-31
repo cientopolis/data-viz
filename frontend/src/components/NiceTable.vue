@@ -183,14 +183,23 @@
               </a-select-option>
             </a-select>
           </a-input-group> <br>
-          <a-input-group compact v-if="mapCategoryRangesCant >= 1">
+          <a-input-group
+            compact
+            v-if="mapCategoryRangesCant >= 1"
+            style="margin-top: 5px"
+          >
+            <a-input
+              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="Rango 1"
+              disabled
+            />
             <a-input
               style="width: 100px; text-align: center"
               type="number"
               min="0"
               :max="maxRangeValue"
               v-model="from1"
-              placeholder="Desde 1"
+              placeholder="Desde"
             />
             <a-input
               style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
@@ -203,17 +212,26 @@
               min="0"
               :max="maxRangeValue"
               v-model="to1"
-              placeholder="Hasta 1"
+              placeholder="Hasta"
             />
           </a-input-group>
-          <a-input-group compact v-if="mapCategoryRangesCant >= 2">
+          <a-input-group
+            compact
+            v-if="mapCategoryRangesCant >= 2"
+            style="margin-top: 5px"
+          >
+            <a-input
+              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="Rango 2"
+              disabled
+            />
             <a-input
               style="width: 100px; text-align: center"
               type="number"
               min="0"
               :max="maxRangeValue"
               v-model="from2"
-              placeholder="Desde 2"
+              placeholder="Desde"
             />
             <a-input
               style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
@@ -226,20 +244,26 @@
               min="0"
               :max="maxRangeValue"
               v-model="to2"
-              placeholder="Hasta 2"
+              placeholder="Hasta"
             />
           </a-input-group>
           <a-input-group
             compact
             v-if="mapCategoryRangesCant === 3"
+            style="margin-top: 5px"
           >
+            <a-input
+              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="Rango 3"
+              disabled
+            />
             <a-input
               style="width: 100px; text-align: center"
               type="number"
               min="0"
               :max="maxRangeValue"
               v-model="from3"
-              placeholder="Desde 3"
+              placeholder="Desde"
             />
             <a-input
               style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
@@ -252,7 +276,7 @@
               min="0"
               :max="maxRangeValue"
               v-model="to3"
-              placeholder="Hasta 3"
+              placeholder="Hasta"
             />
           </a-input-group>
         </div>
