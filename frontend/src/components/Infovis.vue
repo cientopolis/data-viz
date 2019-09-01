@@ -275,7 +275,7 @@ export default {
       this.parseTable()
       this.getNiceTables()
     } else {
-      console.log('No table id found')
+      console.log(`No table with id ${this.tableId} found`)
     }
   },
 
