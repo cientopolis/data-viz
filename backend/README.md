@@ -1,0 +1,3 @@
+## infovis-table
+
+La instalacion del backend correspondiente a la herramienta nos brindara persistencia durante la utilizacion de la misma. Se podra instalar el mismo descargandolo de manera libre de este repositorio. El backend debera ser instalado bajo el mismo dominio de donde se incluye la libreria javascript, de esta manera sera reconocido automaticamente por la liberia, persistiendo asi las tablas y los graficos generados a traves del frontend. El backend dispone de una serie de urls, las cuales permitiran la comunicacion con la libreria.

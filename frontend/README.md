@@ -1,17 +1,15 @@
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/apertureless/vue-chartjs/blob/master/LICENSE.txt)
+## infovis-table
 
-# data-viz
+La libreria actua directamente en cualquier tabla html que el sitio contenga, brindandole la posibilidad al usuario de crear amigablemente, a traves de diferentes filtros y selecciones, una tabla con informacion curada, con posibilidad de busqueda y ordenes, y con la posibilidad de redefinir los nombres de las columnas usando otros que le sean mas descriptivos segun a conveniencia de cada usuario.
 
-Data visualization library to augment any html table data source.
+### Instalacion
 
-### How To Use
+`npm instal infovis-table`
 
-...
+### Uso
 
-### Example
+`<infovis-table table-id="mytableid" />`
 
-You can check a demo online [here](https://cientopolis.github.io/data-viz/) :)
+### Demo
 
-### License
-
-This software is distributed under [MIT license](LICENSE.txt).
+Podes probar una demo online [aqui](https://cientopolis.github.io/data-viz/) :)
