@@ -6,11 +6,11 @@ Libreria javascript que nos permite la manipulacion de informacion en tablas htm
 
 ### Frontend
 
-[Frontend Readme](frontend/)
+--> [Readme](frontend/)
 
 ### Backend
 
-[Backend Readme](backend/)
+--> [Readme](backend/)
 
 ### License
 
