@@ -12,4 +12,4 @@ La libreria actua directamente en cualquier tabla html que el sitio contenga, br
 
 ### Demo
 
-Podes probar una demo online [aqui](https://cientopolis.github.io/data-viz/) :)
+Podes probar una demo online [aqui](https://josefinaestevez.github.io/infovis-frontend/) :)
