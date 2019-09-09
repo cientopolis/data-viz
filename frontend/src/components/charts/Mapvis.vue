@@ -120,7 +120,7 @@ export default {
     removeChart () {
       if (this.backend) {
         // remove from backend
-        const url = `http://${document.domain}:8000/delete_chart/${this.id}`
+        const url = `https://${document.domain}:8000/delete_chart/${this.id}`
         axios.delete(url).then(response =>{
           console.log(response)
         })

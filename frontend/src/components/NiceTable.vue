@@ -443,7 +443,7 @@ export default {
   methods: {
     // charts
     getCharts () {
-      const url = `http://${domain}:8000/chart/`
+      const url = `https://${domain}:8000/chart/`
       const params = {
         domain: domain,
         nice_table: this.id
@@ -550,7 +550,7 @@ export default {
     },
 
     persistChart (type, data) {
-      const url = `http://${domain}:8000/chart/`
+      const url = `https://${domain}:8000/chart/`
       axios.post(url, {
         nice_table: this.id,
         chart_type: type,
@@ -626,7 +626,7 @@ export default {
       if (this.backend) {
         this.persistChart(chartType, chartData)
       } else {
-        this.renderChart(chartId, chartTypes, chartData)
+        this.renderChart(chartId, chartType, chartData)
       }
       this.chartColumns = []
     },
@@ -851,7 +851,7 @@ export default {
     removeTable () {
       if (this.backend) {
         // remove from backend
-        const url = `http://${domain}:8000/delete_table/${this.id}`
+        const url = `https://${domain}:8000/delete_table/${this.id}`
         axios.delete(url).then(response =>{
           console.log(response)
         })

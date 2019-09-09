@@ -233,7 +233,7 @@ const dataTypes = [
 const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
 const domain = document.domain
-const url = `http://${domain}:8000/nice_table/`
+const url = `https://${domain}:8000/nice_table/`
 
 export default {
   props: {
