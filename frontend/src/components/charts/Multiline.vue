@@ -247,6 +247,29 @@ export default {
       this.$destroy()
       // remove the element from the DOM
       this.$el.parentNode.removeChild(this.$el)
+    },
+
+    // Processing info
+    validateColumns (chartColumns, columns) {
+      // Validate selected data
+      let message = ''
+      let isValid = true
+      let dateColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Date')
+      let numberColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Number')
+      if (dateColumns.length !== 1) {
+        // Should be one DATE column
+        message = 'Debes seleccionar una columna de tipo fecha'
+        isValid = false
+      } else if (numberColumns.length + 1 !== chartColumns.length) {
+        // The rest of selected columns should be type number
+        message = 'Todos los valores deben ser de tipo numerico'
+        isValid = false
+      } else if (numberColumns.length === 0) {
+        // At least it should be one number value
+        message = 'Debe haber al menos un valor numberico'
+        isValid = false
+      }
+      return { isValid, message }
     }
   }
 }

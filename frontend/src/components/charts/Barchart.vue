@@ -155,6 +155,19 @@ export default {
       this.$destroy()
       // remove the element from the DOM
       this.$el.parentNode.removeChild(this.$el)
+    },
+
+    // Processing info
+    validateColumns (chartColumns, columns) {
+      // Validate selected data
+      let message = ''
+      let isValid = true
+      let numberColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Number')
+      if (numberColumns.length !== chartColumns.length) {
+        message = 'Todas las columnas deben ser de tipo numerico'
+        isValid = false
+      }
+      return { isValid, message }
     }
   }
 }

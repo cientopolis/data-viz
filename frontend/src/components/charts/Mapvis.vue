@@ -129,6 +129,20 @@ export default {
       this.$destroy()
       // remove the element from the DOM
       this.$el.parentNode.removeChild(this.$el)
+    },
+
+    // Processing
+    validateColumns (chartColumns, columns) {
+      // Validate selected data
+      let message = ''
+      let isValid = true
+      let lngColumn = chartColumns.filter(columnIndex => columns[columnIndex].type == 'Longitude')
+      let latColumn = chartColumns.filter(columnIndex => columns[columnIndex].type == 'Latitude')
+      if (!(latColumn.length === 1 && lngColumn.length === 1)) {
+        message = 'Debes seleccionar una columna de tipo longitud y una de tipo latitud'
+        isValid = false
+      }
+      return { isValid, message }
     }
   }
 }

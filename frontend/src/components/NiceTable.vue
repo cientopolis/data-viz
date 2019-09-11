@@ -766,59 +766,34 @@ export default {
         }
       }
       if (currentPage === this.steps.length - 1) {
-        let numberColumns
-        switch (this.selectedChartType.value) {
-          case 'Multiline':
-            // Validate selected data
-            // Should be one DATE column
-            let dateColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Date')
-            if (dateColumns.length !== 1) {
-              this.columnsError = `Debes seleccionar una columna de tipo fecha`
-              return false
-            }
-            // The rest of selected columns should be type number
-            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
-            if (numberColumns.length + 1 !== this.chartColumns.length) {
-              this.columnsError = `Todos los valores deben ser de tipo numerico`
-              return false
-            }
-            this.createMultilineChart()
-            break
-          case 'Piechart':
-            // Validate selected data
-            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
-            if (numberColumns.length !== this.chartColumns.length) {
-              this.columnsError = `Todas las columnas deben ser de tipo numerico`
-              return false
-            }
-            this.createPieChart()
-            break
-          case 'Barchart':
-            // Validate selected data
-            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
-            if (numberColumns.length !== this.chartColumns.length) {
-              this.columnsError = `Todas las columnas deben ser de tipo numerico`
-              return false
-            }
-            this.createBarChart()
-            break
-          case 'Mapvis':
-            let lngColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Longitude')
-            let latColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Latitude')
-            if (latColumn.length !== 1 && lngColumn !== 1) {
-              this.columnsError = `Debes seleccionar una columna de tipo longitud y una de tipo latitud`
-              return false
-            }
-            let strColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'String')
-            numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Number')
-            if (strColumns.length >=1 || numberColumns.length >= 1) {
-              this.mapCategoryOptions = this.columns.filter(col => strColumns.includes(this.columns.indexOf(col)) || numberColumns.includes(this.columns.indexOf(col)))
-              this.modalMapCategory = true
-            } else {
-              this.createMapChart()
-            }
-            break
+        let selectedComponent = charts[this.selectedChartType.value]
+        if (this.chartColumns.length > 0) {
+          let { isValid, message } = selectedComponent.methods.validateColumns(this.chartColumns, this.columns)
+          if (isValid === false) {
+            this.columnsError = message
+            return false
+          } else {
+            console.log("TODO: Process info before rendering")
+          }
+        } else {
+          this.columnsError = 'Debes seleccionar alguna columna'
+          return false
         }
+        // TODO: Delegate mapvis category modal to mapvis component
+        // let lngColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Longitude')
+        // let latColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Latitude')
+        // if (latColumn.length !== 1 && lngColumn !== 1) {
+        //   this.columnsError = `Debes seleccionar una columna de tipo longitud y una de tipo latitud`
+        //   return false
+        // }
+        // let strColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'String')
+        // numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Number')
+        // if (strColumns.length >=1 || numberColumns.length >= 1) {
+        //   this.mapCategoryOptions = this.columns.filter(col => strColumns.includes(this.columns.indexOf(col)) || numberColumns.includes(this.columns.indexOf(col)))
+        //   this.modalMapCategory = true
+        // } else {
+        //   this.createMapChart()
+        // }
       }
       this.chartModalVisible = false
       this.selectedChartType = null
