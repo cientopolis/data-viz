@@ -313,10 +313,7 @@
 <script>
 import moment from 'moment'
 import Vue from 'vue'
-import Multiline from '@/components/charts/Multiline'
-import Piechart from '@/components/charts/Piechart'
-import Barchart from '@/components/charts/Barchart'
-import Mapvis from '@/components/charts/Mapvis'
+import charts from '@/components/charts'
 import axios from 'axios'
 
 const steps = [
@@ -332,19 +329,19 @@ const steps = [
 
 const chartTypes = [
   {
-    value: 'multilines',
-    title: 'Multilines',
+    value: 'Multiline',
+    title: 'Multiline',
     instruction: 'Selecciona una fecha y valores numericos'
   }, {
-    value: 'piechart',
+    value: 'Piechart',
     title: 'Piechart',
     instruction: 'Selecciona columnas con valores numericos'
   }, {
-    value: 'barchart',
+    value: 'Barchart',
     title: 'Barchart',
     instruction: 'Selecciona columnas con valores numericos'
   }, {
-    value: 'map',
+    value: 'Mapvis',
     title: 'Map',
     instruction: 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
   }
@@ -460,23 +457,7 @@ export default {
     },
 
     async renderChart(id, chartType, data) {
-      let componentClass
-      switch (chartType) {
-        case 'multiline':
-          componentClass = Multiline
-          break
-        case 'pie':
-          componentClass = Piechart
-          break
-        case 'bar':
-          componentClass = Barchart
-          break
-        case 'map':
-          componentClass = Mapvis
-          break
-        default:
-          break
-      }
+      let componentClass = charts[chartType]
       let ComponentClass = Vue.extend(componentClass)
       let chart = new ComponentClass({
         propsData: {
@@ -503,7 +484,7 @@ export default {
     },
 
     createMultilineChart () {
-      const chartType = 'multiline'
+      const chartType = 'Multiline'
       // process data
       let chartData = []
       this.selectedRowKeys.forEach(rowIndex => {
@@ -562,7 +543,7 @@ export default {
     },
 
     createPieChart () {
-      const chartType = 'pie'
+      const chartType = 'Piechart'
       // process data
       let chartData = []
       // selected columns
@@ -597,7 +578,7 @@ export default {
     },
 
     createBarChart () {
-      const chartType = 'bar'
+      const chartType = 'Barchart'
       // process data
       let chartData = []
       // selected columns
@@ -632,7 +613,7 @@ export default {
     },
 
     createMapChart () {
-      const chartType = 'map'
+      const chartType = 'Mapvis'
       let ranges = []
       let type
       let field
@@ -787,7 +768,7 @@ export default {
       if (currentPage === this.steps.length - 1) {
         let numberColumns
         switch (this.selectedChartType.value) {
-          case 'multilines':
+          case 'Multiline':
             // Validate selected data
             // Should be one DATE column
             let dateColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Date')
@@ -803,7 +784,7 @@ export default {
             }
             this.createMultilineChart()
             break
-          case 'piechart':
+          case 'Piechart':
             // Validate selected data
             numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
             if (numberColumns.length !== this.chartColumns.length) {
@@ -812,7 +793,7 @@ export default {
             }
             this.createPieChart()
             break
-          case 'barchart':
+          case 'Barchart':
             // Validate selected data
             numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type === 'Number')
             if (numberColumns.length !== this.chartColumns.length) {
@@ -821,7 +802,7 @@ export default {
             }
             this.createBarChart()
             break
-          case 'map':
+          case 'Mapvis':
             let lngColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Longitude')
             let latColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Latitude')
             if (latColumn.length !== 1 && lngColumn !== 1) {
