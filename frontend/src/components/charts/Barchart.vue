@@ -13,6 +13,7 @@
 <script>
 import * as d3 from 'd3'
 import axios from 'axios'
+import utils from '@/components/utils'
 
 export default {
   props: {
@@ -158,16 +159,43 @@ export default {
     },
 
     // Processing info
-    validateColumns (chartColumns, columns) {
+    validateColumns (selectedColums, tableColumns) {
       // Validate selected data
       let message = ''
       let isValid = true
-      let numberColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Number')
-      if (numberColumns.length !== chartColumns.length) {
+      let numberColumns = selectedColums.filter(columnIndex => tableColumns[columnIndex].type === 'Number')
+      if (numberColumns.length !== selectedColums.length) {
         message = 'Todas las columnas deben ser de tipo numerico'
         isValid = false
       }
       return { isValid, message }
+    },
+
+    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+      // processing data
+      let chartData = []
+      // selected columns
+      selectedColumns.forEach(index => {
+        const col = tableColumns[index]
+        let chartItem = {
+          legend: col.dataIndex,
+          value: 0,
+          color: utils.getRandomColor()
+        }
+        chartData.push(chartItem)
+      })
+      // selected rows
+      selectedRows.forEach(rowIndex => {
+        const row = allRows[rowIndex]
+        chartData.forEach(item => {
+          let value = row[item['legend']]
+          if (utils.isNumeric(value) && (value!=='')) {
+            item['value'] += parseFloat(value)
+          }
+        })
+      })
+      // end processing data
+      return chartData
     }
   }
 }

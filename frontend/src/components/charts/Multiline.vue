@@ -14,6 +14,8 @@
 <script>
 import * as d3 from 'd3'
 import axios from 'axios'
+import utils from '@/components/utils'
+import moment from 'moment'
 
 export default {
   props: {
@@ -270,6 +272,44 @@ export default {
         isValid = false
       }
       return { isValid, message }
+    },
+
+    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+      // process data
+      let chartData = []
+      selectedRows.forEach(rowIndex => {
+        const row = allRows[rowIndex]
+        let chartItem = {}
+        selectedColumns.forEach(index => {
+          const col = tableColumns[index]
+          if (col.type === 'Date') {
+            chartItem['date'] = moment(row[col.dataIndex], col.format)
+          } else {
+            let value = row[col.dataIndex]
+            if ((value === '') || (value === 'null')) {
+              value = 0
+            }
+            chartItem[col.dataIndex] = +value
+          }
+        })
+        // date validation
+        if (String(chartItem['date']._d) !== 'Invalid Date') {
+          // number validation
+          let allNumerics = true
+          Object.keys(chartItem).filter(key => key !== 'date').forEach(key => {
+            if (!utils.isNumeric(chartItem[key])) {
+              allNumerics = false
+            }
+          })
+          if (allNumerics) {
+            chartData.push(chartItem)
+          } else {
+            console.log('numbers not valid')
+          }
+        }
+      })
+      // end process data
+      return chartData
     }
   }
 }

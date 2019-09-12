@@ -72,29 +72,32 @@ export default {
       })
 
       // handling categories
-      let categoryType = category.type
-      let categoryField = category.field
-      category.ranges.forEach(range => {
-        let rangeText = range
-        let geopoints = []
-        let filtered = []
-        if (categoryType === "String") {
-          filtered = data.filter(d => d[categoryField] == range)
-        } else if (categoryType === "Number") {
-          filtered = data.filter(d => isBetween(d[categoryField], range[0], range[1]))
-          rangeText = `${categoryField} entre ${range[0]} y ${range[1]}`
-        }
-        filtered.forEach(element => {
-          let lat = parseFloat(element['latitude'])
-          let lng = parseFloat(element['longitude'])
-          geopoints.push([lat, lng])
+      if (category) {
+        let categoryType = category.type
+        let categoryField = category.field
+        category.ranges.forEach(range => {
+          let rangeText = range
+          let geopoints = []
+          let filtered = []
+          if (categoryType === "String") {
+            filtered = data.filter(d => d[categoryField] == range)
+          } else if (categoryType === "Number") {
+            filtered = data.filter(d => isBetween(d[categoryField], range[0], range[1]))
+            rangeText = `${categoryField} entre ${range[0]} y ${range[1]}`
+          }
+          filtered.forEach(element => {
+            let lat = parseFloat(element['latitude'])
+            let lng = parseFloat(element['longitude'])
+            geopoints.push([lat, lng])
+          })
+          if (geopoints.length > 1) {
+            this.addPolygon(mymap, geopoints, rangeText)
+          } else if (geopoints.length === 1) {
+            this.addCircle(mymap, geopoints[0], rangeText)
+          }
         })
-        if (geopoints.length > 1) {
-          this.addPolygon(mymap, geopoints, rangeText)
-        } else if (geopoints.length === 1) {
-          this.addCircle(mymap, geopoints[0], rangeText)
-        }
-      })
+      }
+
     },
 
     addPolygon (mymap, geopoints, category) {
@@ -143,6 +146,31 @@ export default {
         isValid = false
       }
       return { isValid, message }
+    },
+
+    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+      // processing data
+      let chartData = {
+        category: null,
+        data: []
+      }
+      selectedRows.forEach(rowIndex => {
+        const row = allRows[rowIndex]
+        let chartItem = {}
+        selectedColumns.forEach(index => {
+          const col = tableColumns[index]
+          if (col.type == 'Longitude') {
+            chartItem['longitude'] = row[col.dataIndex]
+          } else if (col.type == 'Latitude') {
+            chartItem['latitude'] = row[col.dataIndex]
+          } else {
+            chartItem[col.dataIndex] = row[col.dataIndex]
+          }
+        })
+        chartData.data.push(chartItem)
+      })
+      // end processing data
+      return chartData
     }
   }
 }

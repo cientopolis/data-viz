@@ -349,14 +349,6 @@ const chartTypes = [
 
 const amountCountRanges = [1, 2, 3]
 
-function isNumeric (str) {
-  return !isNaN(str)
-}
-
-function getRandomColor () {
-  return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
-}
-
 const domain = document.domain
 
 export default {
@@ -456,7 +448,8 @@ export default {
         })
     },
 
-    async renderChart(id, chartType, data) {
+    async renderChart(id, data) {
+      let chartType = this.selectedChartType.value
       let componentClass = charts[chartType]
       let ComponentClass = Vue.extend(componentClass)
       let chart = new ComponentClass({
@@ -483,133 +476,17 @@ export default {
       }
     },
 
-    createMultilineChart () {
-      const chartType = 'Multiline'
-      // process data
-      let chartData = []
-      this.selectedRowKeys.forEach(rowIndex => {
-        const row = this.data[rowIndex]
-        let chartItem = {}
-        this.chartColumns.forEach(index => {
-          const col = this.columns[index]
-          if (col.type === 'Date') {
-            chartItem['date'] = moment(row[col.dataIndex], col.format)
-          } else {
-            let value = row[col.dataIndex]
-            if ((value === '') || (value === 'null')) {
-              value = 0
-            }
-            chartItem[col.dataIndex] = +value
-          }
-        })
-        // date validation
-        if (String(chartItem['date']._d) !== 'Invalid Date') {
-          // number validation
-          let allNumerics = true
-          Object.keys(chartItem).filter(key => key !== 'date').forEach(key => {
-            if (!isNumeric(chartItem[key])) {
-              allNumerics = false
-            }
-          })
-          if (allNumerics) {
-            chartData.push(chartItem)
-          } else {
-            console.log('numbers not valid')
-          }
-        }
-      })
-      // end process data
-      // persists
-      let chartId
-      if (this.backend) {
-        this.persistChart(chartType, chartData)
-      } else {
-        this.renderChart(chartId, chartType, chartData)
-      }
-      // end persists
-      this.chartColumns = []
-    },
-
     persistChart (type, data) {
       const url = `https://${domain}:8000/chart/`
+      let chartType = this.selectedChartType.value
       axios.post(url, {
         nice_table: this.id,
-        chart_type: type,
+        chart_type: chartType,
         data: JSON.stringify(data)
       }).then(response => {
         const newChart = response.data
-        this.renderChart(newChart.id, type, data)
+        this.renderChart(newChart.id, data)
       })
-    },
-
-    createPieChart () {
-      const chartType = 'Piechart'
-      // process data
-      let chartData = []
-      // selected columns
-      this.chartColumns.forEach(index => {
-        const col = this.columns[index]
-        let chartItem = {
-          legend: col.dataIndex,
-          value: 0,
-          color: getRandomColor()
-        }
-        chartData.push(chartItem)
-      })
-      // selected rows
-      this.selectedRowKeys.forEach(rowIndex => {
-        const row = this.data[rowIndex]
-        chartData.forEach(item => {
-          let value = row[item['legend']]
-          if (isNumeric(value) && (value!=='')) {
-            item['value'] += parseFloat(value)
-          }
-        })
-      })
-      // end process data
-      // persist
-      let chartId
-      if (this.backend) {
-        this.persistChart(chartType, chartData)
-      } else {
-        this.renderChart(chartId, chartType, chartData)
-      }
-      this.chartColumns = []
-    },
-
-    createBarChart () {
-      const chartType = 'Barchart'
-      // process data
-      let chartData = []
-      // selected columns
-      this.chartColumns.forEach(index => {
-        const col = this.columns[index]
-        let chartItem = {
-          legend: col.dataIndex,
-          value: 0,
-          color: getRandomColor()
-        }
-        chartData.push(chartItem)
-      })
-      // selected rows
-      this.selectedRowKeys.forEach(rowIndex => {
-        const row = this.data[rowIndex]
-        chartData.forEach(item => {
-          let value = row[item['legend']]
-          if (isNumeric(value) && (value!=='')) {
-            item['value'] += parseFloat(value)
-          }
-        })
-      })
-      // end process data
-      // persist
-      let chartId
-      if (this.backend) {
-        this.persistChart(chartType, chartData)
-      } else {
-        this.renderChart(chartId, chartType, chartData)
-      }
-      this.chartColumns = []
     },
 
     createMapChart () {
@@ -767,13 +644,23 @@ export default {
       }
       if (currentPage === this.steps.length - 1) {
         let selectedComponent = charts[this.selectedChartType.value]
+        // first validate
         if (this.chartColumns.length > 0) {
           let { isValid, message } = selectedComponent.methods.validateColumns(this.chartColumns, this.columns)
           if (isValid === false) {
             this.columnsError = message
             return false
           } else {
-            console.log("TODO: Process info before rendering")
+            // now process selected data
+            let id
+            let data = selectedComponent.methods.transformData(this.data, this.selectedRowKeys, this.chartColumns, this.columns)
+            if (this.backend) {
+              // persist and then render chart
+              this.persistChart(data)
+            } else {
+              // only render chart
+              this.renderChart(id, data)
+            }
           }
         } else {
           this.columnsError = 'Debes seleccionar alguna columna'

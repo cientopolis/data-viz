@@ -14,6 +14,7 @@
 <script>
 import * as d3 from 'd3'
 import axios from 'axios'
+import utils from '@/components/utils'
 
 export default {
   props: {
@@ -97,6 +98,33 @@ export default {
         isValid = false
       }
       return { isValid, message }
+    },
+
+    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+      // process data
+      let chartData = []
+      // selected columns
+      selectedColumns.forEach(index => {
+        const col = tableColumns[index]
+        let chartItem = {
+          legend: col.dataIndex,
+          value: 0,
+          color: utils.getRandomColor()
+        }
+        chartData.push(chartItem)
+      })
+      // selected rows
+      selectedRows.forEach(rowIndex => {
+        const row = allRows[rowIndex]
+        chartData.forEach(item => {
+          let value = row[item['legend']]
+          if (utils.isNumeric(value) && (value!=='')) {
+            item['value'] += parseFloat(value)
+          }
+        })
+      })
+      // end process data
+      return chartData
     }
   }
 }
