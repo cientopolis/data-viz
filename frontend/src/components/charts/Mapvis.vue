@@ -135,12 +135,12 @@ export default {
     },
 
     // Processing
-    validateColumns (chartColumns, columns) {
+    validateColumns (columns) {
       // Validate selected data
       let message = ''
       let isValid = true
-      let lngColumn = chartColumns.filter(columnIndex => columns[columnIndex].type == 'Longitude')
-      let latColumn = chartColumns.filter(columnIndex => columns[columnIndex].type == 'Latitude')
+      let lngColumn = columns.filter(column => column.type == 'Longitude')
+      let latColumn = columns.filter(column => column.type == 'Latitude')
       if (!(latColumn.length === 1 && lngColumn.length === 1)) {
         message = 'Debes seleccionar una columna de tipo longitud y una de tipo latitud'
         isValid = false
@@ -148,17 +148,15 @@ export default {
       return { isValid, message }
     },
 
-    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+    transformData (columns, rows) {
       // processing data
       let chartData = {
         category: null,
         data: []
       }
-      selectedRows.forEach(rowIndex => {
-        const row = allRows[rowIndex]
+      rows.forEach(row => {
         let chartItem = {}
-        selectedColumns.forEach(index => {
-          const col = tableColumns[index]
+        columns.forEach(col => {
           if (col.type == 'Longitude') {
             chartItem['longitude'] = row[col.dataIndex]
           } else if (col.type == 'Latitude') {

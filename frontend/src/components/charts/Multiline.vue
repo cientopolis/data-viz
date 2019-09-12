@@ -252,17 +252,17 @@ export default {
     },
 
     // Processing info
-    validateColumns (chartColumns, columns) {
+    validateColumns (columns) {
       // Validate selected data
       let message = ''
       let isValid = true
-      let dateColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Date')
-      let numberColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Number')
+      let dateColumns = columns.filter(column => column.type === 'Date')
+      let numberColumns = columns.filter(column => column.type === 'Number')
       if (dateColumns.length !== 1) {
         // Should be one DATE column
         message = 'Debes seleccionar una columna de tipo fecha'
         isValid = false
-      } else if (numberColumns.length + 1 !== chartColumns.length) {
+      } else if (numberColumns.length + 1 !== columns.length) {
         // The rest of selected columns should be type number
         message = 'Todos los valores deben ser de tipo numerico'
         isValid = false
@@ -274,14 +274,12 @@ export default {
       return { isValid, message }
     },
 
-    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+    transformData (columns, rows) {
       // process data
       let chartData = []
-      selectedRows.forEach(rowIndex => {
-        const row = allRows[rowIndex]
+      rows.forEach(row => {
         let chartItem = {}
-        selectedColumns.forEach(index => {
-          const col = tableColumns[index]
+        columns.forEach(col => {
           if (col.type === 'Date') {
             chartItem['date'] = moment(row[col.dataIndex], col.format)
           } else {

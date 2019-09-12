@@ -646,20 +646,22 @@ export default {
         let selectedComponent = charts[this.selectedChartType.value]
         // first validate
         if (this.chartColumns.length > 0) {
-          let { isValid, message } = selectedComponent.methods.validateColumns(this.chartColumns, this.columns)
+          let selectedColumns = this.columns.filter(column => this.chartColumns.indexOf(this.columns.indexOf(column)) >= 0)
+          let { isValid, message } = selectedComponent.methods.validateColumns(selectedColumns)
           if (isValid === false) {
             this.columnsError = message
             return false
           } else {
             // now process selected data
             let id
-            let data = selectedComponent.methods.transformData(this.data, this.selectedRowKeys, this.chartColumns, this.columns)
+            let selectedData = this.data.filter(element => this.selectedRowKeys.indexOf(this.data.indexOf(element)) >= 0)
+            let processedData = selectedComponent.methods.transformData(selectedColumns, selectedData)
             if (this.backend) {
               // persist and then render chart
-              this.persistChart(data)
+              this.persistChart(processedData)
             } else {
               // only render chart
-              this.renderChart(id, data)
+              this.renderChart(id, processedData)
             }
           }
         } else {

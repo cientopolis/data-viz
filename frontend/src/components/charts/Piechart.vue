@@ -88,24 +88,23 @@ export default {
     },
 
     // Processing info
-    validateColumns (chartColumns, columns) {
+    validateColumns (columns) {
       // Validate selected data
       let message = ''
       let isValid = true
-      let numberColumns = chartColumns.filter(columnIndex => columns[columnIndex].type === 'Number')
-      if (numberColumns.length !== chartColumns.length) {
+      let numberColumns = columns.filter(column => column.type === 'Number')
+      if (numberColumns.length !== columns.length) {
         message = 'Todas las columnas deben ser de tipo numerico'
         isValid = false
       }
       return { isValid, message }
     },
 
-    transformData (allRows, selectedRows, selectedColumns, tableColumns) {
+    transformData (columns, rows) {
       // process data
       let chartData = []
       // selected columns
-      selectedColumns.forEach(index => {
-        const col = tableColumns[index]
+      columns.forEach(col => {
         let chartItem = {
           legend: col.dataIndex,
           value: 0,
@@ -114,8 +113,7 @@ export default {
         chartData.push(chartItem)
       })
       // selected rows
-      selectedRows.forEach(rowIndex => {
-        const row = allRows[rowIndex]
+      rows.forEach(row => {
         chartData.forEach(item => {
           let value = row[item['legend']]
           if (utils.isNumeric(value) && (value!=='')) {
