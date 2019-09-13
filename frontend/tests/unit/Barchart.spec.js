@@ -37,4 +37,27 @@ describe('Barchart', () => {
     expect(wrapper.isVueInstance).toBeTruthy()
     expect(wrapper.findAll('svg').length).toBe(1)
   })
+  it('test barchart columns validation', () => {
+    // first happy case
+    let columns = [{
+      type: 'Number'
+    }]
+    let firstValidation = Barchart.methods.validateColumns(columns)
+    expect(firstValidation.isValid).toBeTruthy()
+    expect(firstValidation.message).toBe(undefined)
+    // second happy case
+    columns.push({
+      'type': 'Number'
+    })
+    let secondValidation = Barchart.methods.validateColumns(columns)
+    expect(secondValidation.isValid).toBeTruthy()
+    expect(secondValidation.message).toBe(undefined)
+    // first nonhappy case
+    columns.push({
+      'type': 'String'
+    })
+    let thirdValidation = Barchart.methods.validateColumns(columns)
+    expect(thirdValidation.isValid).toBe(false)
+    expect(thirdValidation.message.constructor).toBe(String)
+  })
 })
