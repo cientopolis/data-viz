@@ -266,8 +266,8 @@ export default {
           this.backend = true
           const charts = response.data
           charts.forEach(chart => {
-            const chartData = JSON.parse(chart.data)
-            this.renderChart(chart.id, chart.chart_type, chartData)
+            const data = JSON.parse(chart.data)
+            this.renderChart(chart.id, chart.chart_type, data)
           })
         })
     },
@@ -377,7 +377,7 @@ export default {
     removeTable () {
       if (this.backend) {
         // remove from backend
-        const url = `${utils.baseUrl}/delete_table/${this.id}`
+        const url = `${utils.baseUrl}/table_detail/${this.id}`
         axios.delete(url).then(response =>{
           console.log(response)
         })

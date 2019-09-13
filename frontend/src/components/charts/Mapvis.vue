@@ -106,9 +106,12 @@
 </template>
 
 <script>
+import axios from 'axios'
 import utils from '@/components/utils'
 
 let accessToken = 'pk.eyJ1Ijoiam9zZWZpbmFlc3RldmV6IiwiYSI6ImNqeml2ZDJwNTAyMGMzYm9zczdhdndidGsifQ.xUBtj7UjSEDYUucjf7_AQA'
+
+const chartType = 'Mapvis'
 
 function isBetween(x, min, max) {
   return x >= min && x <= max;
@@ -157,8 +160,8 @@ export default {
   methods: {
     // Rendering
     draw () {
-      let data = this.data.data
-      let category = this.data.category
+      let data = this.data['data']
+      let categories = this.data['categories']
       let view = data[0]
       let lat = parseFloat(data[0]['latitude'])
       let lng = parseFloat(data[0]['longitude'])
@@ -182,6 +185,11 @@ export default {
           text += `<b>${key}</b>: ${element[key]} <br>`
         })
         marker.bindPopup(text).openPopup()
+      })
+
+      // add categories
+      categories.forEach(category => {
+        this.addRange(category)
       })
     },
 
@@ -243,21 +251,37 @@ export default {
       field = this.mapCategory.dataIndex
       if (type == 'String' && this.mapStringCategories) {
         this.mapStringCategories.forEach(range => {
-          this.addRange(range, 'String', field)
+          this.createCategory(range, 'String', field)
         })
         return
       }
-      if (type == 'Number') {
+      else if (type == 'Number') {
         if (this.from && this.to) {
           let range = [this.from, this.to]
-          this.addRange(range, 'Number', field)
+          this.createCategory(range, 'Number', field)
           return
         }
       }
       this.mapRangeError = 'Campos requeridos faltantes'
     },
 
-    addRange (range, categoryType, categoryField) {
+    createCategory (range, categoryType, categoryField) {
+      let category = {
+        range,
+        categoryType,
+        categoryField
+      }
+      this.data.categories.push(category)
+      this.addRange(category)
+      if (this.backend) {
+        this.updateChart()
+      }
+    },
+
+    addRange (category) {
+      let range = category.range
+      let categoryType = category.categoryType
+      let categoryField = category.categoryField
       let rangeText = range
       let geopoints = []
       let filtered = []
@@ -285,9 +309,20 @@ export default {
       this.mapCategoryRangesCant = value
     },
 
-    // Remove
+    // API
     removeChart () {
       utils.removeChart(this)
+    },
+
+    updateChart () {
+      const url = `${utils.baseUrl}/chart_detail/${this.id}`
+      axios.post(url, {
+        nice_table: this.id,
+        chart_type: chartType,
+        data: JSON.stringify(this.data)
+      }).then(response => {
+        console.log('updated', response)
+      })
     },
 
     // Processing
@@ -307,7 +342,7 @@ export default {
     transformData (columns, rows) {
       // processing data
       let chartData = {
-        category: null,
+        categories: [],
         columns,
         data: []
       }

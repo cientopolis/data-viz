@@ -105,3 +105,12 @@ class ChartDetail(APIView):
         chart = self.get_object(pk)
         chart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def post(self, request, pk, format=None):
+        chart = self.get_object(pk)
+        data = JSONParser().parse(request)
+        serializer = ChartSerializer(chart, data={'data': data['data']}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

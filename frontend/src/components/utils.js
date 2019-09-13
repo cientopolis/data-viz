@@ -14,7 +14,7 @@ const baseUrl = `${protocol}://${document.domain}:8000`
 const removeChart = (component) => {
   if (component.backend) {
     // remove from backend
-    const url = `${baseUrl}/delete_chart/${component.id}`
+    const url = `${baseUrl}/chart_detail/${component.id}`
     axios.delete(url).then(response =>{
       console.log(response)
     })
