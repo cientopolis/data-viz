@@ -1,3 +1,6 @@
+import json
+
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
@@ -6,9 +9,10 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from .models import NiceTable, Chart
-from .serializers import NiceTableSerializer, ChartSerializer
+from .serializers import NiceTableSerializer, ChartSerializer, ColumnSerializer
 
 @csrf_exempt
+@transaction.atomic
 def nice_table(request):
     """
     List all tables, or create a new table.
@@ -24,11 +28,28 @@ def nice_table(request):
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = NiceTableSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+        columns_data = json.loads(data['columns'])
+        serializer_data = {
+            'domain': data['domain'],
+            'table_id': data['table_id']
+        }
+        table_serializer = NiceTableSerializer(data=serializer_data)
+        if table_serializer.is_valid():
+            table_serializer.save()
+            for column in columns_data:
+                column_data = {
+                    'nice_table': table_serializer.data['id'],
+                    'index': column['dataIndex'],
+                    'title': column['title'],
+                    'column_type': column['type']
+                }
+                column_serializer = ColumnSerializer(data=column_data)
+                if column_serializer.is_valid():
+                    column_serializer.save()
+                else:
+                    return JsonResponse(column_serializer.errors, status=400)
+            return JsonResponse(table_serializer.data, status=201)
+        return JsonResponse(table_serializer.errors, status=400)
 
 
 class NiceTableDetail(APIView):

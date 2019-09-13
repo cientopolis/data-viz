@@ -12,7 +12,7 @@
         type="primary"
         @click="removeTable()"
       >
-        Remove Table
+        Eliminar Tabla
       </a-button>
       <a-button
         style="margin-left: 5px; margin-top: 50px; float: left;"
@@ -20,7 +20,7 @@
         :disabled="selectedRowKeys.length === 0"
         @click="chartModalVisible = true"
       >
-        Create Chart
+        Crear Grafico
       </a-button>
     </a-row>
     <a-row type="flex" justify="space-between" style="margin: 10px 0;">

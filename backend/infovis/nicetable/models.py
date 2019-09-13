@@ -5,7 +5,12 @@ from django_mysql.models import JSONField
 class NiceTable(models.Model):
     domain = models.CharField(max_length=100)
     table_id = models.CharField(max_length=100)
-    columns_conf = JSONField()
+
+class Column(models.Model):
+    nice_table = models.ForeignKey(NiceTable, on_delete=models.CASCADE, related_name='columns')
+    index = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
+    column_type = models.CharField(max_length=100)
 
 class Chart(models.Model):
     nice_table = models.ForeignKey(NiceTable, on_delete=models.CASCADE)

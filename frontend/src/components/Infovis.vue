@@ -291,7 +291,13 @@ export default {
           this.backend = true
           const niceTables = response.data
           niceTables.forEach(niceTable => {
-            const columns = JSON.parse(niceTable.columns_conf)
+            const columns = niceTable.columns.map(column => {
+              return {
+                dataIndex: column['index'],
+                title: column['title'],
+                type: column['column_type']
+              }
+            })
             this.displayNiceTable(niceTable.id, columns)
           })
         })
@@ -393,7 +399,7 @@ export default {
         axios.post(url, {
           domain: document.domain,
           table_id: this.tableId,
-          columns_conf: JSON.stringify(columns)
+          columns: JSON.stringify(columns)
         }).then(response => {
           const newTable = response.data
           niceTableId = newTable.id
