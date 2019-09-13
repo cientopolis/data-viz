@@ -43,4 +43,34 @@ describe('Multiline', () => {
     expect(wrapper.isVueInstance).toBeTruthy()
     expect(wrapper.findAll('svg').length).toBe(1)
   })
+  it('test multiline columns validation', () => {
+    // first nonhappy case
+    let columns = [{
+      type: 'Number'
+    }]
+    let firstValidation = Multiline.methods.validateColumns(columns)
+    expect(firstValidation.isValid).toBe(false)
+    expect(firstValidation.message.constructor).toBe(String)
+    // first happy case
+    columns.push({
+      'type': 'Date'
+    })
+    let secondValidation = Multiline.methods.validateColumns(columns)
+    expect(secondValidation.isValid).toBeTruthy()
+    expect(secondValidation.message).toBe(undefined)
+    // second happy case
+    columns.push({
+      'type': 'Number'
+    })
+    let thirdValidation = Multiline.methods.validateColumns(columns)
+    expect(thirdValidation.isValid).toBeTruthy()
+    expect(thirdValidation.message).toBe(undefined)
+    // second unhappy case
+    columns.push({
+      'type': 'Longitude'
+    })
+    let fourthValidation = Multiline.methods.validateColumns(columns)
+    expect(fourthValidation.isValid).toBe(false)
+    expect(fourthValidation.message.constructor).toBe(String)
+  })
 })

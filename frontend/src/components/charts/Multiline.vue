@@ -240,7 +240,7 @@ export default {
     // Processing
     validateColumns (columns) {
       // Validate selected data
-      let message = ''
+      let message
       let isValid = true
       let dateColumns = columns.filter(column => column.type === 'Date')
       let numberColumns = columns.filter(column => column.type === 'Number')
