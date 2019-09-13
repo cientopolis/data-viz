@@ -97,7 +97,7 @@
           type="primary"
           @click="validateMapRanges()"
         >
-          Crear Mapa
+          Crear Categoria
         </a-button>
       </template>
     </a-modal>
@@ -278,6 +278,7 @@ export default {
       } else if (geopoints.length === 1) {
         this.addCircle(geopoints[0], rangeText)
       }
+      this.modalMapCategory = false
     },
 
     handleRangeChange (value) {
