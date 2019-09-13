@@ -1,19 +1,36 @@
 <template>
-  <div id="app" style="padding: 0 50px;">
+  <div
+    id="app"
+    style="padding: 0 50px;"
+    ref="container"
+  >
     <example1 />
-    <infovis table-id="appear" />
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import Example1 from '@/components/Example1'
 import Infovis from '@/components/Infovis'
+import tableIdExporter from '@/exporters/tableIdExporter'
 
 export default {
   name: 'app',
   components: {
-    Example1,
-    Infovis
+    Example1
+  },
+  mounted () {
+    let table = tableIdExporter.getTable('appear')
+    let ComponentClass = Vue.extend(Infovis)
+    let infovis = new ComponentClass({
+      propsData: {
+        tableId: 'appear',
+        columns: table['columns'],
+        data: table['data']
+      }
+    })
+    infovis.$mount() // pass nothing
+    this.$refs.container.appendChild(infovis.$el)
   }
 }
 </script>

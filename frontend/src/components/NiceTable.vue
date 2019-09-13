@@ -359,6 +359,8 @@ export default {
               // only render chart
               this.renderChart(id, chartType, processedData)
             }
+            this.selectedRowKeys = []
+            this.chartColumns = []
           }
         } else {
           this.columnsError = 'Debes seleccionar alguna columna'

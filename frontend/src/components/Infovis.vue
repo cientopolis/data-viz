@@ -160,50 +160,6 @@ import moment from 'moment'
 import axios from 'axios'
 import utils from '@/components/utils'
 
-/**
- * converts array-like object to array
- * @param  collection the object to be converted
- * @return {Array} the converted object
- */
-function arrayify(collection) {
-  return Array.prototype.slice.call(collection);
-}
-
-/**
- * generates factory functions to convert table rows to objects,
- * based on the titles in the table's <thead>
- * @param  {Array[String]} headings the values of the table's <thead>
- * @return {Function}      a function that takes a table row and spits out an object
- */
-function factory(headings) {
-  return function(row) {
-    return arrayify(row.cells).reduce(function(prev, curr, i) {
-      prev[headings[i]] = curr.innerText;
-      return prev;
-    }, {});
-  }
-}
-
-/**
- * given a table, generate an array of objects.
- * each object corresponds to a row in the table.
- * each object's key/value pairs correspond to a column's heading and the row's value for that column
- * 
- * @param  {HTMLTableElement} table the table to convert
- * @return {Array[Object]}       array of objects representing each row in the table
- */
-function parseHead(table) {
-  let headings = arrayify(table.tHead.rows[0].cells).map(function(heading) {
-    return heading.innerText;
-  })
-  return headings
-}
-
-function parseTable(table) {
-  let headings = parseHead(table)
-  return arrayify(table.tBodies[0].rows).map(factory(headings))
-}
-
 function isNumeric (str) {
   return !isNaN(str)
 }
@@ -238,6 +194,14 @@ const url = `${utils.baseUrl}/nice_table/`
 
 export default {
   props: {
+    columns: {
+      type: Array,
+      required: true
+    },
+    data: {
+      type: Array,
+      required: true
+    },
     tableId: {
       type: String,
       required: true
@@ -251,7 +215,6 @@ export default {
       modalVisible0: false,
       modalVisible1: false,
       modalVisible2: false,
-      data: [],
       allColumns: [],
       selectedColumns: [],
       curatedColumns: [],
@@ -268,16 +231,19 @@ export default {
   },
 
   mounted () {
-    var table = document.querySelector(`#${this.tableId}`)
-    if (table) {
-      var buttons = this.$refs.buttons.$el
-      table.parentElement.insertBefore(buttons, table)
-      this.showCreateButton = true
-      this.parseTable()
-      this.getNiceTables()
-    } else {
-      console.log(`No table with id ${this.tableId} found`)
-    }
+    this.getNiceTables()
+    this.allColumns = this.columns.map(column => {
+      return {
+        'value': column,
+        'label': column
+      }
+    })
+    this.allColumns.forEach(col => {
+      let column = col['value']
+      let filtered = this.data.filter(element => element[column] !== '')
+      this.example[column] = filtered ? filtered[0][column] : 'No data example' 
+    })
+    this.showCreateButton = true
   },
 
   methods: {
@@ -305,23 +271,6 @@ export default {
           this.backend = false
           console.log('no backend installed')
         })
-    },
-
-    parseTable () {
-      var table = document.querySelector(`#${this.tableId}`)
-      let columns = parseHead(table)
-      this.allColumns = columns.map(column => {
-        return {
-          'value': column,
-          'label': column
-        }
-      })
-      this.data = parseTable(table)
-      this.allColumns.forEach(col => {
-        let column = col['value']
-        let filtered = this.data.filter(element => element[column] !== '')
-        this.example[column] = filtered ? filtered[0][column] : 'No data example' 
-      })
     },
 
     showCreateModal () {

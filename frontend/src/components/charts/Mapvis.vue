@@ -189,7 +189,7 @@ export default {
 
       // add categories
       categories.forEach(category => {
-        this.addRange(category)
+        this.renderCategory(category)
       })
     },
 
@@ -211,7 +211,7 @@ export default {
 
     addCategory () {
       let columns = this.data.columns
-      this.mapCategoryOptions = columns.filter(column => column['type'] !== 'Latitude' && column['type'] !== 'Longitude')
+      this.mapCategoryOptions = columns.filter(column => column['type'] === 'String' || column['type'] == 'Number')
       this.modalMapCategory = true
     },
 
@@ -251,14 +251,34 @@ export default {
       field = this.mapCategory.dataIndex
       if (type == 'String' && this.mapStringCategories) {
         this.mapStringCategories.forEach(range => {
-          this.createCategory(range, 'String', field)
+          // this.createCategory(range, 'String', field)
+          let category = {
+            range,
+            categoryType: 'String',
+            categoryField: field
+          }
+          this.renderCategory(category)
+          this.data.categories.push(category)
         })
+        if (this.backend) {
+          this.updateChart()
+        }
         return
       }
       else if (type == 'Number') {
         if (this.from && this.to) {
           let range = [this.from, this.to]
-          this.createCategory(range, 'Number', field)
+          // this.createCategory(range, 'Number', field)
+          let category = {
+            range,
+            categoryType: 'Number',
+            categoryField: field
+          }
+          this.renderCategory(category)
+          this.data.categories.push(category)
+          if (this.backend) {
+            this.updateChart()
+          }
           return
         }
       }
@@ -278,7 +298,7 @@ export default {
       }
     },
 
-    addRange (category) {
+    renderCategory (category) {
       let range = category.range
       let categoryType = category.categoryType
       let categoryField = category.categoryField
