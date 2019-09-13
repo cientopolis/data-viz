@@ -86,7 +86,8 @@
       @cancel="wizardClosed()"
       :footer="null"
     >
-      <vue-good-wizard 
+      <vue-good-wizard
+        v-if="steps.length > 0"
         ref="my-wizard"
         :steps="steps"
         :onNext="nextClicked" 
@@ -157,6 +158,7 @@ import NiceTable from '@/components/NiceTable'
 import Vue from 'vue'
 import moment from 'moment'
 import axios from 'axios'
+import utils from '@/components/utils'
 
 /**
  * converts array-like object to array
@@ -232,8 +234,7 @@ const dataTypes = [
 
 const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
-const domain = document.domain
-const url = `https://${domain}:8000/nice_table/`
+const url = `${utils.baseUrl}/nice_table/`
 
 export default {
   props: {
@@ -282,7 +283,7 @@ export default {
   methods: {
     getNiceTables () {
       const params = {
-        domain: domain,
+        domain: document.domain,
         table_id: this.tableId
       }
       axios.get(url, {params})
@@ -390,7 +391,7 @@ export default {
       if (this.backend) {
         // save columns and display
         axios.post(url, {
-          domain: domain,
+          domain: document.domain,
           table_id: this.tableId,
           columns_conf: JSON.stringify(columns)
         }).then(response => {
@@ -401,6 +402,10 @@ export default {
       } else {
         this.displayNiceTable(niceTableId, columns)
       }
+      this.curatedColumns = []
+      this.selectedColumns = []
+      this.steps = []
+      this.selectedType = null
     },
 
     async displayNiceTable (id, columns) {
@@ -501,11 +506,6 @@ export default {
         return 'Latitude'
       }
       return 'String'
-    },
-
-    wizardClosed () {
-      console.log('wizard clos')
-      this.$refs['my-wizard'].goTo(0)
     }
   }
 }

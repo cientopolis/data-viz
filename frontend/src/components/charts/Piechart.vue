@@ -5,7 +5,7 @@
       type="primary"
       @click="removeChart()"
     >
-      Remove Chart
+      Eliminar Grafico
     </a-button>
     <div ref="chart" />
   </div>
@@ -13,7 +13,6 @@
 
 <script>
 import * as d3 from 'd3'
-import axios from 'axios'
 import utils from '@/components/utils'
 
 export default {
@@ -74,17 +73,7 @@ export default {
     },
 
     removeChart () {
-      if (this.backend) {
-        // remove from backend
-        const url = `https://${document.domain}:8000/delete_chart/${this.id}`
-        axios.delete(url).then(response =>{
-          console.log(response)
-        })
-      }
-      // destroy the vue listeners, etc
-      this.$destroy()
-      // remove the element from the DOM
-      this.$el.parentNode.removeChild(this.$el)
+      utils.removeChart(this)
     },
 
     // Processing info

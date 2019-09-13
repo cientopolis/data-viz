@@ -90,7 +90,6 @@
     <div ref="charts">
     </div>
     <!-- end chart's div -->
-    <!-- modals -->
     <!-- create chart modal -->
     <a-modal
       v-model="chartModalVisible"
@@ -149,165 +148,6 @@
       </vue-good-wizard>
     </a-modal>
     <!-- end create chart modal -->
-    <!-- modal for selecting map category -->
-    <a-modal
-      title="Crear Mapa"
-      v-model="modalMapCategory"
-    >
-      <h3>Elije un campo para categorizar tu mapa</h3>
-      <a-select style="width: 200px; margin-bottom: 20px" @change="handleCategoryChange">
-        <a-select-option
-          v-for="(category, index) in mapCategoryOptions"
-          :key="index"
-          :value="category.dataIndex"
-        >
-          {{category.title}}
-        </a-select-option>
-      </a-select>
-      <div
-        v-if="mapCategory"
-      >
-        <div v-if="mapCategory.type === 'Number'">
-          <p>Cuantos rangos de categorias queres crear? Maximo valor: <b>{{maxRangeValue}}</b></p>
-          <a-input-group compact>
-            <a-select
-              defaultValue="1"
-              @change="handleRangeChange"
-            >
-              <a-select-option
-                v-for="(amountCountRange, index) in amountCountRanges"
-                :key="index"
-                :value="amountCountRange"
-              >
-                {{amountCountRange}}
-              </a-select-option>
-            </a-select>
-          </a-input-group> <br>
-          <a-input-group
-            compact
-            v-if="mapCategoryRangesCant >= 1"
-            style="margin-top: 5px"
-          >
-            <a-input
-              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
-              placeholder="Rango 1"
-              disabled
-            />
-            <a-input
-              style="width: 100px; text-align: center"
-              type="number"
-              min="0"
-              :max="maxRangeValue"
-              v-model="from1"
-              placeholder="Desde"
-            />
-            <a-input
-              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
-              placeholder="~"
-              disabled
-            />
-            <a-input
-              style="width: 100px; text-align: center; border-left: 0"
-              type="number"
-              min="0"
-              :max="maxRangeValue"
-              v-model="to1"
-              placeholder="Hasta"
-            />
-          </a-input-group>
-          <a-input-group
-            compact
-            v-if="mapCategoryRangesCant >= 2"
-            style="margin-top: 5px"
-          >
-            <a-input
-              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
-              placeholder="Rango 2"
-              disabled
-            />
-            <a-input
-              style="width: 100px; text-align: center"
-              type="number"
-              min="0"
-              :max="maxRangeValue"
-              v-model="from2"
-              placeholder="Desde"
-            />
-            <a-input
-              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
-              placeholder="~"
-              disabled
-            />
-            <a-input
-              style="width: 100px; text-align: center; border-left: 0"
-              type="number"
-              min="0"
-              :max="maxRangeValue"
-              v-model="to2"
-              placeholder="Hasta"
-            />
-          </a-input-group>
-          <a-input-group
-            compact
-            v-if="mapCategoryRangesCant === 3"
-            style="margin-top: 5px"
-          >
-            <a-input
-              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
-              placeholder="Rango 3"
-              disabled
-            />
-            <a-input
-              style="width: 100px; text-align: center"
-              type="number"
-              min="0"
-              :max="maxRangeValue"
-              v-model="from3"
-              placeholder="Desde"
-            />
-            <a-input
-              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
-              placeholder="~"
-              disabled
-            />
-            <a-input
-              style="width: 100px; text-align: center; border-left: 0"
-              type="number"
-              min="0"
-              :max="maxRangeValue"
-              v-model="to3"
-              placeholder="Hasta"
-            />
-          </a-input-group>
-        </div>
-        <div v-if="mapCategory.type == 'String'">
-          <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
-          <div
-            v-for="(category, index) in mapStringCategories"
-            :key="index"
-          >
-            <p>{{category}}</p>
-          </div>
-        </div>
-        <a-alert
-          v-if="mapRangeError"
-          :message="mapRangeError"
-          type="error"
-          banner
-        />
-      </div>
-      <template slot="footer">
-        <a-button
-          key="submit"
-          type="primary"
-          @click="validateMapRanges()"
-        >
-          Crear Mapa
-        </a-button>
-      </template>
-    </a-modal>
-    <!-- end map modal -->
-    <!-- end modals -->
   </div>
 </template>
 <script>
@@ -315,6 +155,7 @@ import moment from 'moment'
 import Vue from 'vue'
 import charts from '@/components/charts'
 import axios from 'axios'
+import utils from '@/components/utils'
 
 const steps = [
   {
@@ -327,6 +168,7 @@ const steps = [
   }
 ]
 
+// TODO: dynamic
 const chartTypes = [
   {
     value: 'Multiline',
@@ -346,10 +188,6 @@ const chartTypes = [
     instruction: 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
   }
 ]
-
-const amountCountRanges = [1, 2, 3]
-
-const domain = document.domain
 
 export default {
   props: {
@@ -372,7 +210,7 @@ export default {
 
   data () {
     return {
-      selectedRowKeys: [], // Check here to configure the default column
+      selectedRowKeys: [],
       columnsOptions: [],
       columnsChecked: [],
       chartColumns: [],
@@ -381,21 +219,7 @@ export default {
       searchText: '',
       searchInput: null,
       chartModalVisible: false,
-      modalMapCategory: false,
       columnsError: null,
-      mapCategoryOptions: [],
-      mapCategory: null,
-      amountCountRanges,
-      mapCategoryRangesCant: 1,
-      maxRangeValue: 0,
-      from1: null,
-      to1: null,
-      from2: null,
-      to2: null,
-      from3: null,
-      to3: null,
-      mapStringCategories: [],
-      mapRangeError: '',
       steps,
       chartTypes
     }
@@ -432,9 +256,9 @@ export default {
   methods: {
     // charts
     getCharts () {
-      const url = `https://${domain}:8000/chart/`
+      const url = `${utils.baseUrl}/chart/`
       const params = {
-        domain: domain,
+        domain: document.domain,
         nice_table: this.id
       }
       axios.get(url, {params})
@@ -448,8 +272,7 @@ export default {
         })
     },
 
-    async renderChart(id, data) {
-      let chartType = this.selectedChartType.value
+    async renderChart(id, chartType, data) {
       let componentClass = charts[chartType]
       let ComponentClass = Vue.extend(componentClass)
       let chart = new ComponentClass({
@@ -476,153 +299,25 @@ export default {
       }
     },
 
-    persistChart (type, data) {
-      const url = `https://${domain}:8000/chart/`
-      let chartType = this.selectedChartType.value
+    persistChart (data, chartType) {
+      const url = `${utils.baseUrl}/chart/`
       axios.post(url, {
         nice_table: this.id,
         chart_type: chartType,
         data: JSON.stringify(data)
       }).then(response => {
         const newChart = response.data
-        this.renderChart(newChart.id, data)
+        this.renderChart(newChart.id, chartType, data)
       })
-    },
-
-    createMapChart () {
-      const chartType = 'Mapvis'
-      let ranges = []
-      let type
-      let field
-      if (this.mapCategory) {
-        type = this.mapCategory.type
-        ranges = type === 'Number' ? this.getMapNumberRanges() : this.mapStringCategories
-        field = this.mapCategory.dataIndex
-      }
-      let category = {
-        type,
-        field,
-        ranges
-      }
-      // process data
-      let chartData = {
-        category,
-        data: []
-      }
-      // selected columns
-      this.selectedRowKeys.forEach(rowIndex => {
-        const row = this.data[rowIndex]
-        let chartItem = {}
-        this.chartColumns.forEach(index => {
-          const col = this.columns[index]
-          if (col.type == 'Longitude') {
-            chartItem['longitude'] = row[col.dataIndex]
-          } else if (col.type == 'Latitude') {
-            chartItem['latitude'] = row[col.dataIndex]
-          } else {
-            chartItem[col.dataIndex] = row[col.dataIndex]
-          }
-        })
-        chartData.data.push(chartItem)
-      })
-      // end process data
-      // persist
-      let chartId
-      if (this.backend) {
-        this.persistChart(chartType, chartData)
-      } else {
-        this.renderChart(chartId, chartType, chartData)
-      }
-      // end persists
-      this.modalMapCategory = false
-      this.chartColumns = []
-      this.mapCategory = null
-      this.mapCategoryOptions = []
-      this.mapStringCategories = []
-    },
-
-    getMapNumberRanges () {
-      let ranges = []
-      if (this.mapCategoryRangesCant >=1) {
-        let range1 = [this.from1, this.to1]
-        ranges.push(range1)
-      }
-      if (this.mapCategoryRangesCant >=2) {
-        let range2 = [this.from2, this.to2]
-        ranges.push(range2)
-      }
-      if (this.mapCategoryRangesCant === 3) {
-        let range3 = [this.from3, this.to3]
-        ranges.push(range3)
-      }
-      return ranges
-    },
-
-    validateMapRanges () {
-      this.mapRangeError = ''
-      let validate = true
-      if (this.mapCategory.type == 'String' && this.mapStringCategories) {
-        this.createMapChart()
-        return
-      }
-      if (this.mapCategory.type == 'Number') {
-        if (this.mapCategoryRangesCant === 1) {
-          if (this.from1 && this.to1) {
-            this.createMapChart()
-            return
-          }
-        }
-        if (this.mapCategoryRangesCant === 2) {
-          if (this.from1 && this.to1 && this.from2 && this.to2) {
-            this.createMapChart()
-            return
-          }
-        }
-        if (this.mapCategoryRangesCant === 3) {
-          if (this.from1 && this.to1 && this.from2 && this.to2 && this.from3 && this.to3) {
-            this.createMapChart()
-            return
-          }
-        }
-      }
-      this.mapRangeError = 'Campos requeridos faltantes'
     },
 
     // handlers
-
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
     },
 
     handleChartChange (value) {
       this.selectedChartType = this.chartTypes.find(item => item.value == value)
-    },
-
-    handleCategoryChange (category) {
-      this.mapStringCategories = []
-      let column = this.columns.filter(col => col.dataIndex === category)
-      if (column) {
-        column = column[0]
-        this.mapCategory = column
-        let selectedData = this.data.filter(item => this.selectedRowKeys.includes(this.data.indexOf(item)))
-        if (column.type === "Number") {
-          let validatedNumbers = selectedData.filter(item => item[category] !== '' && isNumeric(item[category]))
-          let maxValue = 0
-          validatedNumbers.forEach(element => {
-            let value = parseFloat(element[category])
-            if (value > maxValue) {
-              maxValue = value
-            }
-          })
-          this.maxRangeValue = maxValue
-        } else if (column.type === 'String') {
-          selectedData.forEach(element => {
-            if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
-              this.mapStringCategories.push(element[category])
-            }
-          })
-        }
-      }
     },
 
     handleSearch (selectedKeys, confirm) {
@@ -643,7 +338,8 @@ export default {
         }
       }
       if (currentPage === this.steps.length - 1) {
-        let selectedComponent = charts[this.selectedChartType.value]
+        const chartType = this.selectedChartType.value
+        let selectedComponent = charts[chartType]
         // first validate
         if (this.chartColumns.length > 0) {
           let selectedColumns = this.columns.filter(column => this.chartColumns.indexOf(this.columns.indexOf(column)) >= 0)
@@ -658,31 +354,16 @@ export default {
             let processedData = selectedComponent.methods.transformData(selectedColumns, selectedData)
             if (this.backend) {
               // persist and then render chart
-              this.persistChart(processedData)
+              this.persistChart(processedData, chartType)
             } else {
               // only render chart
-              this.renderChart(id, processedData)
+              this.renderChart(id, chartType, processedData)
             }
           }
         } else {
           this.columnsError = 'Debes seleccionar alguna columna'
           return false
         }
-        // TODO: Delegate mapvis category modal to mapvis component
-        // let lngColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Longitude')
-        // let latColumn = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Latitude')
-        // if (latColumn.length !== 1 && lngColumn !== 1) {
-        //   this.columnsError = `Debes seleccionar una columna de tipo longitud y una de tipo latitud`
-        //   return false
-        // }
-        // let strColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'String')
-        // numberColumns = this.chartColumns.filter(columnIndex => this.columns[columnIndex].type == 'Number')
-        // if (strColumns.length >=1 || numberColumns.length >= 1) {
-        //   this.mapCategoryOptions = this.columns.filter(col => strColumns.includes(this.columns.indexOf(col)) || numberColumns.includes(this.columns.indexOf(col)))
-        //   this.modalMapCategory = true
-        // } else {
-        //   this.createMapChart()
-        // }
       }
       this.chartModalVisible = false
       this.selectedChartType = null
@@ -696,7 +377,7 @@ export default {
     removeTable () {
       if (this.backend) {
         // remove from backend
-        const url = `https://${domain}:8000/delete_table/${this.id}`
+        const url = `${utils.baseUrl}/delete_table/${this.id}`
         axios.delete(url).then(response =>{
           console.log(response)
         })
@@ -705,23 +386,6 @@ export default {
       this.$destroy()
       // remove the element from the DOM
       this.$el.parentNode.removeChild(this.$el)
-    },
-
-    handleRangeChange (value) {
-      this.mapCategoryRangesCant = value
-      console.log(this.mapCategoryRangesCant)
-    },
-
-    createChartTypeCancel () {
-      this.mapCategoryOptions = []
-      this.mapCategory = null
-      this.mapStringCategories = []
-      this.from1 = null
-      this.to1 = null
-      this.from2 = null
-      this.to2 = null
-      this.from3 = null
-      this.to3 = null
     }
   }
 }

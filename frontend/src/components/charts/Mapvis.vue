@@ -1,25 +1,122 @@
 <template>
   <div style="margin-top: 50px">
-    <a-button
-      style="margin-left: 5px; margin-top: 50px; float: left;"
-      type="primary"
-      @click="removeChart()"
+    <a-row>
+      <a-col :span="2">
+        <a-button
+          style="margin-left: 5px; margin-top: 50px; float: left;"
+          type="primary"
+          @click="removeChart()"
+        >
+          Eliminar Grafico
+        </a-button>
+        <a-button
+          style="margin-left: 5px; margin-top: 50px; float: left;"
+          type="primary"
+          @click="addCategory()"
+        >
+          Agregar Categoria
+        </a-button>
+      </a-col>
+      <a-col>
+        <div class="mapchart">
+        </div>
+      </a-col>
+    </a-row>
+    <!-- modal for selecting map category -->
+    <a-modal
+      title="Crear Mapa"
+      v-model="modalMapCategory"
     >
-      Remove Chart
-    </a-button>
-    <div class="mapchart">
-    </div>
+      <h3>Elije un campo para categorizar tu mapa</h3>
+      <a-select style="width: 200px; margin-bottom: 20px" @change="handleCategoryChange">
+        <a-select-option
+          v-for="(category, index) in mapCategoryOptions"
+          :key="index"
+          :value="category.dataIndex"
+        >
+          {{category.title}}
+        </a-select-option>
+      </a-select>
+      <div
+        v-if="mapCategory"
+      >
+        <div v-if="mapCategory.type === 'Number'">
+          <p>Maximo valor: <b>{{maxRangeValue}}</b></p>
+          <a-input-group
+            compact
+            v-if="mapCategoryRangesCant >= 1"
+            style="margin-top: 5px"
+          >
+            <a-input
+              style="width: 100px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="Rango"
+              disabled
+            />
+            <a-input
+              style="width: 100px; text-align: center"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="from"
+              placeholder="Desde"
+            />
+            <a-input
+              style="width: 30px; border-left: 0; pointer-events: none; backgroundColor: #fff"
+              placeholder="~"
+              disabled
+            />
+            <a-input
+              style="width: 100px; text-align: center; border-left: 0"
+              type="number"
+              min="0"
+              :max="maxRangeValue"
+              v-model="to"
+              placeholder="Hasta"
+            />
+          </a-input-group>
+        </div>
+        <div v-if="mapCategory.type == 'String'">
+          <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
+          <div
+            v-for="(category, index) in mapStringCategories"
+            :key="index"
+          >
+            <p>{{category}}</p>
+          </div>
+        </div>
+        <a-alert
+          v-if="mapRangeError"
+          :message="mapRangeError"
+          type="error"
+          banner
+        />
+      </div>
+      <template slot="footer">
+        <a-button
+          key="submit"
+          type="primary"
+          @click="validateMapRanges()"
+        >
+          Crear Mapa
+        </a-button>
+      </template>
+    </a-modal>
+    <!-- end map modal -->
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+import utils from '@/components/utils'
 
 let accessToken = 'pk.eyJ1Ijoiam9zZWZpbmFlc3RldmV6IiwiYSI6ImNqeml2ZDJwNTAyMGMzYm9zczdhdndidGsifQ.xUBtj7UjSEDYUucjf7_AQA'
 
 function isBetween(x, min, max) {
   return x >= min && x <= max;
 }
+
+const amountCountRanges = [1, 2, 3]
+
+var mymap
 
 export default {
   props: {
@@ -36,6 +133,21 @@ export default {
     }
   },
 
+  data () {
+    return {
+      modalMapCategory: false,
+      mapCategoryOptions: [],
+      mapCategory: null,
+      amountCountRanges,
+      mapCategoryRangesCant: 1,
+      maxRangeValue: 0,
+      from: null,
+      to: null,
+      mapStringCategories: [],
+      mapRangeError: ''
+    }
+  },
+
   mounted () {
     this.$nextTick(() => {
       this.draw()
@@ -43,6 +155,7 @@ export default {
   },
 
   methods: {
+    // Rendering
     draw () {
       let data = this.data.data
       let category = this.data.category
@@ -51,7 +164,7 @@ export default {
       let lng = parseFloat(data[0]['longitude'])
       let cant = document.getElementsByClassName('mapchart').length
       let div = document.getElementsByClassName('mapchart')[cant-1]
-      var mymap = L.map(div).setView([lat, lng], 10)
+      mymap = L.map(div).setView([lat, lng], 10)
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18,
@@ -70,43 +183,15 @@ export default {
         })
         marker.bindPopup(text).openPopup()
       })
-
-      // handling categories
-      if (category) {
-        let categoryType = category.type
-        let categoryField = category.field
-        category.ranges.forEach(range => {
-          let rangeText = range
-          let geopoints = []
-          let filtered = []
-          if (categoryType === "String") {
-            filtered = data.filter(d => d[categoryField] == range)
-          } else if (categoryType === "Number") {
-            filtered = data.filter(d => isBetween(d[categoryField], range[0], range[1]))
-            rangeText = `${categoryField} entre ${range[0]} y ${range[1]}`
-          }
-          filtered.forEach(element => {
-            let lat = parseFloat(element['latitude'])
-            let lng = parseFloat(element['longitude'])
-            geopoints.push([lat, lng])
-          })
-          if (geopoints.length > 1) {
-            this.addPolygon(mymap, geopoints, rangeText)
-          } else if (geopoints.length === 1) {
-            this.addCircle(mymap, geopoints[0], rangeText)
-          }
-        })
-      }
-
     },
 
-    addPolygon (mymap, geopoints, category) {
-      var polygon = L.polygon(geopoints, {color: this.getRandomColor()}).addTo(mymap)
+    addPolygon (geopoints, category) {
+      var polygon = L.polygon(geopoints, {color: utils.getRandomColor()}).addTo(mymap)
       polygon.bindPopup(`${category}`)
     },
 
-    addCircle (mymap, geopoint, category) {
-      let color = this.getRandomColor()
+    addCircle (geopoint, category) {
+      let color = utils.getRandomColor()
       var circle = L.circle(geopoint, {
         color: color,
         fillColor: color,
@@ -116,22 +201,92 @@ export default {
       circle.bindPopup(`${category}`)
     },
 
-    getRandomColor () {
-      return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
+    addCategory () {
+      let columns = this.data.columns
+      this.mapCategoryOptions = columns.filter(column => column['type'] !== 'Latitude' && column['type'] !== 'Longitude')
+      this.modalMapCategory = true
     },
 
-    removeChart () {
-      if (this.backend) {
-        // remove from backend
-        const url = `https://${document.domain}:8000/delete_chart/${this.id}`
-        axios.delete(url).then(response =>{
-          console.log(response)
-        })
+    handleCategoryChange (category) {
+      let columns = this.data.columns
+      this.mapStringCategories = []
+      let column = columns.filter(col => col.dataIndex === category)
+      if (column) {
+        column = column[0]
+        this.mapCategory = column
+        let selectedData = this.data.data
+        if (column.type === "Number") {
+          let validatedNumbers = selectedData.filter(item => item[category] !== '' && utils.isNumeric(item[category]))
+          let maxValue = 0
+          validatedNumbers.forEach(element => {
+            let value = parseFloat(element[category])
+            if (value > maxValue) {
+              maxValue = value
+            }
+          })
+          this.maxRangeValue = maxValue
+        } else if (column.type === 'String') {
+          selectedData.forEach(element => {
+            if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
+              this.mapStringCategories.push(element[category])
+            }
+          })
+        }
       }
-      // destroy the vue listeners, etc
-      this.$destroy()
-      // remove the element from the DOM
-      this.$el.parentNode.removeChild(this.$el)
+    },
+
+    validateMapRanges () {
+      let type
+      let field
+      this.mapRangeError = ''
+      type = this.mapCategory.type
+      field = this.mapCategory.dataIndex
+      if (type == 'String' && this.mapStringCategories) {
+        this.mapStringCategories.forEach(range => {
+          this.addRange(range, 'String', field)
+        })
+        return
+      }
+      if (type == 'Number') {
+        if (this.from && this.to) {
+          let range = [this.from, this.to]
+          this.addRange(range, 'Number', field)
+          return
+        }
+      }
+      this.mapRangeError = 'Campos requeridos faltantes'
+    },
+
+    addRange (range, categoryType, categoryField) {
+      let rangeText = range
+      let geopoints = []
+      let filtered = []
+      let data = this.data.data
+      if (categoryType === 'String') {
+        filtered = data.filter(d => d[categoryField] == range)
+      } else if (categoryType === 'Number') {
+        filtered = data.filter(d => isBetween(d[categoryField], range[0], range[1]))
+        rangeText = `${categoryField} entre ${range[0]} y ${range[1]}`
+      }
+      filtered.forEach(element => {
+        let lat = parseFloat(element['latitude'])
+        let lng = parseFloat(element['longitude'])
+        geopoints.push([lat, lng])
+      })
+      if (geopoints.length > 1) {
+        this.addPolygon(geopoints, rangeText)
+      } else if (geopoints.length === 1) {
+        this.addCircle(geopoints[0], rangeText)
+      }
+    },
+
+    handleRangeChange (value) {
+      this.mapCategoryRangesCant = value
+    },
+
+    // Remove
+    removeChart () {
+      utils.removeChart(this)
     },
 
     // Processing
@@ -152,6 +307,7 @@ export default {
       // processing data
       let chartData = {
         category: null,
+        columns,
         data: []
       }
       rows.forEach(row => {
