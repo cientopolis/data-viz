@@ -254,24 +254,7 @@ export default {
   },
 
   methods: {
-    // charts
-    getCharts () {
-      const url = `${utils.baseUrl}/chart/`
-      const params = {
-        domain: document.domain,
-        nice_table: this.id
-      }
-      axios.get(url, {params})
-        .then(response => {
-          this.backend = true
-          const charts = response.data
-          charts.forEach(chart => {
-            const data = JSON.parse(chart.data)
-            this.renderChart(chart.id, chart.chart_type, data)
-          })
-        })
-    },
-
+    // Rendering
     async renderChart(id, chartType, data) {
       let componentClass = charts[chartType]
       let ComponentClass = Vue.extend(componentClass)
@@ -299,19 +282,6 @@ export default {
       }
     },
 
-    persistChart (data, chartType) {
-      const url = `${utils.baseUrl}/chart/`
-      axios.post(url, {
-        nice_table: this.id,
-        chart_type: chartType,
-        data: JSON.stringify(data)
-      }).then(response => {
-        const newChart = response.data
-        this.renderChart(newChart.id, chartType, data)
-      })
-    },
-
-    // handlers
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
     },
@@ -374,6 +344,36 @@ export default {
 
     backClicked (currentPage) {
       return true
+    },
+
+    // API
+    getCharts () {
+      const url = `${utils.baseUrl}/chart/`
+      const params = {
+        domain: document.domain,
+        nice_table: this.id
+      }
+      axios.get(url, {params})
+        .then(response => {
+          this.backend = true
+          const charts = response.data
+          charts.forEach(chart => {
+            const data = JSON.parse(chart.data)
+            this.renderChart(chart.id, chart.chart_type, data)
+          })
+        })
+    },
+
+    persistChart (data, chartType) {
+      const url = `${utils.baseUrl}/chart/`
+      axios.post(url, {
+        nice_table: this.id,
+        chart_type: chartType,
+        data: JSON.stringify(data)
+      }).then(response => {
+        const newChart = response.data
+        this.renderChart(newChart.id, chartType, data)
+      })
     },
 
     removeTable () {

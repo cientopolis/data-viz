@@ -247,32 +247,7 @@ export default {
   },
 
   methods: {
-    getNiceTables () {
-      const params = {
-        domain: document.domain,
-        table_id: this.tableId
-      }
-      axios.get(url, {params})
-        .then(response => {
-          this.backend = true
-          const niceTables = response.data
-          niceTables.forEach(niceTable => {
-            const columns = niceTable.columns.map(column => {
-              return {
-                dataIndex: column['index'],
-                title: column['title'],
-                type: column['column_type']
-              }
-            })
-            this.displayNiceTable(niceTable.id, columns)
-          })
-        })
-        .catch(error => {
-          this.backend = false
-          console.log('no backend installed')
-        })
-    },
-
+    // Rendering
     showCreateModal () {
       this.modalVisible0 = true
     },
@@ -344,16 +319,7 @@ export default {
     createNiceTable (columns) {
       let niceTableId
       if (this.backend) {
-        // save columns and display
-        axios.post(url, {
-          domain: document.domain,
-          table_id: this.tableId,
-          columns: JSON.stringify(columns)
-        }).then(response => {
-          const newTable = response.data
-          niceTableId = newTable.id
-          this.displayNiceTable(niceTableId, columns)
-        })
+        this.persistNiceTable(columns)
       } else {
         this.displayNiceTable(niceTableId, columns)
       }
@@ -461,6 +427,45 @@ export default {
         return 'Latitude'
       }
       return 'String'
+    },
+
+    // API
+    getNiceTables () {
+      const params = {
+        domain: document.domain,
+        table_id: this.tableId
+      }
+      axios.get(url, {params})
+        .then(response => {
+          this.backend = true
+          const niceTables = response.data
+          niceTables.forEach(niceTable => {
+            const columns = niceTable.columns.map(column => {
+              return {
+                dataIndex: column['index'],
+                title: column['title'],
+                type: column['column_type']
+              }
+            })
+            this.displayNiceTable(niceTable.id, columns)
+          })
+        })
+        .catch(error => {
+          this.backend = false
+          console.log('no backend installed')
+        })
+    },
+
+    persistNiceTable (columns) {
+      // save columns and display
+      axios.post(url, {
+        domain: document.domain,
+        table_id: this.tableId,
+        columns: JSON.stringify(columns)
+      }).then(response => {
+        const newTable = response.data
+        this.displayNiceTable(newTable.id, columns)
+      })
     }
   }
 }

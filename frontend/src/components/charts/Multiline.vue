@@ -39,6 +39,7 @@ export default {
   },
 
   methods: {
+    // Rendering
     async draw () {
       this.$nextTick()
       var margin = { top: 20, right: 100, bottom: 40, left: 100 }
@@ -236,11 +237,7 @@ export default {
       }
     },
 
-    removeChart () {
-      utils.removeChart(this)
-    },
-
-    // Processing info
+    // Processing
     validateColumns (columns) {
       // Validate selected data
       let message = ''
@@ -297,6 +294,11 @@ export default {
       })
       // end process data
       return chartData
+    },
+
+    // API
+    removeChart () {
+      utils.removeChart(this)
     }
   }
 }

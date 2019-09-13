@@ -251,7 +251,6 @@ export default {
       field = this.mapCategory.dataIndex
       if (type == 'String' && this.mapStringCategories) {
         this.mapStringCategories.forEach(range => {
-          // this.createCategory(range, 'String', field)
           let category = {
             range,
             categoryType: 'String',
@@ -268,7 +267,6 @@ export default {
       else if (type == 'Number') {
         if (this.from && this.to) {
           let range = [this.from, this.to]
-          // this.createCategory(range, 'Number', field)
           let category = {
             range,
             categoryType: 'Number',

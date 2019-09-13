@@ -35,6 +35,7 @@ export default {
   },
 
   methods: {
+    // Rendering
     draw () {
       var dataset = this.data
 
@@ -72,11 +73,7 @@ export default {
         .text(function(d) { return d.data.legend; });
     },
 
-    removeChart () {
-      utils.removeChart(this)
-    },
-
-    // Processing info
+    // Processing
     validateColumns (columns) {
       // Validate selected data
       let message = ''
@@ -112,6 +109,11 @@ export default {
       })
       // end process data
       return chartData
+    },
+
+    // API
+    removeChart () {
+      utils.removeChart(this)
     }
   }
 }
