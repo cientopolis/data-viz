@@ -346,7 +346,7 @@ export default {
     // Processing
     validateColumns (columns) {
       // Validate selected data
-      let message = ''
+      let message
       let isValid = true
       let lngColumn = columns.filter(column => column.type == 'Longitude')
       let latColumn = columns.filter(column => column.type == 'Latitude')
