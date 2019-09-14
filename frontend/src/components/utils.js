@@ -8,6 +8,23 @@ const getRandomColor = () => {
   return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
 }
 
+const isDate = (value) => {
+  var dateFormat
+  if (toString.call(value) === '[object Date]') {
+      return true
+  }
+  if (typeof value.replace === 'function') {
+      value.replace(/^\s+|\s+$/gm, '')
+  }
+  //dateFormat = /(^\d{1,4}[\.|\\/|-]\d{1,2}[\.|\\/|-]\d{1,4})(\s*(?:0?[1-9]:[0-5]|1(?=[012])\d:[0-5])\d\s*[ap]m)?$/;
+  dateFormat = /(^\d{1,4}[.|\\/|-]\d{1,2}[.|\\/|-]\d{1,4})(\s*(?:0?[1-9]:[0-5]|1(?=[012])\d:[0-5])\d\s*[ap]m)?$/;
+  return dateFormat.test(value)
+}
+
+const isCoordinate = (str) => {
+  return str.match(/((\d+)+(\.\d+))$/)
+}
+
 const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
 const baseUrl = `${protocol}://${document.domain}:8000`
 
@@ -29,5 +46,7 @@ export default {
   isNumeric,
   getRandomColor,
   baseUrl,
-  removeChart
+  removeChart,
+  isDate,
+  isCoordinate
 }

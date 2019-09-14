@@ -159,26 +159,12 @@ import Vue from 'vue'
 import moment from 'moment'
 import axios from 'axios'
 import utils from '@/components/utils'
+import Antd from 'ant-design-vue'
+import { Row, Button, Icon, Modal, Col, Input, Checkbox, Card, Select } from 'ant-design-vue'
+import 'ant-design-vue/dist/antd.css'
+import { GoodWizard } from 'vue-good-wizard';
 
-function isNumeric (str) {
-  return !isNaN(str)
-}
-
-function isDate(value) {
-  var dateFormat
-  if (toString.call(value) === '[object Date]') {
-      return true
-  }
-  if (typeof value.replace === 'function') {
-      value.replace(/^\s+|\s+$/gm, '')
-  }
-  dateFormat = /(^\d{1,4}[\.|\\/|-]\d{1,2}[\.|\\/|-]\d{1,4})(\s*(?:0?[1-9]:[0-5]|1(?=[012])\d:[0-5])\d\s*[ap]m)?$/;
-  return dateFormat.test(value)
-}
-
-function isCoordinate (str) {
-  return str.match(/((\d+)+(\.\d+))$/)
-}
+Vue.use(Antd)
 
 const dataTypes = [
   'Date',
@@ -196,16 +182,49 @@ export default {
   props: {
     columns: {
       type: Array,
-      required: true
+      default: function () {
+        return ['column1', 'column2', 'column3', 'column4']
+      }
     },
     data: {
       type: Array,
-      required: true
+      default: function () {
+        return [
+          { 
+            column1: 1234,
+            column2: 'Un string',
+            column3: '2019-08-25',
+            column4: 'blablanba'
+          },
+          { 
+            column1: 0,
+            column2: 'esofkoewkfew',
+            column3: '2018-08-25',
+            column4: 'Lorem ipsum'
+          }
+        ]
+      }
     },
     tableId: {
       type: String,
-      required: true
+      default: function () {
+        return 'tableId'
+      }
     }
+  },
+
+  components: {
+    'a-row': Row,
+    'a-button': Button,
+    'a-icon': Icon,
+    'a-modal': Modal,
+    'a-col': Col,
+    'a-input': Input,
+    'a-checkbox-group': Checkbox.Group,
+    'a-card': Card,
+    'a-select': Select,
+    'a-select-option': Select.Option,
+    'vue-good-wizard': GoodWizard
   },
 
   data () {
@@ -391,30 +410,30 @@ export default {
 
     checkType (value, type) {
       if (type === 'Number') {
-        return isNumeric(value)
+        return utils.isNumeric(value)
       }
       if (type === 'Date') {
-        if (isDate(value) && this.dateFormat) {
+        if (utils.isDate(value) && this.dateFormat) {
           let date = moment(value, this.dateFormat)
           return String(date._d) !== 'Invalid Date'
         }
         return false
       }
       if (type === 'Longitude' || type === 'Latitude') {
-        return isCoordinate(value)
+        return utils.isCoordinate(value)
       }
       return true
     },
 
     predictType (column) {
       let example = this.example[column]
-      if (isNumeric(example)) {
+      if (utils.isNumeric(example)) {
         return 'Number'
       }
-      if (isDate(example)) {
+      if (utils.isDate(example)) {
         return 'Date'
       }
-      if (isCoordinate(example)) {
+      if (utils.isCoordinate(example)) {
         if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
           return 'Latitude'
         }
@@ -452,7 +471,7 @@ export default {
         })
         .catch(error => {
           this.backend = false
-          console.log('no backend installed')
+          console.log(`no backend installed ${error}`)
         })
     },
 
