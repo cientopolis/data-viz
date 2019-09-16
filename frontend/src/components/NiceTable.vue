@@ -156,6 +156,7 @@ import Vue from 'vue'
 import charts from '@/components/charts'
 import axios from 'axios'
 import utils from '@/components/utils'
+import { GoodWizard } from 'vue-good-wizard'
 
 const steps = [
   {
@@ -208,6 +209,10 @@ export default {
     }
   },
 
+  components: {
+    'vue-good-wizard': GoodWizard
+  },
+
   data () {
     return {
       selectedRowKeys: [],
@@ -255,7 +260,7 @@ export default {
 
   methods: {
     // Rendering
-    async renderChart(id, chartType, data) {
+    async renderChart(id, chartType, data, firstTime=true) {
       let componentClass = charts[chartType]
       let ComponentClass = Vue.extend(componentClass)
       let chart = new ComponentClass({
@@ -267,8 +272,10 @@ export default {
       })
       chart.$mount() // pass nothing
       this.$refs.charts.appendChild(chart.$el)
-      await this.$nextTick()
-      this.$scrollTo(chart.$el)
+      if (firstTime) {
+        await this.$nextTick()
+        this.$scrollTo(chart.$el)
+      }
     },
 
     index (row) {
@@ -359,7 +366,7 @@ export default {
           const charts = response.data
           charts.forEach(chart => {
             const data = JSON.parse(chart.data)
-            this.renderChart(chart.id, chart.chart_type, data)
+            this.renderChart(chart.id, chart.chart_type, data, false)
           })
         })
     },

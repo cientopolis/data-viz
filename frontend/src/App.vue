@@ -12,7 +12,7 @@
 import Vue from 'vue'
 import Example1 from '@/components/Example1'
 import Infovis from '@/components/Infovis'
-import tableIdExporter from '@/exporters/tableIdExporter'
+import exporters from '@/exporters'
 
 export default {
   name: 'app',
@@ -20,7 +20,8 @@ export default {
     Example1
   },
   mounted () {
-    let table = tableIdExporter.getTable('appear')
+    let exporter = exporters.tableIdExporter
+    let table = exporter.getTable(document, 'appear')
     let ComponentClass = Vue.extend(Infovis)
     let infovis = new ComponentClass({
       propsData: {

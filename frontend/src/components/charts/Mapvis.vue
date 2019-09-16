@@ -108,8 +108,23 @@
 <script>
 import axios from 'axios'
 import utils from '@/components/utils'
+import Vue from 'vue'
 
+// mapvis conf
 let accessToken = 'pk.eyJ1Ijoiam9zZWZpbmFlc3RldmV6IiwiYSI6ImNqeml2ZDJwNTAyMGMzYm9zczdhdndidGsifQ.xUBtj7UjSEDYUucjf7_AQA'
+import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
+import { Icon } from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+Vue.component('l-map', LMap)
+Vue.component('l-tile-layer', LTileLayer)
+Vue.component('l-marker', LMarker)
+delete Icon.Default.prototype._getIconUrl
+Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+})
+// end mapvis conf
 
 const chartType = 'Mapvis'
 
@@ -120,6 +135,7 @@ function isBetween(x, min, max) {
 const amountCountRanges = [1, 2, 3]
 
 var mymap
+var L = L
 
 export default {
   props: {
@@ -162,7 +178,7 @@ export default {
     draw () {
       let data = this.data['data']
       let categories = this.data['categories']
-      let view = data[0]
+      // let view = data[0]
       let lat = parseFloat(data[0]['latitude'])
       let lng = parseFloat(data[0]['longitude'])
       let cant = document.getElementsByClassName('mapchart').length

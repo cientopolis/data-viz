@@ -159,12 +159,31 @@ import Vue from 'vue'
 import moment from 'moment'
 import axios from 'axios'
 import utils from '@/components/utils'
+import { GoodWizard } from 'vue-good-wizard'
+
+// antd conf
 import Antd from 'ant-design-vue'
 import { Row, Button, Icon, Modal, Col, Input, Checkbox, Card, Select } from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
-import { GoodWizard } from 'vue-good-wizard';
-
 Vue.use(Antd)
+// end antd conf
+
+// scroll to conf
+var VueScrollTo = require('vue-scrollto')
+Vue.use(VueScrollTo, {
+  container: "body",
+  duration: 500,
+  easing: "ease",
+  offset: 0,
+  force: true,
+  cancelable: true,
+  onStart: false,
+  onDone: false,
+  onCancel: false,
+  x: false,
+  y: true
+})
+// end scroll to conf
 
 const dataTypes = [
   'Date',
@@ -183,7 +202,7 @@ export default {
     columns: {
       type: Array,
       default: function () {
-        return ['column1', 'column2', 'column3', 'column4']
+        return ['number', 'string', 'date', 'otherstring', 'lat', 'lng']
       }
     },
     data: {
@@ -191,16 +210,20 @@ export default {
       default: function () {
         return [
           { 
-            column1: 1234,
-            column2: 'Un string',
-            column3: '2019-08-25',
-            column4: 'blablanba'
+            number: 1234,
+            string: 'Un string',
+            date: '2019-08-25',
+            otherstring: 'blablanba',
+            lat: '-35.115.974',
+            lng: '-58.172.607',
           },
           { 
-            column1: 0,
-            column2: 'esofkoewkfew',
-            column3: '2018-08-25',
-            column4: 'Lorem ipsum'
+            number: 0,
+            string: 'esofkoewkfew',
+            date: '2018-08-25',
+            otherstring: 'Lorem ipsum',
+            lat: '-34.838.684',
+            lng: '-58.833.248'
           }
         ]
       }
@@ -393,7 +416,7 @@ export default {
       this.tableCreated = true
       this.showCreateButton = false
       await this.$nextTick()
-      this.$scrollTo(niceTable.$el)
+      VueScrollTo.scrollTo(niceTable.$el)
     },
 
     hideTable () {

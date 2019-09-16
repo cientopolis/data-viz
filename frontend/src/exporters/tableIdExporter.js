@@ -53,8 +53,9 @@ function parse (table) {
   return { columns, data }
 }
 
-const getTable = (tableId) => {
-  var table = document.querySelector(`#${tableId}`)
+const getTable = (document, tableId) => {
+  console.log('documenttt', document)
+  let table = document.querySelector(`#${tableId}`) || document.getElementById(`#${tableId}`)
   if (table) {
     return parse(table)
   } else {
