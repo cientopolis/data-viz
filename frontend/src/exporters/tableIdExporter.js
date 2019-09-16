@@ -70,7 +70,7 @@ function parse (table) {
   return { columns, data }
 }
 
-const getTable = (document, tableId) => {
+const getTable = (tableId) => {
   let table = document.querySelector(`#${tableId}`) || document.getElementById(`#${tableId}`)
   if (table) {
     return parse(table)

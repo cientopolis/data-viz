@@ -21,7 +21,7 @@ export default {
   },
   mounted () {
     let exporter = exporters.tableIdExporter
-    let table = exporter.getTable(document, 'appear')
+    let table = exporter.getTable('appear')
     let ComponentClass = Vue.extend(Infovis)
     let infovis = new ComponentClass({
       propsData: {
