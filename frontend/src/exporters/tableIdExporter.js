@@ -29,32 +29,48 @@ function factory(headings) {
  * @param  {HTMLTableElement} table the table to convert
  * @return {Array[Object]}       array of objects representing each row in the table
  */
-function parseHead(table) {
+function parseHead (table) {
   let headings = arrayify(table.tHead.rows[0].cells).map(function(heading) {
     return heading.innerText;
   })
   return headings
 }
 
-function parseTable(table) {
+function parseHead2 (table) {
+  let headings = arrayify(table.rows[0].cells).map(function(heading) {
+    return heading.innerText;
+  })
+  return headings
+}
+
+function parseTable (table) {
   let headings = parseHead(table)
   return arrayify(table.tBodies[0].rows).map(factory(headings))
 }
 
+function parseTable2 (table) {
+  let headings = parseHead2(table)
+  let rows = []
+  for (let index = 1; index < table.rows.length; index++) {
+    rows.push(table.rows[index])
+  }
+  return arrayify(rows).map(factory(headings))
+}
+
 function parse (table) {
-  let columns = parseHead(table)
-  //columns = columns.map(column => {
-  //  return {
-  //    'value': column,
-  //    'label': column
-  //  }
-  //})
-  let data = parseTable(table)
+  let columns
+  let data
+  if (table.tHead && table.tBodies) {
+    columns = parseHead(table)
+    data = parseTable(table)
+  } else {
+    columns = parseHead2(table)
+    data = parseTable2(table)
+  }
   return { columns, data }
 }
 
 const getTable = (document, tableId) => {
-  console.log('documenttt', document)
   let table = document.querySelector(`#${tableId}`) || document.getElementById(`#${tableId}`)
   if (table) {
     return parse(table)
