@@ -156,6 +156,7 @@ import Vue from 'vue'
 import charts from '@/components/charts'
 import axios from 'axios'
 import utils from '@/components/utils'
+import { Col, Input, Select, Checkbox } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 
 const steps = [
@@ -210,6 +211,11 @@ export default {
   },
 
   components: {
+    'a-col': Col,
+    'a-input': Input,
+    'a-select': Select,
+    'a-select-option': Select.Option,
+    'a-checkbox-group': Checkbox.Group,
     'vue-good-wizard': GoodWizard
   },
 
@@ -387,7 +393,7 @@ export default {
       if (this.backend) {
         // remove from backend
         const url = `${utils.baseUrl}/table_detail/${this.id}`
-        axios.delete(url).then(response =>{
+        axios.delete(url).then(response => {
           console.log(response)
         })
       }

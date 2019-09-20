@@ -135,7 +135,6 @@ function isBetween(x, min, max) {
 const amountCountRanges = [1, 2, 3]
 
 var mymap
-var L = L
 
 export default {
   props: {
