@@ -244,6 +244,7 @@ export default {
   },
 
   methods: {
+    // handlers
     checkAllRows () {
       this.selectedRowKeys = this.rows.map((row, index) => index)
     },
@@ -266,7 +267,7 @@ export default {
       this.searchText = ''
     },
 
-    // Rendering
+    // rendering
     loadTable () {
       let url = `${utils.baseUrl}/try_domain/`
       let tableId = this.niceTableParam.getId()
@@ -381,6 +382,7 @@ export default {
         })
     },
 
+    // operations
     renameColumns () {
       this.$refs.renameColumns.niceTable = this.niceTable
       this.$refs.renameColumns.showModal()

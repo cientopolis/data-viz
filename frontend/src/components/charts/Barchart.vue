@@ -216,6 +216,11 @@ export default {
       })
       // end processing data
       return chartData
+    },
+
+    getInstruction () {
+      const instruction = 'Selecciona columnas con valores numericos'
+      return instruction
     }
   }
 }

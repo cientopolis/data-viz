@@ -73,27 +73,6 @@ const steps = [
   }
 ]
 
-// TODO: dynamic
-const chartTypes = [
-  {
-    value: 'Multiline',
-    title: 'Multiline',
-    instruction: 'Selecciona una fecha y valores numericos'
-  }, {
-    value: 'Piechart',
-    title: 'Piechart',
-    instruction: 'Selecciona columnas con valores numericos'
-  }, {
-    value: 'Barchart',
-    title: 'Barchart',
-    instruction: 'Selecciona columnas con valores numericos'
-  }, {
-    value: 'Mapvis',
-    title: 'Map',
-    instruction: 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
-  }
-]
-
 export default {
   components: {
     'a-alert': Alert,
@@ -112,8 +91,7 @@ export default {
       columns: [],
       chartColumns: [],
       steps,
-      chartTypes,
-      backend: false,
+      chartTypes: [],
       chart: null
     }
   },
@@ -125,6 +103,16 @@ export default {
           label: column.title,
           value: column.dataIndex
         }
+      })
+    }
+  },
+
+  created () {
+    for (let [key, value] of Object.entries(charts)) {
+      this.chartTypes.push({
+        value: key,
+        title: key,
+        instruction: value.methods.getInstruction()
       })
     }
   },

@@ -148,6 +148,11 @@ export default {
     // API
     removeChart () {
       utils.removeChart(this)
+    },
+
+    getInstruction () {
+      const instruction = 'Selecciona columnas con valores numericos'
+      return instruction
     }
   }
 }

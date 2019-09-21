@@ -327,6 +327,11 @@ export default {
     // API
     removeChart () {
       utils.removeChart(this)
+    },
+
+    getInstruction () {
+      const instruction = 'Selecciona una fecha y valores numericos'
+      return instruction
     }
   }
 }
