@@ -13,6 +13,7 @@ import Vue from 'vue'
 import Example1 from '@/components/Example1'
 import Infovis from '@/components/Infovis'
 import exporters from '@/exporters'
+import NiceTable from '@/nicetable'
 
 export default {
   name: 'app',
@@ -21,13 +22,11 @@ export default {
   },
   mounted () {
     let exporter = exporters.tableIdExporter
-    let table = exporter.getTable('appear')
+    let niceTable = exporter.getTable('appear')
     let ComponentClass = Vue.extend(Infovis)
     let infovis = new ComponentClass({
       propsData: {
-        tableId: 'appear',
-        columns: table['columns'],
-        data: table['data']
+        niceTableParam: niceTable
       }
     })
     infovis.$mount() // pass nothing

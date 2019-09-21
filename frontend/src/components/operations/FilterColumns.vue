@@ -16,9 +16,27 @@
     </template>
     <a-row>
       <h3>Selecciona las columnas que quieras incluir en tu nueva tabla</h3>
+    </a-row>
+    <a-row>
+      <a-button
+        size="small"
+        style="float: left; margin: 10px 5px;"
+        @click="checkAll()"
+      >
+        Marcar todas
+      </a-button>
+      <a-button
+        size="small"
+        style="float: left; margin: 10px 5px;"
+        @click="uncheckAll()"
+      >
+        Desmarcar todas
+      </a-button>
+    </a-row>
+    <a-row>
       <a-checkbox-group
         style="margin: 0 30px;"
-        :options="columns"
+        :options="allColumns"
         v-model="filteredColumns"
       />
     </a-row>
@@ -27,6 +45,7 @@
 </template>
 <script>
 import { Modal } from 'ant-design-vue'
+import NiceTable from '@/nicetable'
 
 export default {
   components: {
@@ -35,9 +54,26 @@ export default {
 
   data () {
     return {
+      niceTable: null,
       modalVisible: false,
-      columns: [],
+      allColumns: [],
       filteredColumns: []
+    }
+  },
+
+  watch: {
+    niceTable: function(niceTable) {
+      const columns = niceTable.getColumns()
+      this.allColumns = []
+      columns.forEach(column => {
+        this.allColumns.push({
+          'value': column.dataIndex,
+          'label': column.title
+        })
+        if (column.visible) {
+          this.filteredColumns.push(column.dataIndex)
+        }
+      })
     }
   },
 
@@ -46,9 +82,25 @@ export default {
       this.modalVisible = true
     },
 
+    checkAll () {
+      const columns = this.niceTable.getColumns()
+      columns.forEach(column => {
+        this.filteredColumns.push(column.dataIndex)
+      })
+    },
+
+    uncheckAll () {
+      this.filteredColumns = []
+    },
+
     save () {
+      let columns = this.niceTable.getColumns()
+      columns.forEach(column => {
+        column.visible = this.filteredColumns.indexOf(column.dataIndex) >= 0 ? true : false
+      })
+      let niceTable = new NiceTable(this.niceTable.id, columns, this.niceTable.rows)
+      this.$emit('onSave', niceTable)
       this.modalVisible = false
-      this.$parent.filteredColumns(this.filteredColumns)
     }
   }
 }

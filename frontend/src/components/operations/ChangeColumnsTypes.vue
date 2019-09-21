@@ -9,11 +9,11 @@
       v-if="steps.length > 0"
       ref="my-wizard"
       :steps="steps"
-      :onNext="nextClicked" 
+      :onNext="nextClicked"
       :onBack="backClicked"
     >
       <div
-        v-for="(column, index) in curatedColumns"
+        v-for="(column, index) in columns"
         :key="index"
         :slot="column.dataIndex"
       >
@@ -76,15 +76,8 @@ import moment from 'moment'
 import { Modal, Card } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 // my lib
+import NiceTable from '@/nicetable'
 import utils from '@/components/utils'
-
-const dataTypes = [
-  'Date',
-  'Number',
-  'String',
-  'Latitude',
-  'Longitude'
-]
 
 const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
@@ -94,48 +87,49 @@ export default {
     'a-card': Card,
     'vue-good-wizard': GoodWizard,
   },
+
   data () {
     return {
+      niceTable: null,
       modalVisible: false,
-      allColumns: [],
-      selectedColumns: [],
+      columns: [],
       example: {},
-      curatedColumns: [],
       steps: [],
       selectedType: null,
       columnsError: null,
       dateFormat: dateFormats[0],
-      dataTypes,
+      dataTypes: utils.dataTypes,
       dateFormats
     }
   },
+
   watch: {
-    selectedColumns: function (columns) {
+    niceTable: function (niceTable) {
       this.steps = []
-      this.curatedColumns = []
-      this.selectedColumns.forEach(column => {
+      const columns = niceTable.getColumns()
+      this.columns = columns.filter(column => column.visible == true)
+      this.selectedType = this.columns[0].type
+      this.columns.forEach(column => {
         this.steps.push({
           label: 'Select type',
-          slot: column
+          slot: column.dataIndex
         })
-        let completeColumn = this.allColumns.find(col => col.value == column)
-        this.curatedColumns.push({
-          'dataIndex': column,
-          'title': completeColumn['label'],
-          'type': this.predictType(column)
-        })
+        this.example[column.dataIndex] = NiceTable.getExample(column.dataIndex, this.niceTable.getRows())
       })
-      this.selectedType = this.curatedColumns[0].type
     }
   },
+
   methods: {
     showModal () {
       this.modalVisible = true
     },
+
     save () {
+      let niceTable = new NiceTable(this.niceTable.id, this.columns, this.niceTable.rows)
+      this.$emit('onSave', niceTable)
       this.modalVisible = false
-      this.$parent.changedColumnTypes(this.curatedColumns)
     },
+
     checkType (value, type) {
       if (type === 'Number') {
         return utils.isNumeric(value)
@@ -152,28 +146,7 @@ export default {
       }
       return true
     },
-    predictType (column) {
-      let example = this.example[column]
-      if (utils.isNumeric(example)) {
-        return 'Number'
-      }
-      if (utils.isDate(example)) {
-        return 'Date'
-      }
-      if (utils.isCoordinate(example)) {
-        if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
-          return 'Latitude'
-        }
-        if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
-          return 'Longitude'
-        }
-        if (this.curatedColumns.some(column => column.type == 'Latitude')) {
-          return 'Longitude'
-        }
-        return 'Latitude'
-      }
-      return 'String'
-    },
+
     nextClicked (currentPage) {
       this.columnsError = null
       if ((this.selectedType === null) || (this.selectedType === undefined)) {
@@ -181,8 +154,8 @@ export default {
         return false
       }
       // else
-      let column = this.curatedColumns[currentPage]
-      let example = this.example[column.dataIndex]
+      let column = this.columns[currentPage]
+      const example = this.example[column.dataIndex]
       let validate = this.checkType(example, this.selectedType)
       if (this.selectedType == 'Date') {
         column['format'] = this.dateFormat
@@ -193,7 +166,7 @@ export default {
           // last page
           this.save()
         } else {
-          this.selectedType = this.curatedColumns[currentPage+1]['type']
+          this.selectedType = this.columns[currentPage+1]['type']
         }
         //return false if you want to prevent moving to next page
         return true 
@@ -205,11 +178,12 @@ export default {
         return false
       }
     },
+
     backClicked (currentPage) {
-      this.selectedType = this.curatedColumns[currentPage-1]['type']
+      this.selectedType = this.columns[currentPage-1]['type']
       //return false if you want to prevent moving to previous page
       return true
-    },
+    }
   }
 }
 </script>

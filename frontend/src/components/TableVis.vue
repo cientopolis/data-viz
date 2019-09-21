@@ -1,11 +1,5 @@
 <template>
-  <div ref="niceTableContainer">
-    <a-row type="flex" justify="center">
-      <a-col :span="12" id="chart">
-      </a-col>
-      <a-col :span="3" id="chart-hover">
-      </a-col>
-    </a-row>
+  <div>
     <a-row>
       <a-button
         style="margin-left: 5px; margin-top: 50px; float: left;"
@@ -18,7 +12,7 @@
         style="margin-left: 5px; margin-top: 50px; float: left;"
         type="primary"
         :disabled="selectedRowKeys.length === 0"
-        @click="chartModalVisible = true"
+        @click="createChart()"
       >
         Crear Grafico
       </a-button>
@@ -31,26 +25,11 @@
           </template>
         </span>
       </a-col>
-      <a-col>
-        <a-dropdown style="margin-right: 10px;">
-          <a class="ant-dropdown-link" href="#">
-            Visible Columns<a-icon type="down" />
-          </a>
-          <a-menu slot="overlay" style="padding: 5px; width: 300px;">
-            <a-row>
-              <a-checkbox-group
-                :options="columnsOptions"
-                v-model="columnsChecked"
-              />
-            </a-row>
-          </a-menu>
-        </a-dropdown>
-      </a-col>
     </a-row>
     <a-table
       :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-      :columns="visibleColumns"
-      :dataSource="data"
+      :columns="columnsWithFunctions"
+      :dataSource="rows"
       :rowKey="row => index(row)"
     >
       <div slot="filterDropdown" slot-scope="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }" class='custom-filter-dropdown'>
@@ -90,73 +69,20 @@
     <div ref="charts">
     </div>
     <!-- end chart's div -->
-    <!-- create chart modal -->
-    <a-modal
-      v-model="chartModalVisible"
-      @cancel="createChartCancel()"
-      :footer="null"
-    >
-      <vue-good-wizard
-        ref="my-wizard"
-        :steps="steps"
-        :onNext="nextClicked"
-        :onBack="backClicked"
-      >
-        <div slot="selectChartType">
-          <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
-          <a-select style="width: 200px" @change="handleChartChange">
-            <a-select-option
-              v-for="(chartType, index) in chartTypes"
-              :key="index"
-              :value="chartType.value"
-            >
-              {{chartType.title}}
-            </a-select-option>
-          </a-select>
-        </div>
-        <div slot="selectColumns">
-          <div v-if="selectedChartType">
-            <span 
-              style="margin: 10px;"
-            >
-              Select {{selectedChartType.title}} columns
-            </span>
-            <a-alert :message="selectedChartType.instruction" banner />
-            <a-row>
-              <a-select
-                mode="multiple"
-                style="width: 100%; margin-top: 10px;"
-                placeholder="Please select"
-                :maxTagCount="3"
-                v-model="chartColumns"
-              >
-                <a-select-option
-                  v-for="(column, index) in columnsOptions"
-                  :key="index">
-                  {{column.value}}
-                </a-select-option>
-              </a-select>
-              <a-alert
-                v-if="columnsError"
-                :message="columnsError"
-                type="error"
-                banner
-              />
-            </a-row>
-          </div>
-        </div>
-      </vue-good-wizard>
-    </a-modal>
-    <!-- end create chart modal -->
+    <create-chart
+      ref="createChart"
+      @onSave="chartCreated"
+    />
   </div>
 </template>
 <script>
 import moment from 'moment'
 import Vue from 'vue'
 import charts from '@/components/charts'
+import CreateChart from '@/components/operations/CreateChart'
 import axios from 'axios'
 import utils from '@/components/utils'
-import { Col, Input, Select, Checkbox } from 'ant-design-vue'
+import { Col, Input } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 
 const steps = [
@@ -170,38 +96,10 @@ const steps = [
   }
 ]
 
-// TODO: dynamic
-const chartTypes = [
-  {
-    value: 'Multiline',
-    title: 'Multiline',
-    instruction: 'Selecciona una fecha y valores numericos'
-  }, {
-    value: 'Piechart',
-    title: 'Piechart',
-    instruction: 'Selecciona columnas con valores numericos'
-  }, {
-    value: 'Barchart',
-    title: 'Barchart',
-    instruction: 'Selecciona columnas con valores numericos'
-  }, {
-    value: 'Mapvis',
-    title: 'Map',
-    instruction: 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
-  }
-]
-
 export default {
   props: {
-    id: {
-      type: Number
-    },
-    columns: {
-      type: Array,
-      required: true
-    },
-    data: {
-      type: Array,
+    niceTable: {
+      type: Object,
       required: true
     },
     backend: {
@@ -213,67 +111,82 @@ export default {
   components: {
     'a-col': Col,
     'a-input': Input,
-    'a-select': Select,
-    'a-select-option': Select.Option,
-    'a-checkbox-group': Checkbox.Group,
-    'vue-good-wizard': GoodWizard
+    CreateChart
   },
 
   data () {
     return {
       selectedRowKeys: [],
-      columnsOptions: [],
-      columnsChecked: [],
-      chartColumns: [],
       selectedChartType : null,
       showTable: false,
       searchText: '',
       searchInput: null,
       chartModalVisible: false,
-      columnsError: null,
-      steps,
-      chartTypes
+      columnsError: null
     }
   },
 
   computed: {
-    hasSelected() {
+    hasSelected () {
       return this.selectedRowKeys.length > 0
     },
 
+    id () {
+      return this.niceTable.getId()
+    },
+
+    rows () {
+      return this.niceTable.getRows()
+    },
+
     visibleColumns () {
-      let visibleColumns = this.columns.filter(column => this.columnsChecked.indexOf(column.dataIndex) >= 0)
-      return visibleColumns
+      return this.niceTable.getVisibleColumns()
+    },
+
+    columnsWithFunctions () {
+      let columnsWithFunctions = []
+      this.visibleColumns.forEach(col => {
+        let column = Object.assign({}, col)
+        if (column['type'] === 'String') {
+          let field = column['dataIndex']
+          column['sorter'] = (a, b) => a[field].length - b[field].length
+          column['scopedSlots'] = {
+            filterDropdown: 'filterDropdown',
+            filterIcon: 'filterIcon',
+            customRender: 'customRender'
+          }
+          column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
+        }
+        if (column['type'] === 'Number') {
+          let field = column['dataIndex']
+          column['sorter'] = (a, b) => a[field] - b[field]
+        }
+        columnsWithFunctions.push(column)
+      })
+      return columnsWithFunctions
     }
   },
 
   created () {
-    this.columnsOptions = this.columns.map(column => {
-      return {
-        label: column.title,
-        value: column.dataIndex
-      }
-    })
-
-    this.columnsChecked = this.columnsOptions.map(column => {
-      return column.value
-    })
-    
-    if (this.backend) {
-      this.getCharts()
-    }
+    // if (this.backend) {
+    //   this.getCharts()
+    // }
   },
 
   methods: {
     // Rendering
-    async renderChart(id, chartType, data, firstTime=true) {
+    async renderChart(id, chartType, selectedColumns, firstTime=true) {
       let componentClass = charts[chartType]
       let ComponentClass = Vue.extend(componentClass)
+      let conf = {
+        selectedColumns: selectedColumns,
+        selectedRows: this.selectedRowKeys
+      }
       let chart = new ComponentClass({
         propsData: {
-          id,
-          backend: this.backend,
-          data
+          backend: false,
+          conf,
+          niceTable: this.niceTable
         }
       })
       chart.$mount() // pass nothing
@@ -285,7 +198,7 @@ export default {
     },
 
     index (row) {
-      return this.data.indexOf(row)
+      return this.rows.indexOf(row)
     },
 
     clearChart () {
@@ -299,10 +212,6 @@ export default {
       this.selectedRowKeys = selectedRowKeys
     },
 
-    handleChartChange (value) {
-      this.selectedChartType = this.chartTypes.find(item => item.value == value)
-    },
-
     handleSearch (selectedKeys, confirm) {
       confirm()
       this.searchText = selectedKeys[0]
@@ -313,69 +222,23 @@ export default {
       this.searchText = ''
     },
 
-    nextClicked (currentPage) {
-      this.columnsError = null
-      if (currentPage === 0) {
-        if (this.selectedChartType !== null) {
-          return true
-        }
-      }
-      if (currentPage === this.steps.length - 1) {
-        const chartType = this.selectedChartType.value
-        let selectedComponent = charts[chartType]
-        // first validate
-        if (this.chartColumns.length > 0) {
-          let selectedColumns = this.columns.filter(column => this.chartColumns.indexOf(this.columns.indexOf(column)) >= 0)
-          let { isValid, message } = selectedComponent.methods.validateColumns(selectedColumns)
-          if (isValid === false) {
-            this.columnsError = message
-            return false
-          } else {
-            // now process selected data
-            let id
-            let selectedData = this.data.filter(element => this.selectedRowKeys.indexOf(this.data.indexOf(element)) >= 0)
-            let processedData = selectedComponent.methods.transformData(selectedColumns, selectedData)
-            if (this.backend) {
-              // persist and then render chart
-              this.persistChart(processedData, chartType)
-            } else {
-              // only render chart
-              this.renderChart(id, chartType, processedData)
-            }
-            this.selectedRowKeys = []
-            this.chartColumns = []
-          }
-        } else {
-          this.columnsError = 'Debes seleccionar alguna columna'
-          return false
-        }
-      }
-      this.chartModalVisible = false
-      this.selectedChartType = null
-      this.$refs['my-wizard'].goTo(0)
-    },
-
-    backClicked (currentPage) {
-      return true
-    },
-
     // API
-    getCharts () {
-      const url = `${utils.baseUrl}/chart/`
-      const params = {
-        domain: document.domain,
-        nice_table: this.id
-      }
-      axios.get(url, {params})
-        .then(response => {
-          this.backend = true
-          const charts = response.data
-          charts.forEach(chart => {
-            const data = JSON.parse(chart.data)
-            this.renderChart(chart.id, chart.chart_type, data, false)
-          })
-        })
-    },
+    // getCharts () {
+    //   const url = `${utils.baseUrl}/chart/`
+    //   const params = {
+    //     domain: document.domain,
+    //     nice_table: this.id
+    //   }
+    //   axios.get(url, {params})
+    //     .then(response => {
+    //       this.backend = true
+    //       const charts = response.data
+    //       charts.forEach(chart => {
+    //         const data = JSON.parse(chart.data)
+    //         this.renderChart(chart.id, chart.chart_type, data, false)
+    //       })
+    //     })
+    // },
 
     persistChart (data, chartType) {
       const url = `${utils.baseUrl}/chart/`
@@ -401,6 +264,24 @@ export default {
       this.$destroy()
       // remove the element from the DOM
       this.$el.parentNode.removeChild(this.$el)
+    },
+
+    createChart () {
+      this.$refs.createChart.columns = this.niceTable.getVisibleColumns()
+      this.$refs.createChart.showModal()
+    },
+
+    chartCreated (chart) {
+      let selectedColumns = chart.selectedColumns
+      let chartType = chart.chartType
+      let id
+      if (this.backend) {
+        // persist and then render chart
+        this.persistChart(processedData, chartType)
+      } else {
+        // only render chart
+        this.renderChart(id, chartType, selectedColumns)
+      }
     }
   }
 }

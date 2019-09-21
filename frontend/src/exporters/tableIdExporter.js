@@ -1,3 +1,4 @@
+import NiceTable from '@/nicetable'
 /**
  * converts array-like object to array
  * @param  collection the object to be converted
@@ -59,26 +60,26 @@ function parseTable2 (table) {
 
 function parse (table) {
   let columns
-  let data
+  let rows
   if (table.tHead && table.tBodies) {
     columns = parseHead(table)
-    data = parseTable(table)
+    rows = parseTable(table)
   } else {
     columns = parseHead2(table)
-    data = parseTable2(table)
+    rows = parseTable2(table)
   }
-  return { columns, data }
+  return { columns, rows }
 }
 
 const getTable = (tableId) => {
   let table = document.querySelector(`#${tableId}`) || document.getElementById(`#${tableId}`)
   if (table) {
-    return parse(table)
+    let { columns, rows } = parse(table)
+    const objectsColumns = NiceTable.stringColumnsToObjects(columns, rows)
+    return new NiceTable(tableId, objectsColumns, rows)
   } else {
     console.log(`No table with id ${tableId} found`)
-    let columns = []
-    let data = []
-    return { columns, data }
+    return new NiceTable(tableId, [], [])
   }
 }
 

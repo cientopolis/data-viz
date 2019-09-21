@@ -1,0 +1,178 @@
+<template>
+  <!-- create chart modal -->
+  <a-modal
+    v-model="modalVisible"
+    :footer="null"
+  >
+    <vue-good-wizard
+      ref="my-wizard"
+      :steps="steps"
+      :onNext="nextClicked"
+      :onBack="backClicked"
+    >
+      <div slot="selectChartType">
+        <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
+        <a-select style="width: 200px" @change="handleChartChange">
+          <a-select-option
+            v-for="(chartType, index) in chartTypes"
+            :key="index"
+            :value="chartType.value"
+          >
+            {{chartType.title}}
+          </a-select-option>
+        </a-select>
+      </div>
+      <div slot="selectColumns">
+        <div v-if="selectedChartType">
+          <span 
+            style="margin: 10px;"
+          >
+            Select {{selectedChartType.title}} columns
+          </span>
+          <a-alert :message="selectedChartType.instruction" banner />
+          <a-row>
+            <a-select
+              mode="multiple"
+              style="width: 100%; margin-top: 10px;"
+              placeholder="Please select"
+              :maxTagCount="3"
+              v-model="chartColumns"
+            >
+              <a-select-option
+                v-for="(column, index) in columnsOptions"
+                :key="index">
+                {{column.value}}
+              </a-select-option>
+            </a-select>
+            <a-alert
+              v-if="columnsError"
+              :message="columnsError"
+              type="error"
+              banner
+            />
+          </a-row>
+        </div>
+      </div>
+    </vue-good-wizard>
+  </a-modal>
+  <!-- end create chart modal -->
+</template>
+<script>
+import { GoodWizard } from 'vue-good-wizard'
+import { Select } from 'ant-design-vue'
+import charts from '@/components/charts'
+
+const steps = [
+  {
+    label: 'Selecciona un tipo de grafico',
+    slot: 'selectChartType'
+  },
+  {
+    label: 'Selecciona las columnas del grafico',
+    slot: 'selectColumns'
+  }
+]
+
+// TODO: dynamic
+const chartTypes = [
+  {
+    value: 'Multiline',
+    title: 'Multiline',
+    instruction: 'Selecciona una fecha y valores numericos'
+  }, {
+    value: 'Piechart',
+    title: 'Piechart',
+    instruction: 'Selecciona columnas con valores numericos'
+  }, {
+    value: 'Barchart',
+    title: 'Barchart',
+    instruction: 'Selecciona columnas con valores numericos'
+  }, {
+    value: 'Mapvis',
+    title: 'Map',
+    instruction: 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
+  }
+]
+
+export default {
+  components: {
+    'vue-good-wizard': GoodWizard,
+    'a-select': Select,
+    'a-select-option': Select.Option
+  },
+
+  data () {
+    return {
+      modalVisible: false,
+      columnsError: null,
+      selectedChartType: null,
+      columns: [],
+      chartColumns: [],
+      steps,
+      chartTypes,
+      backend: false,
+      chart: null
+    }
+  },
+
+  computed: {
+    columnsOptions () {
+      return this.columns.map(column => {
+        return {
+          label: column.title,
+          value: column.dataIndex
+        }
+      })
+    }
+  },
+
+  methods: {
+    showModal () {
+      this.modalVisible = true
+    },
+
+    handleChartChange (value) {
+      this.selectedChartType = this.chartTypes.find(item => item.value == value)
+    },
+
+    nextClicked (currentPage) {
+      this.columnsError = null
+      if (currentPage === 0) {
+        if (this.selectedChartType !== null) {
+          return true
+        }
+      }
+      if (currentPage === this.steps.length - 1) {
+        const chartType = this.selectedChartType.value
+        let selectedComponent = charts[chartType]
+        // first validate
+        if (this.chartColumns.length > 0) {
+          let selectedColumns = this.columns.filter(column => this.chartColumns.indexOf(this.columns.indexOf(column)) >= 0)
+          let { isValid, message } = selectedComponent.methods.validateColumns(selectedColumns)
+          if (isValid === false) {
+            this.columnsError = message
+            return false
+          } else {
+            selectedColumns = selectedColumns.map(column => column.dataIndex)
+            let chartConf = {
+              chartType,
+              selectedColumns
+            }
+            this.$emit('onSave', chartConf)
+          }
+        } else {
+          this.columnsError = 'Debes seleccionar alguna columna'
+          return false
+        }
+      }
+      this.modalVisible = false
+      this.selectedChartType = null
+      this.$refs['my-wizard'].goTo(0)
+    },
+
+    backClicked (currentPage) {
+      return true
+    }
+  }
+}
+</script>

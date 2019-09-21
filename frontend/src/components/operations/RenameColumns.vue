@@ -15,7 +15,7 @@
     </template>
     <h3>Completa con un nombre descriptivo para tus columnas</h3>
     <a-row
-      v-for="(column, index) in columns"
+      v-for="(column, index) in renamedColumns"
       :key="index"
     >
       <a-col style="text-align: center;">
@@ -31,6 +31,7 @@
 </template>
 <script>
 import { Modal, Col, Input } from 'ant-design-vue'
+import NiceTable from '@/nicetable'
 
 export default {
   components: {
@@ -41,8 +42,21 @@ export default {
 
   data () {
     return {
-      modalVisible: false,
-      columns: []
+      niceTable: null,
+      renamedColumns: [],
+      modalVisible: false
+    }
+  },
+
+  watch: {
+    niceTable: function(niceTable) {
+      let columns = niceTable.getColumns()
+      this.renamedColumns = columns.map(column => {
+        return {
+          'value': column.dataIndex,
+          'label': column.dataIndex
+        }
+      })
     }
   },
 
@@ -52,8 +66,13 @@ export default {
     },
 
     save () {
+      let columns = this.niceTable.getColumns()
+      this.renamedColumns.forEach((column, index) => {
+        columns[index]['title'] = column.label
+      })
+      let niceTable = new NiceTable(this.niceTable.id, columns, this.niceTable.rows)
+      this.$emit('onSave', niceTable)
       this.modalVisible = false
-      this.$parent.renamedColumns(this.columns)
     }
   }
 }

@@ -16,11 +16,12 @@ import utils from '@/components/utils'
 
 export default {
   props: {
-    id: {
-      type: Number
+    niceTable: {
+      type: Object,
+      required: true
     },
-    data: {
-      type: Array,
+    conf: {
+      type: Object,
       required: true
     },
     backend: {
@@ -29,7 +30,32 @@ export default {
     }
   },
 
+  data () {
+    return {
+      data: null
+    }
+  },
+
+  computed: {
+    id () {
+      return this.niceTable.getId()
+    },
+
+    columns () {
+      let niceTableColumns = this.niceTable.getColumns().filter(column => column.visible == true)
+      let selectedColumns = this.conf.selectedColumns
+      return niceTableColumns.filter(column => selectedColumns.indexOf(column.dataIndex) >= 0)
+    },
+
+    rows () {
+      let niceTableRows = this.niceTable.getRows()
+      let selectedRows = this.conf.selectedRows
+      return niceTableRows.filter(row => selectedRows.indexOf(niceTableRows.indexOf(row)) >= 0)
+    }
+  },
+
   mounted () {
+    this.data = this.transformData(this.columns, this.rows)
     this.draw()
   },
 

@@ -11,10 +11,10 @@ const getRandomColor = () => {
 const isDate = (value) => {
   var dateFormat
   if (toString.call(value) === '[object Date]') {
-      return true
+    return true
   }
   if (typeof value.replace === 'function') {
-      value.replace(/^\s+|\s+$/gm, '')
+    value.replace(/^\s+|\s+$/gm, '')
   }
   /* eslint-disable */
   dateFormat = /(^\d{1,4}[\.|\\/|-]\d{1,2}[\.|\\/|-]\d{1,4})(\s*(?:0?[1-9]:[0-5]|1(?=[012])\d:[0-5])\d\s*[ap]m)?$/
@@ -43,11 +43,20 @@ const removeChart = (component) => {
   component.$el.parentNode.removeChild(component.$el)
 }
 
+const dataTypes = [
+  'Date',
+  'Number',
+  'String',
+  'Latitude',
+  'Longitude'
+]
+
 export default {
   isNumeric,
   getRandomColor,
   baseUrl,
   removeChart,
   isDate,
-  isCoordinate
+  isCoordinate,
+  dataTypes
 }

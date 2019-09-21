@@ -138,10 +138,11 @@ var mymap
 
 export default {
   props: {
-    id: {
-      type: Number
+    niceTable: {
+      type: Object,
+      required: true
     },
-    data: {
+    conf: {
       type: Object,
       required: true
     },
@@ -153,6 +154,7 @@ export default {
 
   data () {
     return {
+      data: null,
       modalMapCategory: false,
       mapCategoryOptions: [],
       mapCategory: null,
@@ -166,7 +168,26 @@ export default {
     }
   },
 
+  computed: {
+    id () {
+      return this.niceTable.getId()
+    },
+
+    columns () {
+      let niceTableColumns = this.niceTable.getColumns().filter(column => column.visible == true)
+      let selectedColumns = this.conf.selectedColumns
+      return niceTableColumns.filter(column => selectedColumns.indexOf(column.dataIndex) >= 0)
+    },
+
+    rows () {
+      let niceTableRows = this.niceTable.getRows()
+      let selectedRows = this.conf.selectedRows
+      return niceTableRows.filter(row => selectedRows.indexOf(niceTableRows.indexOf(row)) >= 0)
+    }
+  },
+
   mounted () {
+    this.data = this.transformData(this.columns, this.rows)
     this.$nextTick(() => {
       this.draw()
     })
