@@ -11,9 +11,8 @@
 <script>
 import Vue from 'vue'
 import Example1 from '@/components/Example1'
-import Infovis from '@/components/Infovis'
-import exporters from '@/exporters'
-import NiceTable from '@/nicetable'
+import TableVis from '@/components/TableVis'
+import { tableIdExporter } from '@/exporters'
 
 export default {
   name: 'app',
@@ -21,16 +20,14 @@ export default {
     Example1
   },
   mounted () {
-    let exporter = exporters.tableIdExporter
-    let niceTable = exporter.getTable('appear')
-    let ComponentClass = Vue.extend(Infovis)
-    let infovis = new ComponentClass({
+    let ComponentClass = Vue.extend(TableVis)
+    let tableVis = new ComponentClass({
       propsData: {
-        niceTableParam: niceTable
+        niceTableParam: tableIdExporter.getTable('appear')
       }
     })
-    infovis.$mount() // pass nothing
-    this.$refs.container.appendChild(infovis.$el)
+    tableVis.$mount() // pass nothing
+    this.$refs.container.appendChild(tableVis.$el)
   }
 }
 </script>

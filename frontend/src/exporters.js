@@ -1,5 +1,3 @@
-import tableIdExporter from '@/exporters/tableIdExporter'
+export { default as tableIdExporter } from '@/exporters/tableIdExporter'
 
-export default {
-  tableIdExporter
-}
+// others posible exporters

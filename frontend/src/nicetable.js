@@ -1,10 +1,11 @@
 import utils from '@/components/utils'
 
 class NiceTable {
-  constructor(id, columns, rows) {
+  constructor(id, columns, rows, backend=false) {
     this.setId(id)
     this.setRows(rows)
     this.setColumns(columns)
+    this.setBackend(backend)
   }
 
   getId () {
@@ -33,6 +34,14 @@ class NiceTable {
 
   setRows (rows) {
     this.rows = rows
+  }
+
+  getBackend () {
+    return this.backend
+  }
+
+  setBackend (backend) {
+    this.backend = backend
   }
 
   static stringColumnsToObjects (columns, rows) {

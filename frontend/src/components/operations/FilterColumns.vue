@@ -1,7 +1,7 @@
 <template>
   <!-- filter columns -->
   <a-modal
-    title="Crear Tabla Infovis"
+    title="Filtrar Columnas"
     v-model="modalVisible"
   >
     <template slot="footer">
@@ -15,7 +15,7 @@
       </a-button>
     </template>
     <a-row>
-      <h3>Selecciona las columnas que quieras incluir en tu nueva tabla</h3>
+      <h3>Selecciona las columnas que quieras incluir en tu tabla</h3>
     </a-row>
     <a-row>
       <a-button
@@ -44,12 +44,15 @@
   <!-- end filtering columns -->
 </template>
 <script>
-import { Modal } from 'ant-design-vue'
+import { Checkbox, Button, Modal, Row } from 'ant-design-vue'
 import NiceTable from '@/nicetable'
 
 export default {
   components: {
-    'a-modal': Modal
+    'a-checkbox-group': Checkbox.Group,
+    'a-button': Button,
+    'a-modal': Modal,
+    'a-row': Row
   },
 
   data () {

@@ -28,18 +28,20 @@
       v-model="modalMapCategory"
     >
       <h3>Elije un campo para categorizar tu mapa</h3>
-      <a-select style="width: 200px; margin-bottom: 20px" @change="handleCategoryChange">
+      <a-select
+        v-if="mapCategoryOptions"
+        style="width: 200px; margin-bottom: 20px"
+        @change="handleCategoryChange"
+      >
         <a-select-option
-          v-for="(category, index) in mapCategoryOptions"
+          v-for="(column, index) in mapCategoryOptions"
           :key="index"
-          :value="category.dataIndex"
+          :value="column.dataIndex"
         >
-          {{category.title}}
+          {{column.title}}
         </a-select-option>
       </a-select>
-      <div
-        v-if="mapCategory"
-      >
+      <div>
         <div v-if="mapCategory.type === 'Number'">
           <p>Maximo valor: <b>{{maxRangeValue}}</b></p>
           <a-input-group
@@ -110,6 +112,8 @@ import axios from 'axios'
 import utils from '@/components/utils'
 import Vue from 'vue'
 
+import { Col, Button, Modal, Select, Row } from 'ant-design-vue'
+
 // mapvis conf
 let accessToken = 'pk.eyJ1Ijoiam9zZWZpbmFlc3RldmV6IiwiYSI6ImNqeml2ZDJwNTAyMGMzYm9zczdhdndidGsifQ.xUBtj7UjSEDYUucjf7_AQA'
 import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
@@ -145,10 +149,6 @@ export default {
     conf: {
       type: Object,
       required: true
-    },
-    backend: {
-      type: Boolean,
-      required: true
     }
   },
 
@@ -168,9 +168,19 @@ export default {
     }
   },
 
+  components: {
+    'a-col': Col,
+    'a-button': Button,
+    'a-modal': Modal,
+    'a-select': Select,
+    'a-select-option': Select.Option,
+    'a-row': Row
+  },
+
   computed: {
-    id () {
-      return this.niceTable.getId()
+
+    backend () {
+      return this.niceTable.getBackend()
     },
 
     columns () {
@@ -246,13 +256,12 @@ export default {
     },
 
     addCategory () {
-      let columns = this.data.columns
-      this.mapCategoryOptions = columns.filter(column => column['type'] === 'String' || column['type'] == 'Number')
+      this.mapCategoryOptions = this.columns.filter(column => column.type === 'String' || column.type == 'Number')
       this.modalMapCategory = true
     },
 
     handleCategoryChange (category) {
-      let columns = this.data.columns
+      let columns = this.columns
       this.mapStringCategories = []
       let column = columns.filter(col => col.dataIndex === category)
       if (column) {

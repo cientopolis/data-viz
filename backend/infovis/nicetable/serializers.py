@@ -1,21 +1,21 @@
 from rest_framework import serializers
-from .models import NiceTable, Column, Chart
+from .models import TablePersistence, ColumnPersistence, ChartPersistence
 
 
 class ColumnSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Column
-        fields = ['id', 'nice_table', 'index', 'title', 'column_type']
+        model = ColumnPersistence
+        fields = ['id', 'table', 'index', 'title', 'column_type', 'visible']
 
 
-class NiceTableSerializer(serializers.ModelSerializer):
+class TableSerializer(serializers.ModelSerializer):
     columns = ColumnSerializer(many=True, read_only=True)
     class Meta:
-        model = NiceTable
-        fields = ['id', 'domain', 'table_id', 'columns']
+        model = TablePersistence
+        fields = ['id', 'domain', 'identificator', 'columns']
 
 
 class ChartSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Chart
-        fields = ['id', 'nice_table', 'chart_type', 'data']
+        model = ChartPersistence
+        fields = ['id', 'table', 'chart_type', 'conf']

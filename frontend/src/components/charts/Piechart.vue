@@ -14,19 +14,22 @@
 <script>
 import * as d3 from 'd3'
 import utils from '@/components/utils'
+import { Button } from 'ant-design-vue'
 
 export default {
   props: {
+    id: {
+      type: Number,
+      default: function () {
+        return 0
+      }
+    },
     niceTable: {
       type: Object,
       required: true
     },
     conf: {
       type: Object,
-      required: true
-    },
-    backend: {
-      type: Boolean,
       required: true
     }
   },
@@ -37,9 +40,14 @@ export default {
     }
   },
 
+  components: {
+    'a-button': Button
+  },
+
   computed: {
-    id () {
-      return this.niceTable.getId()
+
+    backend () {
+      return this.niceTable.getBackend()
     },
 
     columns () {

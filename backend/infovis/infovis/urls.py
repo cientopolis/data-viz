@@ -19,8 +19,9 @@ from nicetable import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('nice_table/', views.nice_table),
-    path('table_detail/<int:pk>', views.NiceTableDetail.as_view(), name='delete_table'),
+    path('table/', views.table),
+    path('table_detail/<int:pk>', views.TableDetail.as_view(), name='table_detail'),
     path('chart/', views.chart),
     path('chart_detail/<int:pk>', views.ChartDetail.as_view(), name='chart_detail'),
+    path('try_domain/', views.try_domain, name='try_domain')
 ]

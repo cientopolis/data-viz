@@ -15,6 +15,7 @@
 import * as d3 from 'd3'
 import utils from '@/components/utils'
 import moment from 'moment'
+import { Button } from 'ant-design-vue'
 
 export default {
   props: {
@@ -25,10 +26,6 @@ export default {
     conf: {
       type: Object,
       required: true
-    },
-    backend: {
-      type: Boolean,
-      required: true
     }
   },
 
@@ -38,9 +35,14 @@ export default {
     }
   },
 
+  components: {
+    'a-button': Button
+  },
+
   computed: {
-    id () {
-      return this.niceTable.getId()
+
+    backend () {
+      return this.niceTable.getBackend()
     },
 
     columns () {

@@ -1,36 +1,73 @@
 <template>
   <div>
+    <!-- operations buttons -->
     <a-row>
       <a-button
-        style="margin-left: 5px; margin-top: 50px; float: left;"
-        type="primary"
-        @click="removeTable()"
+        style="float: left; margin: 10px 5px;"
+        @click="filterColumns()"
       >
-        Eliminar Tabla
+        Filtrar Columnas
       </a-button>
       <a-button
-        style="margin-left: 5px; margin-top: 50px; float: left;"
-        type="primary"
+        style="float: left; margin: 10px 5px;"
+        @click="renameColumns()"
+      >
+        Renombrar Columnas
+      </a-button>
+      <a-button
+        style="float: left; margin: 10px 5px;"
+        @click="changeColumnsTypes()"
+      >
+        Definir tipos para las columnas
+      </a-button>
+      <a-button
+        style="float: left; margin: 10px 5px;"
         :disabled="selectedRowKeys.length === 0"
         @click="createChart()"
       >
         Crear Grafico
       </a-button>
+      <a-button
+        v-if="backend"
+        type="primary"
+        style="float: right; margin: 10px 5px;"
+        @click="persistTable()"
+      >
+        Guardar Cambios
+      </a-button>
     </a-row>
-    <a-row type="flex" justify="space-between" style="margin: 10px 0;">
-      <a-col>
-        <span style="margin-left: 8px">
-          <template v-if="hasSelected">
-            {{`Selected ${selectedRowKeys.length} items`}}
-          </template>
-        </span>
-      </a-col>
+    <!-- end operations buttons -->
+    <!-- rows management -->
+    <a-row>
+      <a-button
+        size="small"
+        style="float: left; width: 180px; margin: 10px 5px;"
+        @click="checkAllRows()"
+      >
+        Marcar todas las filas
+      </a-button>
+      <a-button
+        size="small"
+        style="float: left; width: 180px; margin: 10px 5px;"
+        @click="uncheckAllRows()"
+      >
+        Desmarcar todas las filas
+      </a-button>
     </a-row>
+    <a-row>
+      <span style="float: left; margin: 10px 5px;">
+        <template v-if="selectedRowKeys.length > 0">
+          {{`${selectedRowKeys.length} filas seleccionadas`}}
+        </template>
+      </span>
+    </a-row>
+    <!-- end rows management -->
+    <!-- table -->
     <a-table
       :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
       :columns="columnsWithFunctions"
       :dataSource="rows"
-      :rowKey="row => index(row)"
+      :rowKey="row => rows.indexOf(row)"
     >
       <div slot="filterDropdown" slot-scope="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }" class='custom-filter-dropdown'>
         <a-input
@@ -65,147 +102,154 @@
         <template v-else>{{text}}</template>
       </template>
     </a-table>
-    <!-- in this div charts will be inserted -->
-    <div ref="charts">
-    </div>
-    <!-- end chart's div -->
+    <!-- end table -->
+    <!-- operations components -->
+    <rename-columns
+      ref="renameColumns"
+      @onSave="niceTableChanged(niceTable)"
+    />
+    <filter-columns
+      ref="filterColumns"
+      @onSave="niceTableChanged(niceTable)"
+    />
+    <change-columns-types
+      ref="changeColumnsTypes"
+      @onSave="niceTableChanged(niceTable)"
+    />
     <create-chart
       ref="createChart"
       @onSave="chartCreated"
     />
+    <!-- end operations components -->
+    <!-- in this div charts will be inserted -->
+    <div ref="charts">
+    </div>
+    <!-- end chart's div -->
   </div>
 </template>
 <script>
-import moment from 'moment'
+// external
 import Vue from 'vue'
-import charts from '@/components/charts'
-import CreateChart from '@/components/operations/CreateChart'
 import axios from 'axios'
-import utils from '@/components/utils'
-import { Col, Input } from 'ant-design-vue'
-import { GoodWizard } from 'vue-good-wizard'
+import { Button, Icon, Input, Row, Table } from 'ant-design-vue'
+import 'ant-design-vue/dist/antd.css'
 
-const steps = [
-  {
-    label: 'Selecciona un tipo de grafico',
-    slot: 'selectChartType'
-  },
-  {
-    label: 'Selecciona las columnas del grafico',
-    slot: 'selectColumns'
-  }
-]
+var VueScrollTo = require('vue-scrollto')
+Vue.use(VueScrollTo, {
+  container: "body",
+  duration: 500,
+  easing: "ease",
+  offset: 0,
+  force: true,
+  cancelable: true,
+  onStart: false,
+  onDone: false,
+  onCancel: false,
+  x: false,
+  y: true
+})
+
+// my lib stuff
+// utils
+import utils from '@/components/utils'
+// nice table class
+import NiceTable from '@/nicetable'
+// all posible charts
+import charts from '@/components/charts'
+// operations
+import RenameColumns from '@/components/operations/RenameColumns'
+import FilterColumns from '@/components/operations/FilterColumns'
+import ChangeColumnsTypes from '@/components/operations/ChangeColumnsTypes'
+import CreateChart from '@/components/operations/CreateChart'
 
 export default {
+
   props: {
-    niceTable: {
+    niceTableParam: {
       type: Object,
-      required: true
-    },
-    backend: {
-      type: Boolean,
       required: true
     }
   },
 
   components: {
-    'a-col': Col,
+    'a-button': Button,
+    'a-icon': Icon,
     'a-input': Input,
+    'a-row': Row,
+    'a-table': Table,
+    // operations
+    RenameColumns,
+    FilterColumns,
+    ChangeColumnsTypes,
     CreateChart
   },
 
   data () {
     return {
+      niceTable: null,
       selectedRowKeys: [],
-      selectedChartType : null,
-      showTable: false,
+      // search in table
       searchText: '',
-      searchInput: null,
-      chartModalVisible: false,
-      columnsError: null
+      searchInput: null
     }
   },
 
   computed: {
-    hasSelected () {
-      return this.selectedRowKeys.length > 0
+    id () {
+      return this.niceTable ? this.niceTable.getId() : null
     },
 
-    id () {
-      return this.niceTable.getId()
+    backend () {
+      return this.niceTable ? this.niceTable.getBackend() : false
     },
 
     rows () {
-      return this.niceTable.getRows()
+      return this.niceTable ? this.niceTable.getRows() : []
     },
 
     visibleColumns () {
-      return this.niceTable.getVisibleColumns()
+      return this.niceTable ? this.niceTable.getVisibleColumns() : []
     },
 
     columnsWithFunctions () {
-      let columnsWithFunctions = []
-      this.visibleColumns.forEach(col => {
-        let column = Object.assign({}, col)
-        if (column['type'] === 'String') {
-          let field = column['dataIndex']
-          column['sorter'] = (a, b) => a[field].length - b[field].length
-          column['scopedSlots'] = {
-            filterDropdown: 'filterDropdown',
-            filterIcon: 'filterIcon',
-            customRender: 'customRender'
+      if (this.niceTable) {
+        // adding posibility of sort / search in our table
+        let columnsWithFunctions = []
+        this.visibleColumns.forEach(col => {
+          let column = Object.assign({}, col)
+          if (column['type'] === 'String') {
+            let field = column['dataIndex']
+            column['sorter'] = (a, b) => a[field].length - b[field].length
+            column['scopedSlots'] = {
+              filterDropdown: 'filterDropdown',
+              filterIcon: 'filterIcon',
+              customRender: 'customRender'
+            }
+            column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
           }
-          column['onFilter'] = (value, record) => record[field].toLowerCase().includes(value.toLowerCase())
-        }
-        if (column['type'] === 'Number') {
-          let field = column['dataIndex']
-          column['sorter'] = (a, b) => a[field] - b[field]
-        }
-        columnsWithFunctions.push(column)
-      })
-      return columnsWithFunctions
+          if (column['type'] === 'Number') {
+            let field = column['dataIndex']
+            column['sorter'] = (a, b) => a[field] - b[field]
+          }
+          columnsWithFunctions.push(column)
+        })
+        return columnsWithFunctions
+      }
+      return []
     }
   },
 
   created () {
-    // if (this.backend) {
-    //   this.getCharts()
-    // }
+    this.loadTable()
   },
 
   methods: {
-    // Rendering
-    async renderChart(id, chartType, selectedColumns, firstTime=true) {
-      let componentClass = charts[chartType]
-      let ComponentClass = Vue.extend(componentClass)
-      let conf = {
-        selectedColumns: selectedColumns,
-        selectedRows: this.selectedRowKeys
-      }
-      let chart = new ComponentClass({
-        propsData: {
-          backend: false,
-          conf,
-          niceTable: this.niceTable
-        }
-      })
-      chart.$mount() // pass nothing
-      this.$refs.charts.appendChild(chart.$el)
-      if (firstTime) {
-        await this.$nextTick()
-        this.$scrollTo(chart.$el)
-      }
+    checkAllRows () {
+      this.selectedRowKeys = this.rows.map((row, index) => index)
     },
 
-    index (row) {
-      return this.rows.indexOf(row)
-    },
-
-    clearChart () {
-      var myNode = document.getElementById('chart')
-      while (myNode.firstChild) {
-        myNode.removeChild(myNode.firstChild)
-      }
+    uncheckAllRows () {
+      this.selectedRowKeys = []
     },
 
     onSelectChange (selectedRowKeys) {
@@ -222,65 +266,151 @@ export default {
       this.searchText = ''
     },
 
-    // API
-    // getCharts () {
-    //   const url = `${utils.baseUrl}/chart/`
-    //   const params = {
-    //     domain: document.domain,
-    //     nice_table: this.id
-    //   }
-    //   axios.get(url, {params})
-    //     .then(response => {
-    //       this.backend = true
-    //       const charts = response.data
-    //       charts.forEach(chart => {
-    //         const data = JSON.parse(chart.data)
-    //         this.renderChart(chart.id, chart.chart_type, data, false)
-    //       })
-    //     })
-    // },
+    // Rendering
+    loadTable () {
+      let url = `${utils.baseUrl}/try_domain/`
+      let tableId = this.niceTableParam.getId()
+      const params = {
+        domain: document.domain,
+        identificator: tableId
+      }
+      let backend
+      axios.get(url)
+        .then(tryDomainResponse => {
+          // recuperar tabla y luego charts
+          let url = `${utils.baseUrl}/table/`
+          const params = {
+            domain: document.domain,
+            identificator: tableId
+          }
+          axios.get(url, { params })
+            .then((getTableResponse) => {
+              // backend installed and table persisted
+              console.log('there is a table, lets load it')
+              let responseColumns = getTableResponse.data.columns.map(column => {
+                return {
+                  dataIndex: column.index,
+                  title: column.title,
+                  type: column.column_type,
+                  visible: column.visible
+                }
+              })
+              this.niceTable = new NiceTable(tableId, responseColumns, this.niceTableParam.getRows(), true)
+              this.getCharts()
+            })
+            .catch((getTableError) => {
+              console.log('no table persisted')
+              this.niceTable = new NiceTable(tableId, this.niceTableParam.getColumns(), this.niceTableParam.getRows(), true)
+            })
+        })
+        .catch(tryDomainError => {
+          // no backend installed
+          this.niceTable = NiceTable.clone(this.niceTableParam)
+          this.niceTable.setBackend(false)
+        })
+    },
 
-    persistChart (data, chartType) {
+    async renderChart(type, conf, firstTime=true, id=null) {
+      let chartClass = charts[type]
+      chartClass = Vue.extend(chartClass)
+      let propsData = {
+        conf,
+        niceTable: this.niceTable
+      }
+      if (id !== null) {
+        propsData['id'] = id
+      }
+      let chart = new chartClass({
+        propsData
+      })
+      chart.$mount() // pass nothing
+      this.$refs.charts.appendChild(chart.$el)
+      // only scroll if it is being created
+      if (firstTime) {
+        await this.$nextTick()
+        this.$scrollTo(chart.$el)
+      }
+    },
+
+    // API
+    getCharts () {
       const url = `${utils.baseUrl}/chart/`
+      const params = {
+        domain: document.domain,
+        identificator: this.id
+      }
+      axios.get(url, { params })
+        .then(response => {
+          const charts = response.data
+          charts.forEach(chart => {
+            // const data = JSON.parse(chart.data)
+            const type = chart.chart_type
+            const conf = JSON.parse(chart.conf)
+            const firstTime = false
+            this.renderChart(type, conf, firstTime, chart.id)
+          })
+        })
+    },
+
+    persistTable () {
+      // save columns and display
+      let url = `${utils.baseUrl}/table/`
+      let columns = this.niceTable.getColumns()
       axios.post(url, {
-        nice_table: this.id,
-        chart_type: chartType,
-        data: JSON.stringify(data)
+        domain: document.domain,
+        identificator: this.id,
+        columns: JSON.stringify(columns)
       }).then(response => {
-        const newChart = response.data
-        this.renderChart(newChart.id, chartType, data)
+        console.log('table persisted!')
       })
     },
 
-    removeTable () {
-      if (this.backend) {
-        // remove from backend
-        const url = `${utils.baseUrl}/table_detail/${this.id}`
-        axios.delete(url).then(response => {
-          console.log(response)
-        })
+    persistChart (type, conf) {
+      const url = `${utils.baseUrl}/chart/`
+      const params = {
+        domain: document.domain,
+        identificator: this.id,
+        chart_type: type,
+        conf: JSON.stringify(conf)
       }
-      // destroy the vue listeners, etc
-      this.$destroy()
-      // remove the element from the DOM
-      this.$el.parentNode.removeChild(this.$el)
+      axios.post(url, params)
+        .then(response => {
+          const chart = response.data
+          const firstTime = true
+          this.renderChart(type, conf, firstTime, chart.id)
+        })
+    },
+
+    renameColumns () {
+      this.$refs.renameColumns.niceTable = this.niceTable
+      this.$refs.renameColumns.showModal()
+    },
+
+    filterColumns () {
+      this.$refs.filterColumns.niceTable = this.niceTable
+      this.$refs.filterColumns.showModal()
+    },
+
+    changeColumnsTypes () {
+      this.$refs.changeColumnsTypes.niceTable = this.niceTable
+      this.$refs.changeColumnsTypes.showModal()
+    },
+
+    niceTableChanged (niceTable) {
+      this.niceTable = niceTable
     },
 
     createChart () {
-      this.$refs.createChart.columns = this.niceTable.getVisibleColumns()
+      this.$refs.createChart.columns = this.visibleColumns
       this.$refs.createChart.showModal()
     },
 
-    chartCreated (chart) {
-      let selectedColumns = chart.selectedColumns
-      let chartType = chart.chartType
-      let id
+    chartCreated (type, conf) {
+      conf['selectedRows'] = this.selectedRowKeys
       if (this.backend) {
-        // persist and then render chart
-        this.persistChart(processedData, chartType)
+        this.persistChart(type, conf)
       } else {
-        // only render chart
-        this.renderChart(id, chartType, selectedColumns)
+        this.renderChart(type, conf)
       }
     }
   }

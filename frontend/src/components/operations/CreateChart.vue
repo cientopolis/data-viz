@@ -27,7 +27,7 @@
           <span 
             style="margin: 10px;"
           >
-            Select {{selectedChartType.title}} columns
+            Selecciona las columnas para tu grafico.
           </span>
           <a-alert :message="selectedChartType.instruction" banner />
           <a-row>
@@ -41,7 +41,7 @@
               <a-select-option
                 v-for="(column, index) in columnsOptions"
                 :key="index">
-                {{column.value}}
+                {{column.label}}
               </a-select-option>
             </a-select>
             <a-alert
@@ -59,7 +59,7 @@
 </template>
 <script>
 import { GoodWizard } from 'vue-good-wizard'
-import { Select } from 'ant-design-vue'
+import { Alert, Modal, Row, Select } from 'ant-design-vue'
 import charts from '@/components/charts'
 
 const steps = [
@@ -96,9 +96,12 @@ const chartTypes = [
 
 export default {
   components: {
-    'vue-good-wizard': GoodWizard,
+    'a-alert': Alert,
+    'a-modal': Modal,
+    'a-row': Row,
     'a-select': Select,
-    'a-select-option': Select.Option
+    'a-select-option': Select.Option,
+    'vue-good-wizard': GoodWizard
   },
 
   data () {
@@ -128,6 +131,7 @@ export default {
 
   methods: {
     showModal () {
+      this.chartColumns = []
       this.modalVisible = true
     },
 
@@ -154,11 +158,10 @@ export default {
             return false
           } else {
             selectedColumns = selectedColumns.map(column => column.dataIndex)
-            let chartConf = {
-              chartType,
+            let conf = {
               selectedColumns
             }
-            this.$emit('onSave', chartConf)
+            this.$emit('onSave', chartType, conf)
           }
         } else {
           this.columnsError = 'Debes seleccionar alguna columna'

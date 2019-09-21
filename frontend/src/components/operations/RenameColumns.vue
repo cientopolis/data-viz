@@ -30,14 +30,16 @@
   <!-- end select columns names -->
 </template>
 <script>
-import { Modal, Col, Input } from 'ant-design-vue'
+import { Button, Col, Input, Modal, Row } from 'ant-design-vue'
 import NiceTable from '@/nicetable'
 
 export default {
   components: {
-    'a-modal': Modal,
+    'a-button': Button,
     'a-col': Col,
-    'a-input': Input
+    'a-input': Input,
+    'a-modal': Modal,
+    'a-row': Row
   },
 
   data () {
@@ -48,27 +50,23 @@ export default {
     }
   },
 
-  watch: {
-    niceTable: function(niceTable) {
-      let columns = niceTable.getColumns()
+  methods: {
+    showModal () {
+      let columns = this.niceTable.getVisibleColumns()
       this.renamedColumns = columns.map(column => {
         return {
           'value': column.dataIndex,
           'label': column.dataIndex
         }
       })
-    }
-  },
-
-  methods: {
-    showModal () {
       this.modalVisible = true
     },
 
     save () {
       let columns = this.niceTable.getColumns()
-      this.renamedColumns.forEach((column, index) => {
-        columns[index]['title'] = column.label
+      this.renamedColumns.forEach(renamedColumn => {
+        let column = columns.find(column => column.dataIndex == renamedColumn.value)
+        column.title = renamedColumn.label
       })
       let niceTable = new NiceTable(this.niceTable.id, columns, this.niceTable.rows)
       this.$emit('onSave', niceTable)

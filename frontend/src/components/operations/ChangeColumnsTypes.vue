@@ -3,11 +3,12 @@
   <a-modal
     title="Crear Tabla Infovis"
     v-model="modalVisible"
+    @cancel="handleCancel"
     :footer="null"
   >
     <vue-good-wizard
       v-if="steps.length > 0"
-      ref="my-wizard"
+      ref="wizard"
       :steps="steps"
       :onNext="nextClicked"
       :onBack="backClicked"
@@ -73,7 +74,7 @@
 <script>
 // external
 import moment from 'moment'
-import { Modal, Card } from 'ant-design-vue'
+import { Card, Select, Modal } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 // my lib
 import NiceTable from '@/nicetable'
@@ -83,16 +84,17 @@ const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
 export default {
   components: {
-    'a-modal': Modal,
     'a-card': Card,
-    'vue-good-wizard': GoodWizard,
+    'a-modal': Modal,
+    'a-select': Select,
+    'a-select-option': Select.Option,
+    'vue-good-wizard': GoodWizard
   },
 
   data () {
     return {
       niceTable: null,
       modalVisible: false,
-      columns: [],
       example: {},
       steps: [],
       selectedType: null,
@@ -103,11 +105,15 @@ export default {
     }
   },
 
-  watch: {
-    niceTable: function (niceTable) {
+  computed: {
+    columns () {
+      return this.niceTable.getVisibleColumns()
+    }
+  },
+
+  methods: {
+    showModal () {
       this.steps = []
-      const columns = niceTable.getColumns()
-      this.columns = columns.filter(column => column.visible == true)
       this.selectedType = this.columns[0].type
       this.columns.forEach(column => {
         this.steps.push({
@@ -116,16 +122,17 @@ export default {
         })
         this.example[column.dataIndex] = NiceTable.getExample(column.dataIndex, this.niceTable.getRows())
       })
-    }
-  },
-
-  methods: {
-    showModal () {
       this.modalVisible = true
+    },
+
+    handleCancel () {
+      this.$refs.wizard.goTo(0)
     },
 
     save () {
       let niceTable = new NiceTable(this.niceTable.id, this.columns, this.niceTable.rows)
+      this.steps = []
+      this.$refs.wizard.goTo(0)
       this.$emit('onSave', niceTable)
       this.modalVisible = false
     },
@@ -166,7 +173,7 @@ export default {
           // last page
           this.save()
         } else {
-          this.selectedType = this.columns[currentPage+1]['type']
+          this.selectedType = this.columns[currentPage + 1]['type']
         }
         //return false if you want to prevent moving to next page
         return true 
