@@ -24,11 +24,11 @@ export default {
     let tableId = 'appear'
     let tableVis = new ComponentClass({
       propsData: {
-        niceTableParam: tableIdExporter.getTable(htmlTableId)
+        niceTableParam: tableIdExporter.getTable(tableId)
       }
     })
     tableVis.$mount() // pass nothing
-    document.getElementById(htmlTableId).replaceWith(tableVis.$el)
+    document.getElementById(tableId).replaceWith(tableVis.$el)
     // this.$refs.container.appendChild(tableVis.$el)
   }
 }
