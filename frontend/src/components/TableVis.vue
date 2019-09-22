@@ -72,7 +72,7 @@
       <div slot="filterDropdown" slot-scope="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }" class='custom-filter-dropdown'>
         <a-input
           v-ant-ref="c => searchInput = c"
-          :placeholder="`Search ${column.dataIndex}`"
+          :placeholder="`Buscar ${column.dataIndex}`"
           :value="selectedKeys[0]"
           @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
           @pressEnter="() => handleSearch(selectedKeys, confirm)"
@@ -84,12 +84,12 @@
           icon="search"
           size="small"
           style="width: 90px; margin-right: 8px"
-        >Search</a-button>
+        >Buscar</a-button>
         <a-button
           @click="() => handleReset(clearFilters)"
           size="small"
           style="width: 90px"
-        >Reset</a-button>
+        >Reiniciar</a-button>
       </div>
       <a-icon slot="filterIcon" slot-scope="filtered" type='search' :style="{ color: filtered ? '#108ee9' : undefined }" />
       <template slot="customRender" slot-scope="text">
