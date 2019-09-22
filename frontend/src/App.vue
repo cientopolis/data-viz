@@ -4,30 +4,32 @@
     style="padding: 0 50px;"
     ref="container"
   >
-    <example1 />
+    <html-table />
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
-import Example1 from '@/components/Example1'
+import HtmlTable from '@/components/HtmlTable'
 import TableVis from '@/components/TableVis'
 import { tableIdExporter } from '@/exporters'
 
 export default {
   name: 'app',
   components: {
-    Example1
+    HtmlTable
   },
   mounted () {
     let ComponentClass = Vue.extend(TableVis)
+    let tableId = 'appear'
     let tableVis = new ComponentClass({
       propsData: {
-        niceTableParam: tableIdExporter.getTable('appear')
+        niceTableParam: tableIdExporter.getTable(htmlTableId)
       }
     })
     tableVis.$mount() // pass nothing
-    this.$refs.container.appendChild(tableVis.$el)
+    document.getElementById(htmlTableId).replaceWith(tableVis.$el)
+    // this.$refs.container.appendChild(tableVis.$el)
   }
 }
 </script>

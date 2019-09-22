@@ -426,6 +426,10 @@ export default {
       return chartData
     },
 
+    getName () {
+      return 'Map'
+    },
+
     getInstruction () {
       const instruction = 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
       return instruction

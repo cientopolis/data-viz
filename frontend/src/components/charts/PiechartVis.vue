@@ -150,6 +150,10 @@ export default {
       utils.removeChart(this)
     },
 
+    getName () {
+      return 'Piechart'
+    },
+
     getInstruction () {
       const instruction = 'Selecciona columnas con valores numericos'
       return instruction

@@ -329,6 +329,10 @@ export default {
       utils.removeChart(this)
     },
 
+    getName () {
+      return 'Multiline'
+    },
+
     getInstruction () {
       const instruction = 'Selecciona una fecha y valores numericos'
       return instruction

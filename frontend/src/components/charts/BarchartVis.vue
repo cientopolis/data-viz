@@ -218,6 +218,10 @@ export default {
       return chartData
     },
 
+    getName () {
+      return 'Barchart'
+    },
+
     getInstruction () {
       const instruction = 'Selecciona columnas con valores numericos'
       return instruction

@@ -109,10 +109,12 @@ export default {
 
   created () {
     for (let [key, value] of Object.entries(charts)) {
+      const name = value.methods.getName()
+      const instruction = value.methods.getInstruction()
       this.chartTypes.push({
-        value: key,
-        title: key,
-        instruction: value.methods.getInstruction()
+        value: name,
+        title: name,
+        instruction: instruction
       })
     }
   },

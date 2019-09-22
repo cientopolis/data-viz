@@ -1,11 +1,11 @@
-import Multiline from '@/components/charts/Multiline'
-import Piechart from '@/components/charts/Piechart'
-import Barchart from '@/components/charts/Barchart'
-import Mapvis from '@/components/charts/Mapvis'
+import MultilineVis from '@/components/charts/MultilineVis'
+import PiechartVis from '@/components/charts/PiechartVis'
+import BarchartVis from '@/components/charts/BarchartVis'
+import MapVis from '@/components/charts/MapVis'
 
 export default {
-  Multiline,
-  Piechart,
-  Barchart,
-  Mapvis
+  MultilineVis,
+  PiechartVis,
+  BarchartVis,
+  MapVis
 }
