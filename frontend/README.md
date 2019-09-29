@@ -1,18 +1,20 @@
-## TableVis
+# TableVis
 
 TableVis permite generar diferentes visualizaciones a partir de tablas. Genera, a partir de una tabla existente, una tabla nueva agreǵandole funcionalidad. Por un lado, esta nueva tabla ofrece distintas operaciones que no pod́ıan realizarse sin la librería: filtrar columnas, renombrar columnas, elegir tipos para las columnas (lo cual permite buscar y ordenar dentrode la tabla segun el tipo de columna que sea). Por otro lado, tambíen agregala posibilidad de crear gŕaficos a partir de la seleccíon  de  informacíon  sobre dicha tabla, la cual es la misma que la de la tabla original.
 
-### Demo
+## Demo
 
 Podes probar una demo online [aqui](https://optimistic-roentgen-99a869.netlify.com/) :)
 
-### Instalacion
+## Instalacion
 
-`npm instal infovis`
-
-### Uso
-
+```bash
+npm instal infovis
 ```
+
+## Uso
+
+```html
 <script>
 // importar vue
 import Vue from 'vue'
@@ -39,3 +41,7 @@ export default {
 }
 </script>
 ```
+
+## License
+
+This software is distributed under [MIT license](LICENSE.txt).
