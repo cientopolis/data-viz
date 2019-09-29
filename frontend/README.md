@@ -12,7 +12,8 @@ Podes probar una demo online [aqui](https://optimistic-roentgen-99a869.netlify.c
 
 ### Uso
 
-```<script>
+```
+<script>
 // importar vue
 import Vue from 'vue'
 // importar la libreria
@@ -36,4 +37,5 @@ export default {
     document.getElementById('app').appendChild(tableVis.$el)
   }
 }
-</script>```
+</script>
+```
