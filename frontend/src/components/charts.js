@@ -9,3 +9,5 @@ export default {
   BarchartVis,
   MapVis
 }
+
+// others posible charts

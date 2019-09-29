@@ -1,38 +1,39 @@
-## infovis-table
+## TableVis
 
-La libreria actua sobre una matriz compuesta con columnas y filas, creando una tabla amigable para el usuario brindandole la posibilidad de crear a traves de diferentes filtros y selecciones, una tabla con informacion curada, con posibilidad de busqueda y ordenaciones, y tambien con la posibilidad de redefinir los nombres de las columnas usando otros que sean mas descriptivos segun a conveniencia de cada usuario. La matriz puede generarse con un exportador de tablas html, obteniendo los datos de la misma.
+TableVis permite generar diferentes visualizaciones a partir de tablas. Genera, a partir de una tabla existente, una tabla nueva agreǵandole funcionalidad. Por un lado, esta nueva tabla ofrece distintas operaciones que no pod́ıan realizarse sin la librería: filtrar columnas, renombrar columnas, elegir tipos para las columnas (lo cual permite buscar y ordenar dentrode la tabla segun el tipo de columna que sea). Por otro lado, tambíen agregala posibilidad de crear gŕaficos a partir de la seleccíon  de  informacíon  sobre dicha tabla, la cual es la misma que la de la tabla original.
+
+### Demo
+
+Podes probar una demo online [aqui](https://optimistic-roentgen-99a869.netlify.com/) :)
 
 ### Instalacion
-
-## En un proyecto vue
 
 `npm instal infovis`
 
 ### Uso
 
 ```<script>
+// importar vue
 import Vue from 'vue'
+// importar la libreria
 import infovis from 'infovis'
 import 'infovis/dist/infovis.css'
 
 export default {
   mounted () {
-    let exporter = infovis.exporters.tableIdExporter
-    let table = exporter.getTable(document, 'sometable')
-    let ComponentClass = Vue.extend(infovis.Infovis)
-    let element = new ComponentClass({
+    // inicializamos el componente TableVis pasando la
+    // tabla generada por el extractor. 
+    // El string tableId es el id de nuestra tabla html
+    let tableId = 'tableId'
+    let ComponentClass = Vue.extend(TableVis)
+    let tableVis = new ComponentClass({
       propsData: {
-        tableId: 'identificador',
-        columns: table['columns'],
-        data: table['data']
+        niceTableParam: extractors.tableIdExtractor.getTable(tableId)
       }
     })
-    element.$mount() // pass nothing
-    document.getElementById('app').appendChild(element.$el) // append in document
+    // agregamos el componente en el documento
+    tableVis.$mount()
+    document.getElementById('app').appendChild(tableVis.$el)
   }
 }
 </script>```
-
-### Demo
-
-Podes probar una demo online [aqui](https://optimistic-roentgen-99a869.netlify.com/) :)
