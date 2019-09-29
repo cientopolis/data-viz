@@ -42,6 +42,6 @@ export default {
 </script>
 ```
 
-## License
+## Licencia
 
-This software is distributed under [MIT license](LICENSE.txt).
+Este sofware esta distribuido bajo [licencia MIT](LICENSE.txt).
