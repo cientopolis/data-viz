@@ -1,7 +1,7 @@
-import Infovis from './components/Infovis'
-import exporters from './exporters'
+import TableVis from '@/components/TableVis'
+import * as extractors from '@/extractors'
 
 export default {
-  Infovis,
-  exporters
+  TableVis,
+  extractors
 }

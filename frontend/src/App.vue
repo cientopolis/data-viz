@@ -12,7 +12,7 @@
 import Vue from 'vue'
 import HtmlTable from '@/components/HtmlTable'
 import TableVis from '@/components/TableVis'
-import { tableIdExporter } from '@/exporters'
+import * as extractors from '@/extractors'
 
 export default {
   name: 'app',
@@ -24,7 +24,7 @@ export default {
     let tableId = 'appear'
     let tableVis = new ComponentClass({
       propsData: {
-        niceTableParam: tableIdExporter.getTable(tableId)
+        niceTableParam: extractors.tableIdExtractor.getTable(tableId)
       }
     })
     tableVis.$mount() // pass nothing
