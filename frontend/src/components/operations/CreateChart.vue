@@ -10,8 +10,8 @@
       :onNext="nextClicked"
       :onBack="backClicked"
     >
-      <div slot="selectChartType">
-        <span style="margin-right: 10px; margin-left: 5px">Selecciona un tipo de gráfico</span>
+      <div slot="selectChartType" style="margin-top: 20px;">
+        <span style="margin-right: 10px; margin-left: 5px;">Selecciona un tipo de gráfico</span>
         <a-select style="width: 200px" @change="handleChartChange">
           <a-select-option
             v-for="(chartType, index) in chartTypes"
