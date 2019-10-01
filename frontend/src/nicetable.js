@@ -59,7 +59,7 @@ class NiceTable {
 
   static getExample (columnIndex, rows) {
     let filtered = rows.filter(item => item[columnIndex] !== '' && item[columnIndex] !== null)
-    return filtered ? filtered[0][columnIndex] : null
+    return filtered.length > 0 ? filtered[0][columnIndex] : null
   }
 
   static predictType (column, example) {
