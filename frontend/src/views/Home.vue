@@ -1,26 +1,26 @@
 <template>
   <div style="padding: 50px 200px;">
-    <div style="width: 700px; margin: auto;">
+    <div style="width: 750px; margin: auto; text-align: left;">
       <h1>NiceTable</h1>
-      <p>TableVis permite generar diferentes visualizaciones a partir de tablas. 
+      <p><b>TableVis</b> permite generar diferentes visualizaciones a partir de tablas. 
       Genera, a partir de una tabla existente, una tabla nueva agreǵandole funcionalidad.
       Por un lado, esta nueva tabla ofrece distintas operaciones que no podían realizarse sin la librería: 
       filtrar columnas, renombrar columnas, elegir tipos para las columnas (lo cual permite buscar y ordenar 
       dentro de la tabla segun el tipo de columna que sea). Por otro lado, también agrega la posibilidad de crear 
       gŕaficos a partir de la seleccíon de informacíon sobre dicha tabla, la cual es la misma que la de la tabla 
       original.</p>
-      <h1># Instalacion</h1>
+      <h1># Instalación</h1>
       <div style="margin: auto; background-color: #8080802b;">
-        <pre style="text-align: left;">
+        <pre>
           <code>
             $ npm  install  infovis
           </code>
         </pre>
       </div>
       <h1># Uso</h1>
-      <h3>Incluir TableVis en proyecto vue:</h3>
+      <h3>Incluir <b>TableVis</b> en proyecto vue:</h3>
       <div style="margin: auto; background-color: #8080802b;">
-        <pre style="text-align: left;">
+        <pre>
           <code>
             // importar vue
             import Vue from 'vue'
@@ -30,9 +30,9 @@
           </code>
         </pre>
       </div>
-      <h3>Incluir TableVis sin vue:</h3>
+      <h3>Incluir <b>TableVis</b> sin vue:</h3>
       <div style="margin: auto; background-color: #8080802b;">
-        <pre style="text-align: left;">
+        <pre>
           <code>
             &lt;script src=&quot;https://unpkg.com/vue&quot;&gt;&lt;/script&gt;
             &lt;script src=&quot;path/to/infovis.umd.js&quot;&gt;&lt;/script&gt;
@@ -40,9 +40,9 @@
           </code>
         </pre>
       </div>
-      <h3>Inicializar TableVis en proyecto vue:</h3>
+      <h3>Inicializar <b>TableVis</b> en proyecto vue:</h3>
       <div style="margin: auto; background-color: #8080802b;">
-        <pre style="text-align: left;">
+        <pre>
           <code>
           export default {
             // mounted es un metodo que se acciona automaticamente en 
@@ -66,9 +66,9 @@
           </code>
         </pre>
       </div>
-      <h3>Inicializar TableVis sin vue:</h3>
+      <h3>Inicializar <b>TableVis</b> sin vue:</h3>
       <div style="margin: auto; background-color: #8080802b;">
-        <pre style="text-align: left;">
+        <pre>
           <code>
           &lt;script&gt;
             new Vue({
