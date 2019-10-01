@@ -1,35 +1,36 @@
 <template>
   <div
     id="app"
-    style="padding: 0 50px;"
     ref="container"
   >
-    <html-table />
+    <a-menu
+      v-model="current"
+      mode="horizontal"
+    >
+      <a-menu-item key="home">
+        <router-link to="/">Inicio</router-link>
+      </a-menu-item>
+      <a-menu-item key="example1">
+        <router-link to="/example1">Ejemplo 1</router-link>
+      </a-menu-item>
+    </a-menu>
+    <router-view />
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
-import HtmlTable from '@/components/HtmlTable'
-import TableVis from '@/components/TableVis'
-import * as extractors from '@/extractors'
+import { Menu } from 'ant-design-vue'
 
 export default {
   name: 'app',
   components: {
-    HtmlTable
+    'a-menu': Menu,
+    'a-menu-item': Menu.Item
   },
-  mounted () {
-    let ComponentClass = Vue.extend(TableVis)
-    let tableId = 'appear'
-    let tableVis = new ComponentClass({
-      propsData: {
-        niceTableParam: extractors.tableIdExtractor.getTable(tableId)
-      }
-    })
-    tableVis.$mount() // pass nothing
-    document.getElementById(tableId).replaceWith(tableVis.$el)
-    // this.$refs.container.appendChild(tableVis.$el)
+  data () {
+    return {
+      current: ['home']
+    }
   }
 }
 </script>
@@ -41,6 +42,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
