@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from '@/views/Home'
 import Appear from '@/views/Appear'
 import CazaMosquitos from '@/views/CazaMosquitos'
+import GeoVin from '@/views/GeoVin'
 
 Vue.use(Router)
 
@@ -23,6 +24,11 @@ const router = new Router({
       path: '/cazamosquitos',
       name: 'Caza Mosquitos',
       component: CazaMosquitos,
+    },
+    {
+      path: '/geovin',
+      name: 'GeoVin',
+      component: GeoVin
     }
   ]
 })

@@ -16,7 +16,11 @@
       <a-menu-item key="cazamosquitos">
         <router-link to="/cazamosquitos">Ejemplo 2</router-link>
       </a-menu-item>
+      <a-menu-item key="geovin">
+        <router-link to="/geovin">Ejemplo 3</router-link>
+      </a-menu-item>
     </a-menu>
+    <table />
     <router-view />
   </div>
 </template>
