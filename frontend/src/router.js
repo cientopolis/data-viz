@@ -4,6 +4,7 @@ import Home from '@/views/Home'
 import Appear from '@/views/Appear'
 import CazaMosquitos from '@/views/CazaMosquitos'
 import GeoVin from '@/views/GeoVin'
+import OdGlobe from '@/views/OdGlobe'
 
 Vue.use(Router)
 
@@ -29,6 +30,11 @@ const router = new Router({
       path: '/geovin',
       name: 'GeoVin',
       component: GeoVin
+    },
+    {
+      path: '/odglobe',
+      name: 'ODGlobe',
+      component: OdGlobe
     }
   ]
 })

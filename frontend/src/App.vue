@@ -19,6 +19,9 @@
       <a-menu-item key="geovin">
         <router-link to="/geovin">Ejemplo 3</router-link>
       </a-menu-item>
+      <a-menu-item key="odglobe">
+        <router-link to="/odglobe">Ejemplo 4</router-link>
+      </a-menu-item>
     </a-menu>
     <table />
     <router-view />
