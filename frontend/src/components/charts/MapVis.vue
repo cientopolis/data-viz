@@ -42,7 +42,7 @@
         </a-select-option>
       </a-select>
       <div>
-        <div v-if="mapCategory.type === 'Number'">
+        <div v-if="mapCategory && mapCategory.type === 'Number'">
           <p>Maximo valor: <b>{{maxRangeValue}}</b></p>
           <a-input-group
             compact
@@ -77,7 +77,7 @@
             />
           </a-input-group>
         </div>
-        <div v-if="mapCategory.type == 'String'">
+        <div v-if="mapCategory && mapCategory.type == 'String'">
           <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
           <div
             v-for="(category, index) in mapStringCategories"
@@ -112,7 +112,7 @@ import axios from 'axios'
 import utils from '@/components/utils'
 import Vue from 'vue'
 
-import { Col, Button, Modal, Select, Row } from 'ant-design-vue'
+import { Col, Button, Modal, Select, Row, Input } from 'ant-design-vue'
 
 // mapvis conf
 let accessToken = 'pk.eyJ1Ijoiam9zZWZpbmFlc3RldmV6IiwiYSI6ImNqeml2ZDJwNTAyMGMzYm9zczdhdndidGsifQ.xUBtj7UjSEDYUucjf7_AQA'
@@ -174,7 +174,9 @@ export default {
     'a-modal': Modal,
     'a-select': Select,
     'a-select-option': Select.Option,
-    'a-row': Row
+    'a-row': Row,
+    'a-input': Input,
+    'a-input-group': Input.Group
   },
 
   computed: {
@@ -211,8 +213,10 @@ export default {
       // let view = data[0]
       let lat = parseFloat(data[0]['latitude'])
       let lng = parseFloat(data[0]['longitude'])
+
       let cant = document.getElementsByClassName('mapchart').length
       let div = document.getElementsByClassName('mapchart')[cant-1]
+
       mymap = L.map(div).setView([lat, lng], 10)
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -427,7 +431,11 @@ export default {
     },
 
     getName () {
-      return 'Map'
+      return 'Mapa'
+    },
+
+    getValue () {
+      return 'MapVis'
     },
 
     getInstruction () {

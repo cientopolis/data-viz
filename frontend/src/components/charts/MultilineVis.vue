@@ -330,7 +330,11 @@ export default {
     },
 
     getName () {
-      return 'Multiline'
+      return 'Multilínea'
+    },
+
+    getValue () {
+      return 'MultilineVis'
     },
 
     getInstruction () {

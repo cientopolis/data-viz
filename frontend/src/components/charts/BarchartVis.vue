@@ -219,7 +219,11 @@ export default {
     },
 
     getName () {
-      return 'Barchart'
+      return 'Gráfico de barras'
+    },
+
+    getValue () {
+      return 'BarchartVis'
     },
 
     getInstruction () {

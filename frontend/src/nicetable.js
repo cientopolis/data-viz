@@ -45,27 +45,27 @@ class NiceTable {
   }
 
   static stringColumnsToObjects (columns, rows) {
-    let curatedColumns = columns.map(column => {
+    let curatedColumns = []
+    for (let i = 0; i < columns.length; i++) {
+      let column = columns[i]
       let example = this.getExample(column, rows)
-      return {
+      let curatedColumn = {
         'dataIndex': column,
         'title': column,
-        'type': this.predictType(column, example),
+        'type': this.predictType(column, example, curatedColumns),
         'visible': true
       }
-    })
+      curatedColumns.push(curatedColumn)
+    }
     return curatedColumns
   }
 
-  static getExample (columnIndex, rows) {
+  static getExample (columnIndex, rows, ) {
     let filtered = rows.filter(item => item[columnIndex] !== '' && item[columnIndex] !== null)
     return filtered.length > 0 ? filtered[0][columnIndex] : null
   }
 
-  static predictType (column, example) {
-    if (utils.isNumeric(example)) {
-      return 'Number'
-    }
+  static predictType (column, example, curatedColumns) {
     if (utils.isDate(example)) {
       return 'Date'
     }
@@ -76,10 +76,13 @@ class NiceTable {
       if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
         return 'Longitude'
       }
-      if (this.curatedColumns.some(column => column.type == 'Latitude')) {
+      if (curatedColumns.some(column => column.type == 'Latitude')) {
         return 'Longitude'
       }
       return 'Latitude'
+    }
+    if (utils.isNumeric(example)) {
+      return 'Number'
     }
     return 'String'
   }

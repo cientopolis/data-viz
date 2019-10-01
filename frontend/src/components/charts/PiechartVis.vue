@@ -151,7 +151,11 @@ export default {
     },
 
     getName () {
-      return 'Piechart'
+      return 'Gráfico de torta'
+    },
+
+    getValue () {
+      return 'PiechartVis'
     },
 
     getInstruction () {

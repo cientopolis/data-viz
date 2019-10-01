@@ -11,7 +11,7 @@
       :onBack="backClicked"
     >
       <div slot="selectChartType">
-        <span style="margin-right: 10px; margin-left: 5px">Select a chart</span>
+        <span style="margin-right: 10px; margin-left: 5px">Selecciona un tipo de gráfico</span>
         <a-select style="width: 200px" @change="handleChartChange">
           <a-select-option
             v-for="(chartType, index) in chartTypes"
@@ -27,7 +27,7 @@
           <span 
             style="margin: 10px;"
           >
-            Selecciona las columnas para tu grafico.
+            Selecciona las columnas para tu gráfico.
           </span>
           <a-alert :message="selectedChartType.instruction" banner />
           <a-row>
@@ -108,11 +108,12 @@ export default {
   },
 
   created () {
-    for (let [key, value] of Object.entries(charts)) {
-      const name = value.methods.getName()
-      const instruction = value.methods.getInstruction()
+    for (let [key, chart] of Object.entries(charts)) {
+      const name = chart.methods.getName()
+      const value = chart.methods.getValue()
+      const instruction = chart.methods.getInstruction()
       this.chartTypes.push({
-        value: name,
+        value: value,
         title: name,
         instruction: instruction
       })
