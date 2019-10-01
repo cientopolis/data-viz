@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
-import Example1 from '@/views/Example1'
+import Appear from '@/views/Appear'
+import CazaMosquitos from '@/views/CazaMosquitos'
 
 Vue.use(Router)
 
@@ -14,9 +15,14 @@ const router = new Router({
       component: Home,
     },
     {
-      path: '/example1',
-      name: 'example1',
-      component: Example1,
+      path: '/appear',
+      name: 'AppEAR',
+      component: Appear,
+    },
+    {
+      path: '/cazamosquitos',
+      name: 'Caza Mosquitos',
+      component: CazaMosquitos,
     }
   ]
 })

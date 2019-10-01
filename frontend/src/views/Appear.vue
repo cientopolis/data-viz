@@ -11,16 +11,17 @@
         NiceTable
       </a-menu-item>
     </a-menu>
-    <div style="padding: 50px;">
-      <html-table-1 v-show="current == 'original'"/>
-      <div id="nicetable1" v-show="current == 'nicetable'"></div>
+    <div style="padding: 10px 50px;">
+      <h3>AppEAR</h3>
+      <appear-table v-show="current == 'original'"/>
+      <div id="nicetable" v-show="current == 'nicetable'"></div>
     </div>
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
-import HtmlTable1 from '@/components/examples/HtmlTable1'
+import AppearTable from '@/components/examples/AppearTable'
 import TableVis from '@/components/TableVis'
 import { Menu } from 'ant-design-vue'
 import * as extractors from '@/extractors'
@@ -29,7 +30,7 @@ export default {
   components: {
     'a-menu': Menu,
     'a-menu-item': Menu.Item,
-    HtmlTable1
+    AppearTable
   },
 
   data () {
@@ -48,7 +49,7 @@ export default {
       }
     })
     tableVis.$mount() // pass nothing
-    document.getElementById('nicetable1').appendChild(tableVis.$el)
+    document.getElementById('nicetable').appendChild(tableVis.$el)
   }
 }
 </script>

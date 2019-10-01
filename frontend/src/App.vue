@@ -10,8 +10,11 @@
       <a-menu-item key="home">
         <router-link to="/">Inicio</router-link>
       </a-menu-item>
-      <a-menu-item key="example1">
-        <router-link to="/example1">Ejemplo 1</router-link>
+      <a-menu-item key="appear">
+        <router-link to="/appear">Ejemplo 1</router-link>
+      </a-menu-item>
+      <a-menu-item key="cazamosquitos">
+        <router-link to="/cazamosquitos">Ejemplo 2</router-link>
       </a-menu-item>
     </a-menu>
     <router-view />
@@ -42,5 +45,17 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+</style>
+<style>
+table {
+  border-collapse: collapse;
+  border: 2px black solid;
+  font: 12px sans-serif;
+}
+
+td, th {
+  border: 1px black solid;
+  padding: 5px;
 }
 </style>
