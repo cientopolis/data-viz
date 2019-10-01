@@ -74,7 +74,7 @@
 <script>
 // external
 import moment from 'moment'
-import { Card, Select, Modal } from 'ant-design-vue'
+import { Card, Select, Modal, Alert } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 // my lib
 import NiceTable from '@/nicetable'
@@ -88,6 +88,7 @@ export default {
     'a-modal': Modal,
     'a-select': Select,
     'a-select-option': Select.Option,
+    'a-alert': Alert,
     'vue-good-wizard': GoodWizard
   },
 
