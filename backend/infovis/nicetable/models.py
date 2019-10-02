@@ -15,8 +15,8 @@ class TablePersistence(models.Model):
 
 class ColumnPersistence(models.Model):
     table = models.ForeignKey(TablePersistence, on_delete=models.CASCADE, related_name='columns')
-    index = models.CharField(max_length=100)
-    title = models.CharField(max_length=100)
+    index = models.CharField(max_length=100, null=True)
+    title = models.CharField(max_length=100, null=True)
     column_type = models.CharField(max_length=100)
     visible = models.BooleanField(default=True)
 

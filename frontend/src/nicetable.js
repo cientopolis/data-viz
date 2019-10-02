@@ -66,24 +66,27 @@ class NiceTable {
   }
 
   static predictType (column, example, curatedColumns) {
-    if (utils.isDate(example)) {
-      return 'Date'
-    }
-    if (utils.isCoordinate(example)) {
-      if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
+    if (example) {
+      if (utils.isDate(example)) {
+        return 'Date'
+      }
+      if (utils.isCoordinate(example)) {
+        if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
+          return 'Latitude'
+        }
+        if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
+          return 'Longitude'
+        }
+        if (curatedColumns.some(column => column.type == 'Latitude')) {
+          return 'Longitude'
+        }
         return 'Latitude'
       }
-      if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
-        return 'Longitude'
+      if (utils.isNumeric(example)) {
+        return 'Number'
       }
-      if (curatedColumns.some(column => column.type == 'Latitude')) {
-        return 'Longitude'
-      }
-      return 'Latitude'
     }
-    if (utils.isNumeric(example)) {
-      return 'Number'
-    }
+    // default type
     return 'String'
   }
 

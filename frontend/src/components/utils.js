@@ -26,8 +26,7 @@ const isCoordinate = (str) => {
   return str.match(/((\d+)+(\.\d+))$/)
 }
 
-const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https'
-const baseUrl = `${protocol}://${document.domain}:8000`
+const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://tablevis.herokuapp.com'
 
 const removeChart = (component) => {
   if (component.backend) {
