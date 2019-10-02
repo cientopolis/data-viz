@@ -1,5 +1,5 @@
 from django.db import models
-from django_mysql.models import JSONField
+from jsonfield import JSONField
 
 # Create your models here.
 class TablePersistence(models.Model):
