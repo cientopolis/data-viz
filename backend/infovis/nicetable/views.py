@@ -32,7 +32,6 @@ def table(request):
         return JsonResponse(status=400)
 
     elif request.method == 'POST':
-        # import ipdb; ipdb.set_trace()
         data = JSONParser().parse(request)
         domain = data['domain']
         identificator = data['identificator']
@@ -118,7 +117,7 @@ def chart(request):
         data = JSONParser().parse(request)
         domain = data['domain']
         identificator = data['identificator']
-        table, _ = TablePersistence.objects.get_or_create(identificator=identificator, domain=domain)
+        table = TablePersistence.objects.get(identificator=identificator, domain=domain)
         data['table'] = table.id
         serializer = ChartSerializer(data=data)
         if serializer.is_valid():

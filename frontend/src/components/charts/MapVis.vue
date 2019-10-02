@@ -142,6 +142,12 @@ var mymap
 
 export default {
   props: {
+    id: {
+      type: Number,
+      default: function () {
+        return 0
+      }
+    },
     niceTable: {
       type: Object,
       required: true

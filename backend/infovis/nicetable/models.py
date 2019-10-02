@@ -1,5 +1,5 @@
 from django.db import models
-from jsonfield import JSONField
+from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 class TablePersistence(models.Model):
@@ -8,6 +8,9 @@ class TablePersistence(models.Model):
 
     class Meta:
         unique_together = ('domain', 'identificator')
+
+    def __str__(self):
+        return '{}: {}'.format(self.domain, self.identificator)
 
 
 class ColumnPersistence(models.Model):
@@ -22,3 +25,6 @@ class ChartPersistence(models.Model):
     table = models.ForeignKey(TablePersistence, on_delete=models.CASCADE, related_name='charts')
     chart_type = models.CharField(max_length=30)
     conf = JSONField()
+
+    def __str__(self):
+        return '{} - {}'.format(self.table, self.chart_type)

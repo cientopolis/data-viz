@@ -80,11 +80,12 @@ WSGI_APPLICATION = 'infovis.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'infovis',
-        'USER': 'infovis',
-        'PASSWORD': 'pass',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'infovis_db',
+        'USER': 'infovis_user',
+        'PASSWORD': 'infovis_pass',
         'HOST': 'localhost',
+        'PORT': '',
     }
 }
 

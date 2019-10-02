@@ -354,7 +354,7 @@ export default {
     },
 
     persistTable () {
-      // save columns and display
+      // save columns
       let url = `${utils.baseUrl}/table/`
       let columns = this.niceTable.getColumns()
       axios.post(url, {
@@ -367,19 +367,29 @@ export default {
     },
 
     persistChart (type, conf) {
-      const url = `${utils.baseUrl}/chart/`
-      const params = {
+      // first save table changes
+      let url = `${utils.baseUrl}/table/`
+      let columns = this.niceTable.getColumns()
+      axios.post(url, {
         domain: document.domain,
         identificator: this.id,
-        chart_type: type,
-        conf: JSON.stringify(conf)
-      }
-      axios.post(url, params)
-        .then(response => {
-          const chart = response.data
-          const firstTime = true
-          this.renderChart(type, conf, firstTime, chart.id)
-        })
+        columns: JSON.stringify(columns)
+      }).then(response => {
+        // save chart
+        const url = `${utils.baseUrl}/chart/`
+        const params = {
+          domain: document.domain,
+          identificator: this.id,
+          chart_type: type,
+          conf: JSON.stringify(conf)
+        }
+        axios.post(url, params)
+          .then(response => {
+            const chart = response.data
+            const firstTime = true
+            this.renderChart(type, conf, firstTime, chart.id)
+          })
+      })
     },
 
     // operations
