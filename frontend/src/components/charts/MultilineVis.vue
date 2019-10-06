@@ -265,6 +265,32 @@ export default {
       }
     },
 
+    getForm () {
+      const instruction = 'Selecciona una fecha y valores numericos'
+      const name = 'Multilínea'
+      const value = 'MultilineVis'
+      let fields = []
+      fields.push({
+        name: 'Eje x',
+        type: ['Date'],
+        model: 'ejex',
+        max: 1
+      })
+      fields.push({
+        name: 'Eje y',
+        type: ['Number'],
+        model: 'ejey',
+        max: null
+      })
+      let form = {
+        instruction,
+        fields,
+        name,
+        value
+      }
+      return form
+    },
+
     // Processing
     validateColumns (columns) {
       // Validate selected data

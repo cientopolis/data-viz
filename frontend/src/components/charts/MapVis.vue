@@ -192,9 +192,7 @@ export default {
     },
 
     columns () {
-      let niceTableColumns = this.niceTable.getColumns().filter(column => column.visible == true)
-      let selectedColumns = this.conf.selectedColumns
-      return niceTableColumns.filter(column => selectedColumns.indexOf(column.dataIndex) >= 0)
+      return this.niceTable.getVisibleColumns()
     },
 
     rows () {
@@ -205,7 +203,7 @@ export default {
   },
 
   mounted () {
-    this.data = this.transformData(this.columns, this.rows)
+    this.data = this.transformData()
     this.$nextTick(() => {
       this.draw()
     })
@@ -398,55 +396,56 @@ export default {
       })
     },
 
-    // Processing
-    validateColumns (columns) {
-      // Validate selected data
-      let message
-      let isValid = true
-      let lngColumn = columns.filter(column => column.type == 'Longitude')
-      let latColumn = columns.filter(column => column.type == 'Latitude')
-      if (!(latColumn.length === 1 && lngColumn.length === 1)) {
-        message = 'Debes seleccionar una columna de tipo longitud y una de tipo latitud'
-        isValid = false
+    getForm () {
+      const instruction = 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
+      const name = 'Mapa'
+      let fields = []
+      fields.push({
+        name: 'Latitud',
+        type: ['Latitud'],
+        model: 'latitude',
+        required: true,
+        max: 1
+      })
+      fields.push({
+        name: 'Longitud',
+        type: ['Longitud'],
+        model: 'longitude',
+        required: true,
+        max: 1
+      })
+      fields.push({
+        name: 'Otros',
+        type: [],
+        model: 'others',
+        required: false,
+        max: null
+      })
+      let form = {
+        instruction,
+        fields,
+        name
       }
-      return { isValid, message }
+      return form
     },
 
-    transformData (columns, rows) {
+    transformData () {
       // processing data
       let chartData = {
         categories: [],
-        columns,
         data: []
       }
-      rows.forEach(row => {
+      this.rows.forEach(row => {
         let chartItem = {}
-        columns.forEach(col => {
-          if (col.type == 'Longitude') {
-            chartItem['longitude'] = row[col.dataIndex]
-          } else if (col.type == 'Latitude') {
-            chartItem['latitude'] = row[col.dataIndex]
-          } else {
-            chartItem[col.dataIndex] = row[col.dataIndex]
-          }
+        chartItem['latitude'] = row[this.conf.latitude]
+        chartItem['longitude'] = row[this.conf.longitude]
+        this.conf.others.forEach(field => {
+          chartItem[field] = row[field]
         })
         chartData.data.push(chartItem)
       })
       // end processing data
       return chartData
-    },
-
-    getName () {
-      return 'Mapa'
-    },
-
-    getValue () {
-      return 'MapVis'
-    },
-
-    getInstruction () {
-      const instruction = 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
-      return instruction
     }
   }
 }

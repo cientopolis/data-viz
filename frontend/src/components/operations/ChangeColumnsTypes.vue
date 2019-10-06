@@ -73,7 +73,6 @@
 </template>
 <script>
 // external
-import moment from 'moment'
 import { Card, Select, Modal, Alert } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 // my lib
@@ -139,20 +138,7 @@ export default {
     },
 
     checkType (value, type) {
-      if (type === 'Number') {
-        return utils.isNumeric(value)
-      }
-      if (type === 'Date') {
-        if (utils.isDate(value) && this.dateFormat) {
-          let date = moment(value, this.dateFormat)
-          return String(date._d) !== 'Invalid Date'
-        }
-        return false
-      }
-      if (type === 'Longitude' || type === 'Latitude') {
-        return utils.isCoordinate(value)
-      }
-      return true
+      return utils.checkType(value, type, this.dateFormat)
     },
 
     nextClicked (currentPage) {

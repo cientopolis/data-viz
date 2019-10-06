@@ -68,22 +68,22 @@ class NiceTable {
   static predictType (column, example, curatedColumns) {
     if (example) {
       if (utils.isDate(example)) {
-        return 'Date'
+        return 'Fecha'
       }
       if (utils.isCoordinate(example)) {
         if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
-          return 'Latitude'
+          return 'Latitud'
         }
         if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
-          return 'Longitude'
+          return 'Longitud'
         }
-        if (curatedColumns.some(column => column.type == 'Latitude')) {
-          return 'Longitude'
+        if (curatedColumns.some(column => column.type == 'Latitud')) {
+          return 'Longitud'
         }
-        return 'Latitude'
+        return 'Latitud'
       }
       if (utils.isNumeric(example)) {
-        return 'Number'
+        return 'Numerico'
       }
     }
     // default type

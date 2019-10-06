@@ -180,6 +180,26 @@ export default {
       utils.removeChart(this)
     },
 
+    getForm () {
+      const instruction = 'Selecciona columnas con valores numericos'
+      const name = 'Gráfico de barras'
+      const value = 'BarchartVis'
+      let fields = []
+      fields.push({
+        name: 'Campo',
+        type: ['String', 'Number'],
+        model: 'campo',
+        max: 1
+      })
+      let form = {
+        instruction,
+        fields,
+        name,
+        value
+      }
+      return form
+    },
+
     // Processing info
     validateColumns (columns) {
       // Validate selected data
@@ -216,19 +236,6 @@ export default {
       })
       // end processing data
       return chartData
-    },
-
-    getName () {
-      return 'Gráfico de barras'
-    },
-
-    getValue () {
-      return 'BarchartVis'
-    },
-
-    getInstruction () {
-      const instruction = 'Selecciona columnas con valores numericos'
-      return instruction
     }
   }
 }

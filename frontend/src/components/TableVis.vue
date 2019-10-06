@@ -413,17 +413,18 @@ export default {
     },
 
     createChart () {
-      this.$refs.createChart.columns = this.visibleColumns
+      this.$refs.createChart.niceTable = this.niceTable
       this.$refs.createChart.showModal()
     },
 
     chartCreated (type, conf) {
       conf['selectedRows'] = this.selectedRowKeys
-      if (this.backend) {
-        this.persistChart(type, conf)
-      } else {
-        this.renderChart(type, conf)
-      }
+      this.renderChart(type, conf)
+      // if (this.backend) {
+      //   this.persistChart(type, conf)
+      // } else {
+      //   this.renderChart(type, conf)
+      // }
     }
   }
 }

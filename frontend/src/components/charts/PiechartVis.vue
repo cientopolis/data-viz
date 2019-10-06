@@ -107,6 +107,26 @@ export default {
         .text(function(d) { return d.data.legend; });
     },
 
+    getForm () {
+      const instruction = 'Selecciona columnas con valores numericos'
+      const name = 'Gráfico de torta'
+      const value = 'PiechartVis'
+      let fields = []
+      fields.push({
+        name: 'Campo',
+        type: ['String', 'Number'],
+        model: 'campo',
+        max: 1
+      })
+      let form = {
+        instruction,
+        fields,
+        name,
+        value
+      }
+      return form
+    },
+
     // Processing
     validateColumns (columns) {
       // Validate selected data
@@ -148,19 +168,6 @@ export default {
     // API
     removeChart () {
       utils.removeChart(this)
-    },
-
-    getName () {
-      return 'Gráfico de torta'
-    },
-
-    getValue () {
-      return 'PiechartVis'
-    },
-
-    getInstruction () {
-      const instruction = 'Selecciona columnas con valores numericos'
-      return instruction
     }
   }
 }

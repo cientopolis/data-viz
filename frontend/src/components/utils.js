@@ -1,4 +1,5 @@
 import axios from 'axios'
+import moment from 'moment'
 
 const isNumeric = (str) => {
   return !isNaN(str)
@@ -26,6 +27,23 @@ const isCoordinate = (str) => {
   return str.match(/((\d+)+(\.\d+))$/)
 }
 
+const checkType = (value, type, dateFormat=null) => {
+  if (type === 'Numerico') {
+    return isNumeric(value)
+  }
+  if (type === 'Fecha') {
+    if (isDate(value) && this.dateFormat) {
+      let date = moment(value, dateFormat)
+      return String(date._d) !== 'Invalid Date'
+    }
+    return false
+  }
+  if (type === 'Longitud' || type === 'Latitud') {
+    return isCoordinate(value)
+  }
+  return true
+}
+
 const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://tablevis.herokuapp.com'
 
 const removeChart = (component) => {
@@ -43,11 +61,11 @@ const removeChart = (component) => {
 }
 
 const dataTypes = [
-  'Date',
-  'Number',
-  'String',
-  'Latitude',
-  'Longitude'
+  'Fecha',
+  'Numerico',
+  'Texto',
+  'Latitud',
+  'Longitud'
 ]
 
 export default {
@@ -57,5 +75,6 @@ export default {
   removeChart,
   isDate,
   isCoordinate,
-  dataTypes
+  dataTypes,
+  checkType
 }
