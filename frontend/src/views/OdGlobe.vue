@@ -15,16 +15,15 @@
       <h3>ODGlobe</h3>
       <od-globe-table v-show="current == 'original'"/>
       <div id="nicetable" v-show="current == 'nicetable'"></div>
+      <div id="odglobecharts"></div>
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
 import OdGlobeTable from '@/components/examples/OdGlobeTable'
-import TableVis from '@/components/TableVis'
 import { Menu } from 'ant-design-vue'
-import * as extractors from '@/extractors'
+import * as tablevis from '@/index'
 
 export default {
   components: {
@@ -41,15 +40,15 @@ export default {
   },
 
   mounted () {
-    let ComponentClass = Vue.extend(TableVis)
-    let tableId = 'odglobe'
-    let tableVis = new ComponentClass({
-      propsData: {
-        niceTableParam: extractors.tableIdExtractor.getTable(tableId)
-      }
-    })
-    tableVis.$mount() // pass nothing
-    document.getElementById('nicetable').appendChild(tableVis.$el)
+    let extractors = tablevis.default.extractors
+    const conf = {
+      extractor: extractors.tableIdExtractor.getTable('odglobe'),
+      newTableInDiv: document.getElementById('nicetable'),
+      tableInsertMethod: 'insertBefore',
+      chartsDiv: document.getElementById('odglobecharts'),
+      persistence: false
+    }
+    tablevis.default.transformTable(conf)
   }
 }
 </script>

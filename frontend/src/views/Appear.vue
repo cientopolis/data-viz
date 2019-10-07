@@ -15,16 +15,16 @@
       <h3>AppEAR</h3>
       <appear-table v-show="current == 'original'"/>
       <div id="nicetable" v-show="current == 'nicetable'"></div>
+      <div id="appearcharts">
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
 import AppearTable from '@/components/examples/AppearTable'
-import TableVis from '@/components/TableVis'
 import { Menu } from 'ant-design-vue'
-import * as extractors from '@/extractors'
+import * as tablevis from '@/index'
 
 export default {
   components: {
@@ -41,15 +41,15 @@ export default {
   },
 
   mounted () {
-    let ComponentClass = Vue.extend(TableVis)
-    let tableId = 'appear'
-    let tableVis = new ComponentClass({
-      propsData: {
-        niceTableParam: extractors.tableIdExtractor.getTable(tableId)
-      }
-    })
-    tableVis.$mount() // pass nothing
-    document.getElementById('nicetable').appendChild(tableVis.$el)
+    let extractors = tablevis.default.extractors
+    const conf = {
+      extractor: extractors.tableIdExtractor.getTable('appear'),
+      newTableInDiv: document.getElementById('nicetable'),
+      tableInsertMethod: 'insertBefore',
+      chartsDiv: document.getElementById('appearcharts'),
+      persistence: false
+    }
+    tablevis.default.transformTable(conf)
   }
 }
 </script>

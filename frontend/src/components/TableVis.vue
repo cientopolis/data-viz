@@ -121,10 +121,6 @@
       @onSave="chartCreated"
     />
     <!-- end operations components -->
-    <!-- in this div charts will be inserted -->
-    <div ref="charts">
-    </div>
-    <!-- end chart's div -->
   </div>
 </template>
 <script>
@@ -167,6 +163,10 @@ export default {
   props: {
     niceTableParam: {
       type: Object,
+      required: true
+    },
+    chartsDiv: {
+      type: HTMLDivElement,
       required: true
     }
   },
@@ -325,7 +325,7 @@ export default {
         propsData
       })
       chart.$mount() // pass nothing
-      this.$refs.charts.appendChild(chart.$el)
+      this.chartsDiv.appendChild(chart.$el)
       // only scroll if it is being created
       if (firstTime) {
         await this.$nextTick()
