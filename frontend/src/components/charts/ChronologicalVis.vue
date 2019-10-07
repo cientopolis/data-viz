@@ -46,9 +46,7 @@ export default {
     },
 
     columns () {
-      let niceTableColumns = this.niceTable.getColumns().filter(column => column.visible == true)
-      let selectedColumns = this.conf.selectedColumns
-      return niceTableColumns.filter(column => selectedColumns.indexOf(column.dataIndex) >= 0)
+      return this.niceTable ? this.niceTable.getVisibleColumns() : []
     },
 
     rows () {
@@ -59,10 +57,7 @@ export default {
   },
 
   mounted () {
-    this.data = this.transformData(this.columns, this.rows)
-    this.data.forEach(data => {
-      data['date'] = new Date(data['date'])
-    })
+    this.data = this.transformData()
     this.draw()
   },
 
@@ -266,84 +261,46 @@ export default {
     },
 
     getForm () {
-      const instruction = 'Selecciona una fecha y valores numericos'
-      const name = 'Multilínea'
-      const value = 'MultilineVis'
+      const instruction = 'Selecciona un campo fecha y uno o muchos campos numéricos'
+      const name = 'Gráfico cronológico'
       let fields = []
       fields.push({
-        name: 'Eje x',
-        type: ['Date'],
-        model: 'ejex',
+        name: 'Fecha',
+        type: ['Fecha'],
+        model: 'date',
+        required: true,
         max: 1
       })
       fields.push({
-        name: 'Eje y',
-        type: ['Number'],
-        model: 'ejey',
+        name: 'Numéricos',
+        type: ['Numerico'],
+        model: 'numerics',
+        required: true,
         max: null
       })
       let form = {
         instruction,
         fields,
-        name,
-        value
+        name
       }
       return form
     },
 
     // Processing
-    validateColumns (columns) {
-      // Validate selected data
-      let message
-      let isValid = true
-      let dateColumns = columns.filter(column => column.type === 'Date')
-      let numberColumns = columns.filter(column => column.type === 'Number')
-      if (dateColumns.length !== 1) {
-        // Should be one DATE column
-        message = 'Debes seleccionar una columna de tipo fecha'
-        isValid = false
-      } else if (numberColumns.length + 1 !== columns.length) {
-        // The rest of selected columns should be type number
-        message = 'Todos los valores deben ser de tipo numerico'
-        isValid = false
-      } else if (numberColumns.length === 0) {
-        // At least it should be one number value
-        message = 'Debe haber al menos un valor numberico'
-        isValid = false
-      }
-      return { isValid, message }
-    },
-
-    transformData (columns, rows) {
+    transformData () {
       // process data
       let chartData = []
-      rows.forEach(row => {
-        let chartItem = {}
-        columns.forEach(col => {
-          if (col.type === 'Date') {
-            chartItem['date'] = moment(row[col.dataIndex], col.format)
-          } else {
-            let value = row[col.dataIndex]
-            if ((value === '') || (value === 'null')) {
-              value = 0
-            }
-            chartItem[col.dataIndex] = +value
+      let dateColumn = this.columns.find(column => column.dataIndex == this.conf.date)
+      this.rows.forEach(row => {
+        let date = moment(row[dateColumn.dataIndex], dateColumn.format)
+        if (String(date._d) !== 'Invalid Date') {
+          let chartItem = {
+            date
           }
-        })
-        // date validation
-        if (String(chartItem['date']._d) !== 'Invalid Date') {
-          // number validation
-          let allNumerics = true
-          Object.keys(chartItem).filter(key => key !== 'date').forEach(key => {
-            if (!utils.isNumeric(chartItem[key])) {
-              allNumerics = false
-            }
+          this.conf.numerics.forEach(numeric => {
+            chartItem[numeric] = utils.isNumeric(row[numeric]) ? +row[numeric] : null
           })
-          if (allNumerics) {
-            chartData.push(chartItem)
-          } else {
-            console.log('numbers not valid')
-          }
+          chartData.push(chartItem)
         }
       })
       // end process data
@@ -353,19 +310,6 @@ export default {
     // API
     removeChart () {
       utils.removeChart(this)
-    },
-
-    getName () {
-      return 'Multilínea'
-    },
-
-    getValue () {
-      return 'MultilineVis'
-    },
-
-    getInstruction () {
-      const instruction = 'Selecciona una fecha y valores numericos'
-      return instruction
     }
   }
 }

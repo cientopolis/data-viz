@@ -432,7 +432,7 @@ export default {
     transformData () {
       // processing data
       let chartData = {
-        categories: [],
+        categories: this.conf.categories ? this.conf.categories : [],
         data: []
       }
       this.rows.forEach(row => {

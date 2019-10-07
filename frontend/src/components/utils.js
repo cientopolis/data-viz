@@ -23,6 +23,8 @@ const isDate = (value) => {
   return dateFormat.test(value)
 }
 
+const dateFormats = ['DDMMYYY', 'MMDDYYY']
+
 const isCoordinate = (str) => {
   return str.match(/((\d+)+(\.\d+))$/)
 }
@@ -31,15 +33,15 @@ const checkType = (value, type, dateFormat=null) => {
   if (type === 'Numerico') {
     return isNumeric(value)
   }
+  if (type === 'Longitud' || type === 'Latitud') {
+    return isCoordinate(value)
+  }
   if (type === 'Fecha') {
-    if (isDate(value) && this.dateFormat) {
+    if (isDate(value) && dateFormat) {
       let date = moment(value, dateFormat)
       return String(date._d) !== 'Invalid Date'
     }
     return false
-  }
-  if (type === 'Longitud' || type === 'Latitud') {
-    return isCoordinate(value)
   }
   return true
 }
@@ -76,5 +78,6 @@ export default {
   isDate,
   isCoordinate,
   dataTypes,
-  checkType
+  checkType,
+  dateFormats
 }

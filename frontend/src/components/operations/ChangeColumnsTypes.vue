@@ -79,8 +79,6 @@ import { GoodWizard } from 'vue-good-wizard'
 import NiceTable from '@/nicetable'
 import utils from '@/components/utils'
 
-const dateFormats = ['DDMMYYY', 'MMDDYYY']
-
 export default {
   components: {
     'a-card': Card,
@@ -99,9 +97,9 @@ export default {
       steps: [],
       selectedType: null,
       columnsError: null,
-      dateFormat: dateFormats[0],
+      dateFormat: utils.dateFormats[0],
       dataTypes: utils.dataTypes,
-      dateFormats
+      dateFormats: utils.dateFormats
     }
   },
 

@@ -49,18 +49,27 @@ class NiceTable {
     for (let i = 0; i < columns.length; i++) {
       let column = columns[i]
       let example = this.getExample(column, rows)
+      let type = this.predictType(column, example, curatedColumns)
       let curatedColumn = {
         'dataIndex': column,
         'title': column,
-        'type': this.predictType(column, example, curatedColumns),
+        'type': type,
         'visible': true
+      }
+      if (type == 'Fecha') {
+        for (let i = 0; i < utils.dateFormats.length; i++) {
+          const format = utils.dateFormats[i]
+          if (utils.checkType(example, 'Fecha', format)) {
+            curatedColumn['format'] = format
+          }
+        }
       }
       curatedColumns.push(curatedColumn)
     }
     return curatedColumns
   }
 
-  static getExample (columnIndex, rows, ) {
+  static getExample (columnIndex, rows) {
     let filtered = rows.filter(item => item[columnIndex] !== '' && item[columnIndex] !== null)
     return filtered.length > 0 ? filtered[0][columnIndex] : null
   }
