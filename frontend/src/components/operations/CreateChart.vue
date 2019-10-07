@@ -55,7 +55,6 @@
             Selecciona las columnas para tu gráfico.
           </span>
           <a-alert style="margin-bottom: 10px;" :message="selectedChartType.instruction" banner />
-          {{form}}
           <a-row>
             <div
               v-for="(field, index) in selectedChartType.fields"

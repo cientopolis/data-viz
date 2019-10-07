@@ -109,8 +109,11 @@
 
 <script>
 import axios from 'axios'
-import utils from '@/components/utils'
+import rendering from '@/utils/rendering'
+import types from '@/utils/types'
 import Vue from 'vue'
+
+const utils = { ...rendering, ...types }
 
 import { Col, Button, Modal, Select, Row, Input } from 'ant-design-vue'
 

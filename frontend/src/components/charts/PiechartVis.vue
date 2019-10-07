@@ -14,7 +14,7 @@
 
 <script>
 import * as d3 from 'd3'
-import utils from '@/components/utils'
+import utils from '@/utils/rendering'
 import { Button } from 'ant-design-vue'
 
 export default {
@@ -126,7 +126,7 @@ export default {
       const name = 'Gráfico de torta'
       let fields = []
       fields.push({
-        name: 'Piechart',
+        name: '',
         type: [],
         model: 'field',
         required: true,

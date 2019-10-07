@@ -12,7 +12,7 @@
 </template>
 <script>
 import * as d3 from 'd3'
-import utils from '@/components/utils'
+import utils from '@/utils/rendering'
 import { Button } from 'ant-design-vue'
 
 export default {
@@ -174,7 +174,7 @@ export default {
       const name = 'Gráfico de barras'
       let fields = []
       fields.push({
-        name: 'Barchart',
+        name: '',
         type: [],
         model: 'field',
         required: true,

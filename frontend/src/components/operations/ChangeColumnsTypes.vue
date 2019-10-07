@@ -77,7 +77,7 @@ import { Card, Select, Modal, Alert } from 'ant-design-vue'
 import { GoodWizard } from 'vue-good-wizard'
 // my lib
 import NiceTable from '@/nicetable'
-import utils from '@/components/utils'
+import utils from '@/utils/types'
 
 export default {
   components: {

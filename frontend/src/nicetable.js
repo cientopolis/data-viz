@@ -1,4 +1,4 @@
-import utils from '@/components/utils'
+import utils from '@/utils/types'
 
 class NiceTable {
   constructor(id, columns, rows, backend=false) {

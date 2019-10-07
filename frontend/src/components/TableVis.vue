@@ -151,7 +151,7 @@ Vue.use(VueScrollTo, {
 
 // my lib stuff
 // utils
-import utils from '@/components/utils'
+import utils from '@/utils/rendering'
 // nice table class
 import NiceTable from '@/nicetable'
 // all posible charts

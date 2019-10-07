@@ -13,9 +13,12 @@
 
 <script>
 import * as d3 from 'd3'
-import utils from '@/components/utils'
+import rendering from '@/utils/rendering'
+import types from '@/utils/types'
 import moment from 'moment'
 import { Button } from 'ant-design-vue'
+
+const utils = { ...rendering, ...types }
 
 export default {
   props: {
