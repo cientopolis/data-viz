@@ -6,7 +6,7 @@ const isNumeric = (str) => {
 }
 
 const getRandomColor = () => {
-  return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'
+  return "hsl(" + Math.random() * 360 + ", 100%, 75%)"
 }
 
 const isDate = (value) => {

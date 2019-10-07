@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin: 50px; 0;">
     <a-button
       style="margin-left: 5px; margin-top: 50px; float: left;"
       type="primary"
@@ -7,6 +7,7 @@
     >
       Eliminar Grafico
     </a-button>
+    <h3>{{ this.conf.field }}</h3>
     <div ref="chart" />
   </div>
 </template>
@@ -50,12 +51,6 @@ export default {
       return this.niceTable.getBackend()
     },
 
-    columns () {
-      let niceTableColumns = this.niceTable.getColumns().filter(column => column.visible == true)
-      let selectedColumns = this.conf.selectedColumns
-      return niceTableColumns.filter(column => selectedColumns.indexOf(column.dataIndex) >= 0)
-    },
-
     rows () {
       let niceTableRows = this.niceTable.getRows()
       let selectedRows = this.conf.selectedRows
@@ -64,7 +59,7 @@ export default {
   },
 
   mounted () {
-    this.data = this.transformData(this.columns, this.rows)
+    this.data = this.transformData()
     this.draw()
   },
 
@@ -73,23 +68,28 @@ export default {
     draw () {
       var dataset = this.data
 
-      var width = 960;
-      var height = 500;
-      var radius = 200;
+      var width = 400
+      var height = 400
+      var radius = 200
+
+      var total = 0
+      dataset.forEach(element => {
+        total += element.value
+      })
 
       var svg = d3.select(this.$refs.chart).append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
       var arc = d3.svg.arc()
           .outerRadius(radius)
-          .innerRadius(30);
+          .innerRadius(60)
 
       var pie = d3.layout.pie()
           .sort(null)
-          .value(function(d){ return d.value; });
+          .value(function(d){ return d.value })
 
       var g = svg.selectAll(".fan")
           .data(pie(dataset))
@@ -99,69 +99,63 @@ export default {
 
       g.append("path")
         .attr("d", arc)
-        .attr("fill", function(d){ return d.data.color; })
+        .attr("fill", function(d){ return d.data.color })
+        .on("mouseover", function(d, i) {
+            svg.append("text")
+              .attr("dy", ".5em")
+              .style("text-anchor", "middle")
+              .style("font-size", 25)
+              .attr("class","label")
+              .style("fill", function(d,i){return "black"})
+              .text(d.data.legend)
+            
+        })
+        .on("mouseout", function(d) {
+          svg.select(".label").remove()
+        })
       
       g.append("text")
-        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")" })
         .style("text-anchor", "middle")
-        .text(function(d) { return d.data.legend; });
+        .text(function(d) { return `${(d.value / total)*100}%` })
+
     },
 
     getForm () {
-      const instruction = 'Selecciona columnas con valores numericos'
+      const instruction = 'Selecciona un campo'
       const name = 'Gráfico de torta'
-      const value = 'PiechartVis'
       let fields = []
       fields.push({
-        name: 'Campo',
-        type: ['String', 'Number'],
-        model: 'campo',
+        name: 'Piechart',
+        type: [],
+        model: 'field',
+        required: true,
         max: 1
       })
       let form = {
         instruction,
         fields,
-        name,
-        value
+        name
       }
       return form
     },
 
-    // Processing
-    validateColumns (columns) {
-      // Validate selected data
-      let message
-      let isValid = true
-      let numberColumns = columns.filter(column => column.type === 'Number')
-      if (numberColumns.length !== columns.length) {
-        message = 'Todas las columnas deben ser de tipo numerico'
-        isValid = false
-      }
-      return { isValid, message }
-    },
-
-    transformData (columns, rows) {
-      // process data
+    // Processing data
+    transformData () {
       let chartData = []
-      // selected columns
-      columns.forEach(col => {
-        let chartItem = {
-          legend: col.dataIndex,
-          value: 0,
-          color: utils.getRandomColor()
-        }
-        chartData.push(chartItem)
-      })
-      // selected rows
-      rows.forEach(row => {
-        chartData.forEach(item => {
-          let value = row[item['legend']]
-          if (utils.isNumeric(value) && (value!=='')) {
-            item['value'] += parseFloat(value)
+      this.rows.forEach(row => {
+        let columnValue = chartData.length > 0 ? chartData.find(e => e.legend == row[this.conf.field]) : null
+        if (!columnValue) {
+          let element = {
+            legend: row[this.conf.field],
+            value: 1,
+            color: utils.getRandomColor()
           }
-        })
+          chartData.push(element)
+        } else {
+          columnValue.value += 1
+        }
       })
-      // end process data
       return chartData
     },
 

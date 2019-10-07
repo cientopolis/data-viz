@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="margin: 50px; 0;">
     <a-button
       style="margin-left: 5px; margin-top: 50px; float: left;"
       type="primary"

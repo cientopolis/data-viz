@@ -219,6 +219,7 @@ export default {
             }
           }
           this.modalVisible = false
+          this.resetModal()
           this.$emit('onSave', chartType, conf)
         }
       }
@@ -236,7 +237,7 @@ export default {
             message = `El campo ${field.name} es requerido`
             break
           }
-          if ((selectedColumn) && (field.type.indexOf(selectedColumn.type) < 0)) {
+          if ((selectedColumn) && (field.type.length > 0) && (field.type.indexOf(selectedColumn.type) < 0)) {
             isValid = false
             message = `El campo ${field.name} debe ser de tipo ${field.type}`
             break
@@ -265,15 +266,19 @@ export default {
       return { isValid, message }
     },
 
+    resetModal () {
+      this.form = {}
+      this.selectedChartType = null
+      this.columnsError = null
+      this.$refs['my-wizard'].goTo(0)
+    },
+
     backClicked (currentPage) {
       return true
     },
 
     handleCancel () {
-      this.form = {}
-      this.selectedChartType = null
-      this.columnsError = null
-      this.$refs['my-wizard'].goTo(0)
+      this.resetModal()
     }
   }
 }

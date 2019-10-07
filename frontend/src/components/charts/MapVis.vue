@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-top: 50px">
+  <div style="margin: 50px; 0;">
     <a-row>
       <a-col :span="2">
         <a-button
