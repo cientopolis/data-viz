@@ -56,7 +56,7 @@ export default {
       this.renamedColumns = columns.map(column => {
         return {
           'value': column.dataIndex,
-          'label': column.dataIndex
+          'label': column.title
         }
       })
       this.modalVisible = true
