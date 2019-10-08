@@ -27,14 +27,20 @@
       >
         Crear Grafico
       </a-button>
-      <a-button
+      <!-- <a-button
         v-if="backend"
         type="primary"
         style="float: right; margin: 10px 5px;"
         @click="persistTable()"
       >
         Guardar Cambios
-      </a-button>
+      </a-button> -->
+      <a-icon
+        v-if="backend"
+        title="Persistence Activated"
+        style="float: right; margin: 10px 5px;"
+        type="database"
+      />
     </a-row>
     <!-- end operations buttons -->
     <!-- rows management -->
@@ -356,7 +362,7 @@ export default {
         })
     },
 
-    persistTable () {
+    persistTable (niceTable) {
       // save columns
       let url = `${utils.baseUrl}/table/`
       let columns = this.niceTable.getColumns()
@@ -366,6 +372,7 @@ export default {
         columns: JSON.stringify(columns)
       }).then(response => {
         console.log('table persisted!')
+        this.niceTable = niceTable
       })
     },
 
@@ -388,6 +395,7 @@ export default {
         }
         axios.post(url, params)
           .then(response => {
+            console.log('chart persisted!')
             const chart = response.data
             const firstTime = true
             this.renderChart(type, conf, firstTime, chart.id)
@@ -412,7 +420,11 @@ export default {
     },
 
     niceTableChanged (niceTable) {
-      this.niceTable = niceTable
+      if (this.backend) {
+        this.persistTable(niceTable)
+      } else {
+        this.niceTable = niceTable
+      }
     },
 
     createChart () {
