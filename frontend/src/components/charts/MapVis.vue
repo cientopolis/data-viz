@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 50px; 0;">
+  <div ref="mapvis" style="margin: 50px; 0;">
     <a-row>
       <a-col :span="2">
         <a-button
@@ -42,7 +42,7 @@
         </a-select-option>
       </a-select>
       <div>
-        <div v-if="mapCategory && mapCategory.type === 'Number'">
+        <div v-if="mapCategory && mapCategory.type === 'Numerico'">
           <p>Maximo valor: <b>{{maxRangeValue}}</b></p>
           <a-input-group
             compact
@@ -77,7 +77,7 @@
             />
           </a-input-group>
         </div>
-        <div v-if="mapCategory && mapCategory.type == 'String'">
+        <div v-if="mapCategory && mapCategory.type == 'Texto'">
           <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
           <div
             v-for="(category, index) in mapStringCategories"
@@ -195,7 +195,9 @@ export default {
     },
 
     columns () {
-      return this.niceTable.getVisibleColumns()
+      let niceTableColumns = this.niceTable.getColumns()
+      let others = this.conf.others
+      return niceTableColumns.filter(column => others.indexOf(column.dataIndex) >= 0)
     },
 
     rows () {
@@ -220,10 +222,8 @@ export default {
       // let view = data[0]
       let lat = parseFloat(data[0]['latitude'])
       let lng = parseFloat(data[0]['longitude'])
-
-      let cant = document.getElementsByClassName('mapchart').length
-      let div = document.getElementsByClassName('mapchart')[cant-1]
-
+      let cant = this.$refs.mapvis.getElementsByClassName('mapchart').length
+      let div = this.$refs.mapvis.getElementsByClassName('mapchart')[cant-1]
       mymap = L.map(div).setView([lat, lng], 10)
       L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -267,7 +267,7 @@ export default {
     },
 
     addCategory () {
-      this.mapCategoryOptions = this.columns.filter(column => column.type === 'String' || column.type == 'Number')
+      this.mapCategoryOptions = this.columns.filter(column => column.type === 'Texto' || column.type == 'Numerico')
       this.modalMapCategory = true
     },
 
@@ -279,7 +279,7 @@ export default {
         column = column[0]
         this.mapCategory = column
         let selectedData = this.data.data
-        if (column.type === "Number") {
+        if (column.type === "Numerico") {
           let validatedNumbers = selectedData.filter(item => item[category] !== '' && utils.isNumeric(item[category]))
           let maxValue = 0
           validatedNumbers.forEach(element => {
@@ -289,7 +289,7 @@ export default {
             }
           })
           this.maxRangeValue = maxValue
-        } else if (column.type === 'String') {
+        } else if (column.type === 'Texto') {
           selectedData.forEach(element => {
             if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
               this.mapStringCategories.push(element[category])
@@ -305,11 +305,11 @@ export default {
       this.mapRangeError = ''
       type = this.mapCategory.type
       field = this.mapCategory.dataIndex
-      if (type == 'String' && this.mapStringCategories) {
+      if (type == 'Texto' && this.mapStringCategories) {
         this.mapStringCategories.forEach(range => {
           let category = {
             range,
-            categoryType: 'String',
+            categoryType: type,
             categoryField: field
           }
           this.renderCategory(category)
@@ -320,12 +320,12 @@ export default {
         }
         return
       }
-      else if (type == 'Number') {
+      else if (type == 'Numerico') {
         if (this.from && this.to) {
           let range = [this.from, this.to]
           let category = {
             range,
-            categoryType: 'Number',
+            categoryType: type,
             categoryField: field
           }
           this.renderCategory(category)
@@ -360,9 +360,9 @@ export default {
       let geopoints = []
       let filtered = []
       let data = this.data.data
-      if (categoryType === 'String') {
+      if (categoryType === 'Texto') {
         filtered = data.filter(d => d[categoryField] == range)
-      } else if (categoryType === 'Number') {
+      } else if (categoryType === 'Numerico') {
         filtered = data.filter(d => isBetween(d[categoryField], range[0], range[1]))
         rangeText = `${categoryField} entre ${range[0]} y ${range[1]}`
       }
