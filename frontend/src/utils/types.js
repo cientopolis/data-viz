@@ -1,24 +1,29 @@
 import moment from 'moment'
 
+const date = 'Fecha'
+const number = 'Numerico'
+const text = 'Texto'
+const lat = 'Latitud'
+const lng = 'Longitud'
 
 const dataTypes = [
-  'Fecha',
-  'Numerico',
-  'Texto',
-  'Latitud',
-  'Longitud'
+  date,
+  number,
+  text,
+  lat,
+  lng
 ]
 
 const dateFormats = ['DDMMYYY', 'MMDDYYY']
 
 const checkType = (value, type, dateFormat=null) => {
-  if (type === 'Numerico') {
+  if (type === number) {
     return isNumeric(value)
   }
-  if (type === 'Longitud' || type === 'Latitud') {
+  if (type === lng || type === lat) {
     return isCoordinate(value)
   }
-  if (type === 'Fecha') {
+  if (type === date) {
     if (isDate(value) && dateFormat) {
       let date = moment(value, dateFormat)
       return String(date._d) !== 'Invalid Date'
@@ -53,6 +58,11 @@ const isNumeric = (str) => {
 export default {
   dateFormats,
   dataTypes,
+  date,
+  number,
+  text,
+  lat,
+  lng,
   checkType,
   isCoordinate,
   isDate,

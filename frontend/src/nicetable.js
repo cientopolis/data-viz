@@ -56,10 +56,10 @@ class NiceTable {
         'type': type,
         'visible': true
       }
-      if (type == 'Fecha') {
+      if (type == utils.date) {
         for (let i = 0; i < utils.dateFormats.length; i++) {
           const format = utils.dateFormats[i]
-          if (utils.checkType(example, 'Fecha', format)) {
+          if (utils.checkType(example, utils.date, format)) {
             curatedColumn['format'] = format
           }
         }
@@ -77,26 +77,26 @@ class NiceTable {
   static predictType (column, example, curatedColumns) {
     if (example) {
       if (utils.isDate(example)) {
-        return 'Fecha'
+        return utils.date
       }
       if (utils.isCoordinate(example)) {
         if ((column.toLowerCase() === 'lat') || (column.toLowerCase() === 'latitude')) {
-          return 'Latitud'
+          return utils.lat
         }
         if ((column.toLowerCase() === 'long') || (column.toLowerCase() === 'lng') || (column.toLowerCase() === 'longitude')) {
-          return 'Longitud'
+          return utils.lng
         }
-        if (curatedColumns.some(column => column.type == 'Latitud')) {
-          return 'Longitud'
+        if (curatedColumns.some(column => column.type == utils.lat)) {
+          return utils.lng
         }
-        return 'Latitud'
+        return utils.lat
       }
       if (utils.isNumeric(example)) {
-        return 'Numerico'
+        return utils.number
       }
     }
     // default type
-    return 'String'
+    return utils.text
   }
 
   static clone (niceTable) {

@@ -42,7 +42,7 @@
         </a-select-option>
       </a-select>
       <div>
-        <div v-if="mapCategory && mapCategory.type === 'Numerico'">
+        <div v-if="mapCategory && mapCategory.type === utils.number">
           <p>Maximo valor: <b>{{maxRangeValue}}</b></p>
           <a-input-group
             compact
@@ -77,7 +77,7 @@
             />
           </a-input-group>
         </div>
-        <div v-if="mapCategory && mapCategory.type == 'Texto'">
+        <div v-if="mapCategory && mapCategory.type == utils.text">
           <p style="margin-bottom: 10px">Se agrupara la informacion segun las siguientes categorias:</p>
           <div
             v-for="(category, index) in mapStringCategories"
@@ -173,7 +173,8 @@ export default {
       from: null,
       to: null,
       mapStringCategories: [],
-      mapRangeError: ''
+      mapRangeError: '',
+      utils
     }
   },
 
@@ -267,7 +268,7 @@ export default {
     },
 
     addCategory () {
-      this.mapCategoryOptions = this.columns.filter(column => column.type === 'Texto' || column.type == 'Numerico')
+      this.mapCategoryOptions = this.columns.filter(column => column.type === utils.text || column.type == utils.number)
       this.modalMapCategory = true
     },
 
@@ -279,7 +280,7 @@ export default {
         column = column[0]
         this.mapCategory = column
         let selectedData = this.data.data
-        if (column.type === "Numerico") {
+        if (column.type === utils.number) {
           let validatedNumbers = selectedData.filter(item => item[category] !== '' && utils.isNumeric(item[category]))
           let maxValue = 0
           validatedNumbers.forEach(element => {
@@ -289,7 +290,7 @@ export default {
             }
           })
           this.maxRangeValue = maxValue
-        } else if (column.type === 'Texto') {
+        } else if (column.type === utils.text) {
           selectedData.forEach(element => {
             if ((this.mapStringCategories.indexOf(element[category]) < 0)) {
               this.mapStringCategories.push(element[category])
@@ -305,7 +306,7 @@ export default {
       this.mapRangeError = ''
       type = this.mapCategory.type
       field = this.mapCategory.dataIndex
-      if (type == 'Texto' && this.mapStringCategories) {
+      if (type == utils.text && this.mapStringCategories) {
         this.mapStringCategories.forEach(range => {
           let category = {
             range,
@@ -320,7 +321,7 @@ export default {
         }
         return
       }
-      else if (type == 'Numerico') {
+      else if (type == utils.number) {
         if (this.from && this.to) {
           let range = [this.from, this.to]
           let category = {
@@ -360,9 +361,9 @@ export default {
       let geopoints = []
       let filtered = []
       let data = this.data.data
-      if (categoryType === 'Texto') {
+      if (categoryType === utils.text) {
         filtered = data.filter(d => d[categoryField] == range)
-      } else if (categoryType === 'Numerico') {
+      } else if (categoryType === utils.number) {
         filtered = data.filter(d => isBetween(d[categoryField], range[0], range[1]))
         rangeText = `${categoryField} entre ${range[0]} y ${range[1]}`
       }
