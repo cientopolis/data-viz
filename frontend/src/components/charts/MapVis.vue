@@ -390,10 +390,12 @@ export default {
 
     updateChart () {
       const url = `${utils.baseUrl}/chart_detail/${this.id}`
+      let conf = this.conf
+      conf.categories = this.data.categories
       axios.post(url, {
         nice_table: this.id,
         chart_type: chartType,
-        data: JSON.stringify(this.data)
+        conf: JSON.stringify(this.conf)
       }).then(response => {
         console.log('updated', response)
       })

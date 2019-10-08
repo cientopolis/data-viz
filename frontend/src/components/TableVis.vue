@@ -200,7 +200,7 @@ export default {
     },
 
     backend () {
-      return this.niceTable ? this.niceTable.getBackend() : false
+      return this.niceTable ? this.niceTable.getBackend() : this.niceTableParam.getBackend()
     },
 
     rows () {
@@ -269,46 +269,49 @@ export default {
 
     // rendering
     loadTable () {
-      let url = `${utils.baseUrl}/try_domain/`
-      let tableId = this.niceTableParam.getId()
-      const params = {
-        domain: document.domain,
-        identificator: tableId
-      }
-      let backend
-      axios.get(url)
-        .then(tryDomainResponse => {
-          // recuperar tabla y luego charts
-          let url = `${utils.baseUrl}/table/`
-          const params = {
-            domain: document.domain,
-            identificator: tableId
-          }
-          axios.get(url, { params })
-            .then((getTableResponse) => {
-              // backend installed and table persisted
-              console.log('there is a table, lets load it')
-              let responseColumns = getTableResponse.data.columns.map(column => {
-                return {
-                  dataIndex: column.index,
-                  title: column.title,
-                  type: column.column_type,
-                  visible: column.visible
-                }
+      if (this.backend) {
+        let url = `${utils.baseUrl}/try_domain/`
+        let tableId = this.niceTableParam.getId()
+        const params = {
+          domain: document.domain,
+          identificator: tableId
+        }
+        axios.get(url)
+          .then(tryDomainResponse => {
+            // recuperar tabla y luego charts
+            let url = `${utils.baseUrl}/table/`
+            const params = {
+              domain: document.domain,
+              identificator: tableId
+            }
+            axios.get(url, { params })
+              .then((getTableResponse) => {
+                // backend installed and table persisted
+                console.log('there is a table, lets load it')
+                let responseColumns = getTableResponse.data.columns.map(column => {
+                  return {
+                    dataIndex: column.index,
+                    title: column.title,
+                    type: column.column_type,
+                    visible: column.visible
+                  }
+                })
+                this.niceTable = new NiceTable(tableId, responseColumns, this.niceTableParam.getRows(), true)
+                this.getCharts()
               })
-              this.niceTable = new NiceTable(tableId, responseColumns, this.niceTableParam.getRows(), true)
-              this.getCharts()
-            })
-            .catch((getTableError) => {
-              console.log('no table persisted')
-              this.niceTable = new NiceTable(tableId, this.niceTableParam.getColumns(), this.niceTableParam.getRows(), true)
-            })
-        })
-        .catch(tryDomainError => {
-          // no backend installed
-          this.niceTable = NiceTable.clone(this.niceTableParam)
-          this.niceTable.setBackend(false)
-        })
+              .catch((getTableError) => {
+                console.log('no table persisted')
+                this.niceTable = new NiceTable(tableId, this.niceTableParam.getColumns(), this.niceTableParam.getRows(), true)
+              })
+          })
+          .catch(tryDomainError => {
+            // no backend installed
+            this.niceTable = NiceTable.clone(this.niceTableParam)
+            this.niceTable.setBackend(false)
+          })
+      } else {
+        this.niceTable = NiceTable.clone(this.niceTableParam)
+      }
     },
 
     async renderChart(type, conf, firstTime=true, id=null) {
@@ -419,12 +422,11 @@ export default {
 
     chartCreated (type, conf) {
       conf['selectedRows'] = this.selectedRowKeys
-      this.renderChart(type, conf)
-      // if (this.backend) {
-      //   this.persistChart(type, conf)
-      // } else {
-      //   this.renderChart(type, conf)
-      // }
+      if (this.backend) {
+        this.persistChart(type, conf)
+      } else {
+        this.renderChart(type, conf)
+      }
     }
   }
 }

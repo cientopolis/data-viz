@@ -144,7 +144,7 @@ class ChartDetail(APIView):
     def post(self, request, pk, format=None):
         chart = self.get_object(pk)
         data = JSONParser().parse(request)
-        serializer = ChartSerializer(chart, data={'data': data['data']}, partial=True)
+        serializer = ChartSerializer(chart, data={'conf': data['conf']}, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

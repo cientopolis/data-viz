@@ -11,8 +11,8 @@ const transformTable = (conf) => {
   if (!conf.chartsDiv) {
     throw "chartsDiv is required in conf"
   }
-  let insertMethod = conf.tableInsertMethod || 'append'
-  let persistence = conf.persistence || true
+  let insertMethod = conf.hasOwnProperty('tableInsertMethod') ? conf.tableInsertMethod : 'append'
+  let persistence = conf.hasOwnProperty('persistence') ? conf.persistence : true
   let ComponentClass = Vue.extend(TableVis)
   let niceTable = conf.extractor
   niceTable.setBackend(persistence)

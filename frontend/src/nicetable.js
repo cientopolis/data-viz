@@ -100,7 +100,7 @@ class NiceTable {
   }
 
   static clone (niceTable) {
-    return new this(niceTable.id, niceTable.columns, niceTable.rows)
+    return new this(niceTable.id, niceTable.columns, niceTable.rows, niceTable.backend)
   }
 }
 

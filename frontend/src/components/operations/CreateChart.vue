@@ -200,7 +200,7 @@ export default {
           for (let i = 0; i < this.selectedChartType.fields.length; i++) {
             const field = this.selectedChartType.fields[i]
             if (field.max == 1) {
-              if (this.form[field.model]) {
+              if (this.form[field.model] !== undefined) {
                 let selectedColumn = this.columns[this.form[field.model]]
                 conf[field.model] = selectedColumn.dataIndex
               } else {

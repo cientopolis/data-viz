@@ -46,8 +46,7 @@ export default {
       extractor: extractors.tableIdExtractor.getTable('appear'),
       newTableInDiv: document.getElementById('nicetable'),
       tableInsertMethod: 'insertBefore',
-      chartsDiv: document.getElementById('appearcharts'),
-      persistence: false
+      chartsDiv: document.getElementById('appearcharts')
     }
     tablevis.default.transformTable(conf)
   }
