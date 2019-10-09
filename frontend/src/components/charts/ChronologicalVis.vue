@@ -32,12 +32,6 @@ export default {
     }
   },
 
-  data () {
-    return {
-      data: null
-    }
-  },
-
   components: {
     'a-button': Button
   },
@@ -60,13 +54,13 @@ export default {
   },
 
   mounted () {
-    this.data = this.transformData()
-    this.draw()
+    let data = this.transformData()
+    this.draw(data)
   },
 
   methods: {
     // Rendering
-    async draw () {
+    async draw (data) {
       this.$nextTick()
       var margin = { top: 20, right: 100, bottom: 40, left: 100 }
       var height = 500 - margin.top - margin.bottom
@@ -93,7 +87,6 @@ export default {
         .x(function(d) { return xScale(d.date); })
         .y(function(d) { return yScale(d.close); })
       var focus = svg.append("g").style("display","none")
-      var data = this.data
       var keys = Object.keys(data[0])
       // sort data ascending - needed to get correct bisector results
       data.sort(function(a,b) {
@@ -172,7 +165,7 @@ export default {
       svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+        .call(xAxis)
 
       // add the y axis
       svg.append("g")

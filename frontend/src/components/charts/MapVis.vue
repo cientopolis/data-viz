@@ -405,28 +405,29 @@ export default {
     getForm () {
       const instruction = 'Selecciona una latitud, una longitud, y los valores que desees incluir en el mapa'
       const name = 'Mapa'
-      let fields = []
-      fields.push({
-        name: 'Latitud',
-        type: ['Latitud'],
-        model: 'latitude',
-        required: true,
-        max: 1
-      })
-      fields.push({
-        name: 'Longitud',
-        type: ['Longitud'],
-        model: 'longitude',
-        required: true,
-        max: 1
-      })
-      fields.push({
-        name: 'Otros',
-        type: [],
-        model: 'others',
-        required: false,
-        max: null
-      })
+      const fields = [
+        {
+          name: 'Latitud',
+          type: [types.lat],
+          model: 'latitude',
+          required: true,
+          max: 1
+        },
+        {
+          name: 'Longitud',
+          type: [types.lng],
+          model: 'longitude',
+          required: true,
+          max: 1
+        },
+        {
+          name: 'Otros',
+          type: [],
+          model: 'others',
+          required: false,
+          max: null
+        }
+      ]
       let form = {
         instruction,
         fields,

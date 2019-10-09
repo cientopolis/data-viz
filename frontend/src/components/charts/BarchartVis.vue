@@ -33,12 +33,6 @@ export default {
     }
   },
 
-  data () {
-    return {
-      data: null
-    }
-  },
-
   components: {
     'a-button': Button
   },
@@ -57,12 +51,12 @@ export default {
   },
 
   mounted () {
-    this.data = this.transformData()
-    this.draw()
+    let data = this.transformData()
+    this.draw(data)
   },
 
   methods: {
-    draw () {
+    draw (data) {
       var margin = {top: 10, right: 10, bottom: 100, left: 60}
       var width = 800 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom
@@ -89,8 +83,6 @@ export default {
       var tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0)
-
-      var data = this.data
 
       data.forEach(function(d) {
         d['value'] = +d['value']

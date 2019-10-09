@@ -35,12 +35,6 @@ export default {
     }
   },
 
-  data () {
-    return {
-      data: null
-    }
-  },
-
   components: {
     'a-button': Button
   },
@@ -59,14 +53,14 @@ export default {
   },
 
   mounted () {
-    this.data = this.transformData()
-    this.draw()
+    let data = this.transformData()
+    this.draw(data)
   },
 
   methods: {
     // Rendering
-    draw () {
-      var dataset = this.data
+    draw (data) {
+      var dataset = data
 
       var width = 400
       var height = 400
