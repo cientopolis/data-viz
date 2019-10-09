@@ -155,15 +155,17 @@ export default {
   },
 
   created () {
+    let chartTypes = []
     for (let [key, chart] of Object.entries(charts)) {
       const form = chart.methods.getForm()
-      this.chartTypes.push({
+      chartTypes.push({
         value: key,
         title: form.name,
         instruction: form.instruction,
         fields: form.fields
       })
     }
+    this.chartTypes = chartTypes.sort((a, b) => a.title > b.title)
   },
 
   methods: {
