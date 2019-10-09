@@ -12,8 +12,11 @@
 </template>
 <script>
 import * as d3 from 'd3'
-import utils from '@/utils/rendering'
+import rendering from '@/utils/rendering'
+import types from '@/utils/types'
 import { Button } from 'ant-design-vue'
+
+const utils = { ...rendering, ...types }
 
 export default {
   props: {
@@ -41,6 +44,10 @@ export default {
 
     backend () {
       return this.niceTable.getBackend()
+    },
+
+    columns () {
+      return this.niceTable.getVisibleColumns()
     },
 
     rows () {
@@ -124,22 +131,11 @@ export default {
         .data(data)
         .enter().append("rect")
         .attr("class", "bar")
-        .attr("x", function(d) { return x(d['legend']) })
-        .attr("y", function(d) { return y(d['value']) })
+        .attr("x", function (d) { return x(d['legend']) })
+        .attr("y", function (d) { return y(d['value']) })
         .attr("width", 10)
-        .attr("height", function(d) { return height - y(d['value']) })
-        .style("fill", "#ccc")
-        .on("mouseover", function(d) {
-          d3.select(this).style("fill", function(d) { return color(d['legend']) })
-          tooltip.text(d['legend'] + " " + d['value'])
-          .style("opacity", 0.8)
-            .style("left", (d3.event.pageX)+0 + "px")
-            .style("top", (d3.event.pageY)-0 + "px")
-        })
-        .on("mouseout", function(d) {
-          tooltip.style("opacity", 0)
-          d3.select(this).style("fill", "#ccc")
-        })
+        .attr("height", function (d) { return height - y(d['value']) })
+        .style("fill", function (d) { return d['color'] })
 
       var sum = d3.sum(data, function(d) { return d['value'] })
       var average = sum/data.length
@@ -183,17 +179,29 @@ export default {
     // Processing data
     transformData () {
       let chartData = []
+      let selectedColumn = this.columns.find(column => column.dataIndex == this.conf.field)
       this.rows.forEach(row => {
-        let columnValue = chartData.length > 0 ? chartData.find(e => e.legend == row[this.conf.field]) : null
-        if (!columnValue) {
-          let element = {
-            legend: row[this.conf.field],
-            value: 1,
-            color: utils.getRandomColor()
+        if (selectedColumn.type == utils.number) {
+          if (row[this.conf.field]) {
+            let element = {
+              legend: row[this.conf.field],
+              value: parseFloat(row[this.conf.field]),
+              color: utils.getRandomColor()
+            }
+            chartData.push(element)
           }
-          chartData.push(element)
         } else {
-          columnValue.value += 1
+          let columnValue = chartData.length > 0 ? chartData.find(e => e.legend == row[this.conf.field]) : null
+          if (!columnValue) {
+            let element = {
+              legend: row[this.conf.field],
+              value: 1,
+              color: utils.getRandomColor()
+            }
+            chartData.push(element)
+          } else {
+            columnValue.value += 1
+          }
         }
       })
       return chartData
