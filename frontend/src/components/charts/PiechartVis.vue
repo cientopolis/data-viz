@@ -91,22 +91,42 @@ export default {
           .append("g")
           .attr("class", "fan")
 
+      // Define the div for the tooltip
+      var div = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("text-align", "center")
+        .style("width", "80px")
+        .style("height", "30px")
+        .style("padding", "8px")
+        .style("font", "12px sans-serif")
+        .style("background-color", "#d1e8e3")
+        .style("border", "0px")
+        .style("color", "black")
+        .style("font-weight", "bold")
+        .style("border-radius", "8px")
+        .style("pointer-events", "none")
+        .style("opacity", 0)
+
       g.append("path")
         .attr("d", arc)
         .attr("fill", function(d){ return d.data.color })
-        .on("mouseover", function(d, i) {
-            svg.append("text")
-              .attr("dy", ".5em")
-              .style("text-anchor", "middle")
-              .style("font-size", 25)
-              .attr("class","label")
-              .style("fill", function(d,i){return "black"})
-              .text(d.data.legend)
-            
+        .on("mouseover", function(d) {
+          div
+            .transition()
+            .duration(200)
+            .style("opacity", 0.9);
+          div
+            .html(`${d.data.legend}`)
+            .style("left", d3.event.pageX + "px")
+            .style("top", d3.event.pageY - 28 + "px");
         })
         .on("mouseout", function(d) {
-          svg.select(".label").remove()
-        })
+          div
+            .transition()
+            .duration(500)
+            .style("opacity", 0);
+        });
       
       g.append("text")
         .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")" })
