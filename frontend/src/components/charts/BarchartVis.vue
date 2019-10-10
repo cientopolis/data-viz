@@ -87,10 +87,6 @@ export default {
 
       var color = d3.scale.category10()
 
-      var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0)
-
       data.forEach(function(d) {
         d['value'] = +d['value']
       })
@@ -158,7 +154,7 @@ export default {
     },
 
     getForm () {
-      const instruction = 'Selecciona columnas con valores numericos'
+      const instruction = 'Selecciona un campo'
       const name = 'Gráfico de barras'
       let fields = []
       fields.push({
@@ -231,18 +227,6 @@ export default {
 }
 h1, h3 {
   text-align: center;
-}
-div.tooltip {
-  position: absolute;
-  text-align: left;
-  width: auto;
-  height: auto;
-  padding: 8px;
-  font: 12px sans-serif;
-  background: black;
-  border-radius: 0px;
-  pointer-events: none;
-  color: white;
 }
 .mean {
   stroke-width: 1px;
