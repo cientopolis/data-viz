@@ -21,6 +21,7 @@
         Definir tipos para las columnas
       </a-button>
       <a-button
+        :title="selectedRowKeys.length === 0 ? 'Selecciona filas para incluir en tu gráfico' : 'Crear grafico'"
         style="float: left; margin: 10px 5px;"
         :disabled="selectedRowKeys.length === 0"
         @click="createChart()"
@@ -65,6 +66,12 @@
         <template v-if="selectedRowKeys.length > 0">
           {{`${selectedRowKeys.length} filas seleccionadas`}}
         </template>
+        <a-alert
+          v-else
+          style="margin-bottom: 10px;"
+          message="Selecciona filas para incluir en tu gráfico"
+          banner
+        />
       </span>
     </a-row>
     <!-- end rows management -->
@@ -133,7 +140,7 @@
 // external
 import Vue from 'vue'
 import axios from 'axios'
-import { Button, Icon, Input, Row, Table } from 'ant-design-vue'
+import { Alert, Button, Icon, Input, Row, Table } from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 
 var VueScrollTo = require('vue-scrollto')
@@ -178,6 +185,7 @@ export default {
   },
 
   components: {
+    'a-alert': Alert,
     'a-button': Button,
     'a-icon': Icon,
     'a-input': Input,
