@@ -45,6 +45,10 @@ export default {
       return this.niceTable.getBackend()
     },
 
+    columns () {
+      return this.niceTable.getVisibleColumns()
+    },
+
     rows () {
       let niceTableRows = this.niceTable.getRows()
       let selectedRows = this.conf.selectedRows
@@ -157,17 +161,28 @@ export default {
     // Processing data
     transformData () {
       let chartData = []
+      let selectedColumn = this.columns.find(column => column.dataIndex == this.conf.field)
       this.rows.forEach(row => {
-        let columnValue = chartData.length > 0 ? chartData.find(e => e.legend == row[this.conf.field]) : null
-        if (!columnValue) {
+        if (selectedColumn.type == utils.number) {
+          let value = parseFloat(row[this.conf.field])
           let element = {
             legend: row[this.conf.field],
-            value: 1,
+            value: !isNaN(value) ? value : 0,
             color: utils.getRandomColor()
           }
           chartData.push(element)
         } else {
-          columnValue.value += 1
+          let columnValue = chartData.length > 0 ? chartData.find(e => e.legend == row[this.conf.field]) : null
+          if (!columnValue) {
+            let element = {
+              legend: row[this.conf.field],
+              value: 1,
+              color: utils.getRandomColor()
+            }
+            chartData.push(element)
+          } else {
+            columnValue.value += 1
+          }
         }
       })
       return chartData

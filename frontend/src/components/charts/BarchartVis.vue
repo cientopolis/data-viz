@@ -178,14 +178,13 @@ export default {
       let selectedColumn = this.columns.find(column => column.dataIndex == this.conf.field)
       this.rows.forEach(row => {
         if (selectedColumn.type == utils.number) {
-          if (row[this.conf.field]) {
-            let element = {
-              legend: row[this.conf.field],
-              value: parseFloat(row[this.conf.field]),
-              color: utils.getRandomColor()
-            }
-            chartData.push(element)
+          let value = parseFloat(row[this.conf.field])
+          let element = {
+            legend: row[this.conf.field],
+            value: !isNaN(value) ? value : 0,
+            color: utils.getRandomColor()
           }
+          chartData.push(element)
         } else {
           let columnValue = chartData.length > 0 ? chartData.find(e => e.legend == row[this.conf.field]) : null
           if (!columnValue) {
