@@ -4,21 +4,19 @@
       style="margin-left: 5px; margin-top: 50px; float: left;"
       type="primary"
       @click="removeChart()"
-    >
-      Eliminar Grafico
-    </a-button>
+    >Eliminar Grafico</a-button>
     <div ref="chart" />
   </div>
 </template>
 
 <script>
-import * as d3 from 'd3'
-import rendering from '@/utils/rendering'
-import types from '@/utils/types'
-import moment from 'moment'
-import { Button } from 'ant-design-vue'
+import * as d3 from "d3";
+import rendering from "@/utils/rendering";
+import types from "@/utils/types";
+import moment from "moment";
+import { Button } from "ant-design-vue";
 
-const utils = { ...rendering, ...types }
+const utils = { ...rendering, ...types };
 
 export default {
   props: {
@@ -33,299 +31,353 @@ export default {
   },
 
   components: {
-    'a-button': Button
+    "a-button": Button
   },
 
   computed: {
-
-    backend () {
-      return this.niceTable.getBackend()
+    backend() {
+      return this.niceTable.getBackend();
     },
 
-    columns () {
-      return this.niceTable ? this.niceTable.getVisibleColumns() : []
+    columns() {
+      return this.niceTable ? this.niceTable.getVisibleColumns() : [];
     },
 
-    rows () {
-      let niceTableRows = this.niceTable.getRows()
-      let selectedRows = this.conf.selectedRows
-      return niceTableRows.filter(row => selectedRows.indexOf(niceTableRows.indexOf(row)) >= 0)
+    rows() {
+      let niceTableRows = this.niceTable.getRows();
+      let selectedRows = this.conf.selectedRows;
+      return niceTableRows.filter(
+        row => selectedRows.indexOf(niceTableRows.indexOf(row)) >= 0
+      );
     }
   },
 
-  mounted () {
-    let data = this.transformData()
-    this.draw(data)
+  mounted() {
+    let data = this.transformData();
+    this.draw(data);
   },
 
   methods: {
     // Rendering
-    async draw (data) {
-      this.$nextTick()
-      var margin = { top: 20, right: 100, bottom: 40, left: 100 }
-      var height = 500 - margin.top - margin.bottom
-      var width = 960 - margin.left - margin.right
-      var svg = d3.select(this.$refs.chart).append("svg")
-          .attr("width",width + margin.left + margin.right)
-          .attr("height",height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-      // setup scales - the domain is specified inside of the function called when we load the data
-      var xScale = d3.time.scale().range([0, width])
-      var yScale = d3.scale.linear().range([height, 0])
-      var color = d3.scale.category10()
-      // setup the axes
-      var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
-      var yAxis = d3.svg.axis().scale(yScale).orient("left")
-      // create function to parse dates into date objects
-      var parseDate = d3.time.format("%Y-%m-%d").parse
-      var formatDate = d3.time.format("%Y-%m-%d")
-      var bisectDate = d3.bisector(function(d) { return d.date; }).left
-      // set the line attributes
-      var line = d3.svg.line()
+    draw(data) {
+      var margin = {
+          top: 20,
+          right: 80,
+          bottom: 30,
+          left: 50
+        },
+        width = 900 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+      // var parseDate = d3.time.format("%Y%m%d").parse;
+
+      var x = d3.time.scale().range([0, width]);
+
+      var y = d3.scale.linear().range([height, 0]);
+
+      var color = d3.scale.category10();
+
+      var xAxis = d3.svg
+        .axis()
+        .scale(x)
+        .orient("bottom");
+
+      var yAxis = d3.svg
+        .axis()
+        .scale(y)
+        .orient("left");
+
+      var line = d3.svg
+        .line()
         .interpolate("basis")
-        .x(function(d) { return xScale(d.date); })
-        .y(function(d) { return yScale(d.close); })
-      var focus = svg.append("g").style("display","none")
-      var keys = Object.keys(data[0])
-      // sort data ascending - needed to get correct bisector results
-      data.sort(function(a,b) {
-        return a.date - b.date
-      });
-      // color domain
-      color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date" }))
-      // create stocks array with object for each company containing all data
-      var stocks = color.domain().map(function(name) {
+        .x(function(d) {
+          return x(d.date);
+        })
+        .y(function(d) {
+          return y(d.value);
+        });
+
+      var svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // var data = d3.tsv.parse(myData);
+
+      color.domain(
+        d3.keys(data[0]).filter(function(key) {
+          return key !== "date";
+        })
+      );
+
+      // data.forEach(function(d) {
+      //   d.date = parseDate(d.date);
+      // });
+
+      data = this._.sortBy(data, ["date"]);
+
+      var yValues = color.domain().map(function(name) {
         return {
           name: name,
-          values: data.map(function(d){
-            return { date: d.date, close: d[name] };
+          values: data.map(function(d) {
+            return {
+              date: d.date,
+              value: +d[name]
+            };
           })
         };
-      })
+      });
 
-      // add domain ranges to the x and y scales
-      xScale.domain([
-        d3.min(stocks, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
-        d3.max(stocks, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
-      ])
-      yScale.domain([
-        0,
-        // d3.min(stocks, function(c) { return d3.min(c.values, function(v) { return v.close; }); }),
-        d3.max(stocks, function(c) { return d3.max(c.values, function(v) { return v.close; }); })
-      ])
+      x.domain(
+        d3.extent(data, function(d) {
+          return d.date;
+        })
+      );
 
-      // Legends
-      var legend = svg.selectAll('g')
-        .data(keys)
+      y.domain([
+        d3.min(yValues, function(c) {
+          return d3.min(c.values, function(v) {
+            return v.value;
+          });
+        }),
+        d3.max(yValues, function(c) {
+          return d3.max(c.values, function(v) {
+            return v.value;
+          });
+        })
+      ]);
+
+      var legend = svg
+        .selectAll("g")
+        .data(yValues)
         .enter()
-        .append('g')
-        .attr('class', 'legend');
+        .append("g")
+        .attr("class", "legend");
 
-      legend.append('rect')
-        .attr('x', width + 20)
-        .attr('y', function(d, i) {
+      legend
+        .append("rect")
+        .attr("x", width - 20)
+        .attr("y", function(d, i) {
           return i * 20;
         })
-        .attr('width', 10)
-        .attr('height', 10)
-        .style('fill', function(d) {
-          return color(d);
+        .attr("width", 10)
+        .attr("height", 10)
+        .style("fill", function(d) {
+          return color(d.name);
         });
 
-      legend.append('text')
-        .attr('x', width + 30)
-        .attr('y', function(d, i) {
-          return (i * 20) + 9;
+      legend
+        .append("text")
+        .attr("x", width - 8)
+        .attr("y", function(d, i) {
+          return i * 20 + 9;
         })
         .text(function(d) {
-          return d;
-        })
-        .on("mouseover",function(d,i) {
-          let j
-          i = i - 1
-          for (j=0; j < 6; j++) {
-            if (i !== j) {
-              d3.select("#id"+j).style("opacity",0.1);
-              d3.select("#text_id"+j).style("opacity",0.2);
-            }
-          };
-        })
-        .on("mouseout", function(d,i) {
-          let j
-          for (j=0; j < 6; j++) {
-            d3.select("#id"+j).style("opacity",1);
-            d3.select("#text_id"+j).style("opacity",1);
-          };
+          return d.name;
         });
 
-      // end legends
-
-      // add the x axis
-      svg.append("g")
+      svg
+        .append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxis)
+        .call(xAxis);
 
-      // add the y axis
-      svg.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
+      svg
+        .append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
         .append("text")
-          .attr("transform","rotate(-90)")
-          .attr("y",-60)
-          .attr("dy",".71em")
-          .style("text-anchor","end")
-          // .text("Price ($)");
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end");
 
-      // add circle at intersection
-      focus.append("circle")
-        .attr("class","y")
-        .attr("fill","none")
-        .attr("stroke","black")
-        .style("opacity",0.5)
-        .attr("r",8);
+      var yValue = svg
+        .selectAll(".yValue")
+        .data(yValues)
+        .enter()
+        .append("g")
+        .attr("class", "yValue");
 
-      // add horizontal line at intersection
-      focus.append("line")
-        .attr("class","x")
-        .attr("stroke","black")
-        .attr("stroke-dasharray","3,3")
-        .style("opacity",0.5)
-        .attr("x1", 0)
-        .attr("x2", width);
-
-      // add vertical line at intersection
-      focus.append("line")
-        .attr("class","y")
-        .attr("stroke","black")
-        .attr("stroke-dasharray","3,3")
-        .style("opacity",0.5)
-        .attr("y1", 0)
-        .attr("y2", height);
-
-      // append rectangle for capturing if mouse moves within area
-      svg.append("rect")
-        .attr("width",width)
-        .attr("height",height)
-        .style("fill","none")
-        .style("pointer-events","all")
-        .on("mouseover", function() { focus.style("display", null); })
-        .on("mouseout", function() { focus.style("display", "none"); })
-        .on("mousemove", mousemove);
-      
-      // add the line groups
-      var stock = svg.selectAll(".stockXYZ")
-          .data(stocks)
-        .enter().append("g")
-          .attr("class","stockXYZ");
-
-      // add the stock price paths
-      stock.append("path")
-        .attr("class","line")
-        .attr("id",function(d,i){ return "id" + i; })
+      yValue
+        .append("path")
+        .attr("class", "line")
         .attr("d", function(d) {
-          return line(d.values); 
+          return line(d.values);
         })
-        .style("stroke", function(d) { return color(d.name); });
+        .style("stroke", function(d) {
+          return color(d.name);
+        });
 
-      let component = this
+      var mouseG = svg.append("g").attr("class", "mouse-over-effects");
 
-      // mousemove function
-      function mousemove () {
-        var x0 = xScale.invert(d3.mouse(this)[0]);
-        var i = bisectDate(component.data, x0, 1); // gives index of element which has date higher than x0
-        var d0 = component.data[i - 1], d1 = component.data[i];
-        var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-        var keys = Object.keys(d).filter(item => item !== 'date')
-        var values = keys.map(key => +d[key])
-        var close = d3.max(values)
+      mouseG
+        .append("path") // this is the black vertical line to follow mouse
+        .attr("class", "mouse-line")
+        .style("stroke", "black")
+        .style("stroke-width", "1px")
+        .style("opacity", "0");
 
-        focus.select("circle.y")
-        .attr("transform", "translate(" + xScale(d.date) + "," + yScale(close) + ")");
+      var lines = document.getElementsByClassName("line");
 
-        focus.select("line.y")
-          .attr("y2",height - yScale(close))
-          .attr("transform", "translate(" + xScale(d.date) + "," 
-            + yScale(close) + ")");
+      var mousePerLine = mouseG
+        .selectAll(".mouse-per-line")
+        .data(yValues)
+        .enter()
+        .append("g")
+        .attr("class", "mouse-per-line");
 
-        focus.select("line.x")
-        .attr("x2",xScale(d.date))
-        .attr("transform", "translate(0," 
-          + (yScale(close)) + ")");
-      }
+      mousePerLine
+        .append("circle")
+        .attr("r", 7)
+        .style("stroke", function(d) {
+          return color(d.name);
+        })
+        .style("fill", "none")
+        .style("stroke-width", "1px")
+        .style("opacity", "0");
+
+      mousePerLine.append("text").attr("transform", "translate(10,3)");
+
+      mouseG
+        .append("svg:rect") // append a rect to catch mouse movements on canvas
+        .attr("width", width) // can't catch mouse events on a g element
+        .attr("height", height)
+        .attr("fill", "none")
+        .attr("pointer-events", "all")
+        .on("mouseout", function() {
+          // on mouse out hide line, circles and text
+          d3.select(".mouse-line").style("opacity", "0");
+          d3.selectAll(".mouse-per-line circle").style("opacity", "0");
+          d3.selectAll(".mouse-per-line text").style("opacity", "0");
+        })
+        .on("mouseover", function() {
+          // on mouse in show line, circles and text
+          d3.select(".mouse-line").style("opacity", "1");
+          d3.selectAll(".mouse-per-line circle").style("opacity", "1");
+          d3.selectAll(".mouse-per-line text").style("opacity", "1");
+        })
+        .on("mousemove", function() {
+          // mouse moving over canvas
+          var mouse = d3.mouse(this);
+          d3.select(".mouse-line").attr("d", function() {
+            var d = "M" + mouse[0] + "," + height;
+            d += " " + mouse[0] + "," + 0;
+            return d;
+          });
+
+          d3.selectAll(".mouse-per-line").attr("transform", function(d, i) {
+            var xDate = x.invert(mouse[0]),
+              bisect = d3.bisector(function(d) {
+                return d.date;
+              }).right;
+            var idx = bisect(d.values, xDate);
+
+            var beginning = 0,
+              end = lines[i].getTotalLength(),
+              target = null;
+
+            while (true) {
+              target = Math.floor((beginning + end) / 2);
+              var pos = lines[i].getPointAtLength(target);
+              if (
+                (target === end || target === beginning) &&
+                pos.x !== mouse[0]
+              ) {
+                break;
+              }
+              if (pos.x > mouse[0]) end = target;
+              else if (pos.x < mouse[0]) beginning = target;
+              else break; //position found
+            }
+
+            d3.select(this)
+              .select("text")
+              .text(y.invert(pos.y).toFixed(2));
+
+            return "translate(" + mouse[0] + "," + pos.y + ")";
+          });
+        });
     },
 
-    getForm () {
-      const instruction = 'Selecciona un campo fecha y uno o muchos campos numéricos'
-      const name = 'Gráfico cronológico'
-      let fields = []
+    getForm() {
+      const instruction =
+        "Selecciona un campo fecha y uno o muchos campos numéricos";
+      const name = "Gráfico cronológico";
+      let fields = [];
       fields.push({
-        name: 'Fecha',
-        type: ['Fecha'],
-        model: 'date',
+        name: "Fecha",
+        type: [utils.date],
+        model: "date",
         required: true,
         max: 1
-      })
+      });
       fields.push({
-        name: 'Numéricos',
-        type: ['Numerico'],
-        model: 'numerics',
+        name: "Numéricos",
+        type: [utils.number],
+        model: "numerics",
         required: true,
         max: null
-      })
+      });
       let form = {
         instruction,
         fields,
         name
-      }
-      return form
+      };
+      return form;
     },
 
     // Processing
-    transformData () {
+    transformData() {
       // process data
-      let chartData = []
-      let dateColumn = this.columns.find(column => column.dataIndex == this.conf.date)
+      let chartData = [];
+      let dateColumn = this.columns.find(
+        column => column.dataIndex == this.conf.date
+      );
       this.rows.forEach(row => {
-        let date = moment(row[dateColumn.dataIndex], dateColumn.format)
-        if (String(date._d) !== 'Invalid Date') {
+        let date = moment(row[dateColumn.dataIndex], dateColumn.format);
+        if (String(date._d) !== "Invalid Date") {
           let chartItem = {
             date
-          }
+          };
           this.conf.numerics.forEach(numeric => {
-            chartItem[numeric] = utils.isNumeric(row[numeric]) ? +row[numeric] : null
-          })
-          chartData.push(chartItem)
+            chartItem[numeric] = utils.isNumeric(row[numeric])
+              ? +row[numeric]
+              : null;
+          });
+          chartData.push(chartItem);
         }
-      })
+      });
       // end process data
-      return chartData
+      return chartData;
     },
 
     // API
-    removeChart () {
-      utils.removeChart(this)
+    removeChart() {
+      utils.removeChart(this);
     }
   }
-}
+};
 </script>
 
 <style>
-  .line {
-    fill: none;
-    stroke-width: 1px;
-  }
+.line {
+  fill: none;
+  stroke-width: 1px;
+}
 
-  .axis path {
-    stroke: black;
-    stroke-width: 1px;
-    fill: none;
-    shape-rendering: crispEdges;
-  }
+.axis path {
+  stroke: black;
+  stroke-width: 1px;
+  fill: none;
+  shape-rendering: crispEdges;
+}
 
-  .tick line {
-    stroke: black;
-    stroke-width: 1px;
-  }
+.tick line {
+  stroke: black;
+  stroke-width: 1px;
+}
 </style>
