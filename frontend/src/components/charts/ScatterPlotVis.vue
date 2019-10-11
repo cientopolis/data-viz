@@ -85,7 +85,7 @@ export default {
         let domainXTo = Math.max(...xValues);
         x = d3.scale
           .linear()
-          .domain([0, domainXTo])
+          .domain([domainXTo, 0])
           .range([height, 0]);
         svg
           .append("g")
