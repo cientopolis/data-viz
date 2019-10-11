@@ -341,7 +341,7 @@ export default {
         let date = moment(row[dateColumn.dataIndex], dateColumn.format);
         if (String(date._d) !== "Invalid Date") {
           let chartItem = {
-            date
+            date: date._d
           };
           this.conf.numerics.forEach(numeric => {
             chartItem[numeric] = utils.isNumeric(row[numeric])
