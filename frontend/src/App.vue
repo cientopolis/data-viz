@@ -7,11 +7,11 @@
       v-model="current"
       mode="horizontal"
     >
-      <a-menu-item key="home">
+      <!-- <a-menu-item key="home">
         <router-link to="/">Inicio</router-link>
-      </a-menu-item>
-      <a-menu-item key="appear">
-        <router-link to="/appear">Ejemplo 1</router-link>
+      </a-menu-item> -->
+      <a-menu-item key="home">
+        <router-link to="/">Ejemplo 1</router-link>
       </a-menu-item>
       <a-menu-item key="cazamosquitos">
         <router-link to="/cazamosquitos">Ejemplo 2</router-link>

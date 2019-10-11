@@ -11,13 +11,13 @@ Vue.use(Router)
 const router = new Router({
   mode: 'history',
   routes: [
+    // {
+    //   path: '/',
+    //   name: 'home',
+    //   component: Home,
+    // },
     {
       path: '/',
-      name: 'home',
-      component: Home,
-    },
-    {
-      path: '/appear',
       name: 'AppEAR',
       component: Appear,
     },
