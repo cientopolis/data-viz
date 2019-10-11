@@ -11,8 +11,11 @@
 
 <script>
 import * as d3 from "d3";
-import utils from "@/utils/types";
+import types from "@/utils/types";
+import rendering from "@/utils/rendering";
 import { Button } from "ant-design-vue";
+
+const utils = { ...rendering, ...types };
 
 export default {
   props: {

@@ -109,9 +109,17 @@ export default {
       let yValues = data.map(element => element.y);
       let x, y;
 
-      data = this._.sortBy(data, ["x", "y"]);
+      data = this._.sortBy(data, ["x", "y"], ["asc", "asc"]);
+
       if (xType === utils.number) {
         data = data.filter(x => x.x !== "");
+        data = data.map(element => {
+          return {
+            x: parseFloat(element.x),
+            y: element.y
+          }
+        })
+        data = this._.sortBy(data, ["x", "y"], ["asc", "asc"]);
         let domainXTo = Math.max(...xValues);
         x = d3.scale
           .linear()
