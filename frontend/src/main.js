@@ -5,6 +5,11 @@ import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
 import { Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+import lodash from 'lodash'
+import VueLodash from 'vue-lodash'
+
+Vue.use(VueLodash, lodash)
+
 Vue.component('l-map', LMap)
 Vue.component('l-tile-layer', LTileLayer)
 Vue.component('l-marker', LMarker)

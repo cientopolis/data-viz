@@ -14,7 +14,7 @@ const dataTypes = [
   lng
 ]
 
-const dateFormats = ['DDMMYYY', 'MMDDYYY']
+const dateFormats = ['DDMMYYYY', 'MMDDYYYY']
 
 const checkType = (value, type, dateFormat=null) => {
   if (type === number) {

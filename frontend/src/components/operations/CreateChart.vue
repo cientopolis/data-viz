@@ -155,17 +155,7 @@ export default {
   },
 
   created () {
-    let chartTypes = []
-    for (let [key, chart] of Object.entries(charts)) {
-      const form = chart.methods.getForm()
-      chartTypes.push({
-        value: key,
-        title: form.name,
-        instruction: form.instruction,
-        fields: form.fields
-      })
-    }
-    this.chartTypes = chartTypes.sort((a, b) => a.title > b.title)
+    this.resetModal()
   },
 
   methods: {
@@ -241,6 +231,7 @@ export default {
           if ((selectedColumn) && (field.type.length > 0) && (field.type.indexOf(selectedColumn.type) < 0)) {
             isValid = false
             message = `El campo ${field.name} debe ser de tipo ${field.type}`
+            message = message.replace(/\,/g,' o ')
             break
           }
         } else {
@@ -256,7 +247,8 @@ export default {
                 const column = selectedColumns[i];
                 if (field.type.indexOf(column.type) < 0) {
                   isValid = false
-                  message = `El campo ${field.name} debe ser de tipo ${field.type}`.replace(/\,/g,' o ')
+                  message = `El campo ${field.name} debe ser de tipo ${field.type}`
+                  message = message.replace(/\,/g,' o ')
                   break
                 }
               }
@@ -271,7 +263,20 @@ export default {
       this.form = {}
       this.selectedChartType = null
       this.columnsError = null
-      this.$refs['my-wizard'].goTo(0)
+      if (this.$refs['my-wizard']) {
+        this.$refs['my-wizard'].goTo(0)
+      }
+      let chartTypes = []
+      for (let [key, chart] of Object.entries(charts)) {
+        const form = chart.methods.getForm()
+        chartTypes.push({
+          value: key,
+          title: form.name,
+          instruction: form.instruction,
+          fields: form.fields
+        })
+      }
+      this.chartTypes = chartTypes.sort((a, b) => a.title < b.title ? -1 : 1)
     },
 
     backClicked (currentPage) {
