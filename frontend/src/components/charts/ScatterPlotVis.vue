@@ -1,11 +1,17 @@
 <template>
   <div>
-    <a-button
-      style="margin-left: 5px; margin-top: 50px; float: left;"
-      type="primary"
-      @click="removeChart()"
-    >Eliminar Grafico</a-button>
-    <div ref="chart" />
+    <a-row>
+      <a-col :span="3">
+        <a-button
+          style="float: left; margin-bottom: 50px"
+          type="primary"
+          @click="removeChart()"
+        >Eliminar Grafico</a-button>
+      </a-col>
+      <a-col :span="21">
+        <div ref="chart" />
+      </a-col>
+    </a-row>
   </div>
 </template>
 
@@ -13,7 +19,7 @@
 import * as d3 from "d3";
 import types from "@/utils/types";
 import rendering from "@/utils/rendering";
-import { Button } from "ant-design-vue";
+import { Row, Col, Button } from "ant-design-vue";
 
 const utils = { ...rendering, ...types };
 
@@ -30,6 +36,8 @@ export default {
   },
 
   components: {
+    "a-row": Row,
+    "a-col": Col,
     "a-button": Button
   },
 
@@ -59,9 +67,9 @@ export default {
   methods: {
     draw(data) {
       // set the dimensios and margins of the graph
-      let margin = { top: 10, right: 30, bottom: 100, left: 100 },
-        width = 600 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+      let margin = { top: 10, right: 30, bottom: 200, left: 200 },
+        width = 800 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
 
       // append the svg object to the body of the page
       var svg = d3
@@ -150,50 +158,16 @@ export default {
         );
       }
 
-      // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
-      // Its opacity is set to 0: we don't see it by default.
-      // var tooltip = d3.select(this.$refs.chart)
-      //   .append("div")
-      //   .style("opacity", 0)
-      //   .attr("class", "tooltip")
-      //   .style("background-color", "#d1e8e3")
-      //   .style("color", "#3c8b7a")
-      //   .style("border-width", "1px")
-      //   .style("border-radius", "5px")
-      //   .style("padding", "10px")
-      //   .style("width", "100px")
-      //   .style("margin", "auto")
-
-      // // A function that change this tooltip when the user hover a point.
-      // // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
-      // var mouseover = function(d) {
-      //   tooltip
-      //     .style("opacity", 1)
-      // }
-
-      // var mousemove = function(d) {
-      //   tooltip
-      //     .html(`${d.x}: ${d.y}`)
-      //     .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-      //     .style("top", (d3.mouse(this)[1]) + "px")
-      // }
-
-      // // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
-      // var mouseleave = function(d) {
-      //   tooltip
-      //     .transition()
-      //     .duration(200)
-      //     .style("opacity", 0)
-      // }
-
       // Define the div for the tooltip
-      var div = d3.select("body")
+      var div = d3
+        .select("body")
         .append("div")
         .style("position", "absolute")
         .style("text-align", "center")
         .style("width", "100px")
-        .style("height", "40px")
+        .style("height", "80px")
         .style("padding", "5px")
+        .style("overflow", "hidden")
         .style("font", "12px sans-serif")
         .style("background-color", "#d1e8e3")
         .style("border", "0px")
@@ -201,7 +175,7 @@ export default {
         .style("font-weight", "bold")
         .style("border-radius", "8px")
         .style("pointer-events", "none")
-        .style("opacity", 0)
+        .style("opacity", 0);
 
       // Add dots
       svg

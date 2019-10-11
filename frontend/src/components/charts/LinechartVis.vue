@@ -1,11 +1,17 @@
 <template>
   <div>
-    <a-button
-      style="margin-left: 5px; margin-top: 50px; float: left;"
-      type="primary"
-      @click="removeChart()"
-    >Eliminar Grafico</a-button>
-    <div ref="chart" />
+    <a-row>
+      <a-col :span="3">
+        <a-button
+          style="float: left; margin-bottom: 50px"
+          type="primary"
+          @click="removeChart()"
+        >Eliminar Grafico</a-button>
+      </a-col>
+      <a-col :span="21">
+        <div ref="chart" />
+      </a-col>
+    </a-row>
   </div>
 </template>
 <script>
@@ -13,7 +19,7 @@ import * as d3 from "d3";
 import moment from "moment";
 import rendering from "@/utils/rendering";
 import types from "@/utils/types";
-import { Button } from "ant-design-vue";
+import { Row, Col, Button } from "ant-design-vue";
 
 const utils = { ...rendering, ...types };
 
@@ -30,6 +36,8 @@ export default {
   },
 
   components: {
+    "a-row": Row,
+    "a-col": Col,
     "a-button": Button
   },
 
@@ -85,9 +93,9 @@ export default {
 
     draw(data) {
       // set the dimensios and margins of the graph
-      let margin = { top: 10, right: 30, bottom: 100, left: 100 },
-        width = 600 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+      let margin = { top: 10, right: 30, bottom: 200, left: 200 },
+        width = 800 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
 
       // append the svg object to the body of the page
       var svg = d3
@@ -117,8 +125,8 @@ export default {
           return {
             x: parseFloat(element.x),
             y: element.y
-          }
-        })
+          };
+        });
         data = this._.sortBy(data, ["x", "y"], ["asc", "asc"]);
         let domainXTo = Math.max(...xValues);
         x = d3.scale
@@ -153,8 +161,8 @@ export default {
             };
           });
         data = this._.sortBy(data, ["x"]);
-        let dates = data.map(element => element.x)
-        let datesDomain = [dates[0], dates[dates.length-1]]
+        let dates = data.map(element => element.x);
+        let datesDomain = [dates[0], dates[dates.length - 1]];
         x = d3.time
           .scale()
           .domain(datesDomain)
