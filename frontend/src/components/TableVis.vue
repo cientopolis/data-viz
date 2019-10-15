@@ -272,10 +272,7 @@ export default {
 
     handleSearch(selectedKeys, confirm) {
       confirm();
-      console.log(confirm)
-      console.log(selectedKeys)
       this.searchText = selectedKeys[0];
-      console.log(this.searchText)
     },
 
     handleReset(clearFilters) {

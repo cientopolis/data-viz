@@ -197,7 +197,6 @@ export default {
   methods: {
     // Rendering
     draw() {
-      console.log(this.data);
       let data = this.data["data"];
       let categories = this.data["categories"];
       // let view = data[0]
@@ -235,8 +234,10 @@ export default {
     },
 
     addPolygon(geopoints, category) {
+      let color = utils.getRandomColor();
       var polygon = L.polygon(geopoints, {
-        color: utils.getRandomColor()
+        color: color,
+        fillColor: color
       }).addTo(mymap);
       polygon.bindPopup(`${category}`);
     },
@@ -438,7 +439,6 @@ export default {
       this.rows.forEach((row, index) => {
         let lat = row[this.conf.latitude];
         let lng = row[this.conf.longitude];
-        console.log(utils.isCoordinate(lat) && utils.isCoordinate(lng))
         if (utils.isCoordinate(lat) && utils.isCoordinate(lng)) {
           let chartItem = {};
           chartItem["latitude"] = row[this.conf.latitude];
