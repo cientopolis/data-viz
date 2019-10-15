@@ -1,15 +1,17 @@
 <template>
-  <div>
+  <div style="padding-top: 50px;">
     <a-row>
-      <a-col :span="3">
-        <a-button
-          style="float: left; margin-bottom: 50px"
-          type="primary"
-          @click="removeChart()"
-        >Eliminar Grafico</a-button>
+      <a-col :span="8" :offset="1">
+        <a-row>
+          <a-button style="float: left;" type="primary" @click="removeChart()">Eliminar Grafico</a-button>
+        </a-row>
+        <h3 style="font-weight: bold; margin-bottom: 0;">Detalles</h3>
+        <small>(Pose el mouse sobre los puntos del grafico para ver los detalles)</small>
+        <a-row ref="metadata" style="text-align: left; margin: 5px 0; font-size: 12px;"></a-row>
       </a-col>
-      <a-col :span="21">
-        <div ref="chart" />
+      <a-col :span="15">
+        <h3 style="margin-top: 15px; font-weight: bold;">{{ this.conf.ejey }} / {{ this.conf.ejex }}</h3>
+        <div ref="chart" width="800" height="600" />
       </a-col>
     </a-row>
   </div>
@@ -59,10 +61,10 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       hoverData: null
-    }
+    };
   },
 
   mounted() {
@@ -261,26 +263,8 @@ export default {
             })
         );
 
-      // Define the div for the tooltip
-      var div = d3
-        .select("body")
-        .append("div")
-        .style("position", "absolute")
-        .style("text-align", "center")
-        .style("width", "100px")
-        .style("height", "80px")
-        .style("padding", "5px")
-        .style("overflow", "hidden")
-        .style("font", "12px sans-serif")
-        .style("background-color", "#d1e8e3")
-        .style("border", "0px")
-        .style("color", "black")
-        .style("font-weight", "bold")
-        .style("border-radius", "8px")
-        .style("pointer-events", "none")
-        .style("opacity", 0);
-
       // Add the scatterplot
+      let metadatadiv = this.$refs.metadata.$el;
       svg
         .selectAll("dot")
         .data(data)
@@ -294,20 +278,22 @@ export default {
           return y(d.y);
         })
         .on("mouseover", function(d) {
-          div
-            .transition()
-            .duration(200)
-            .style("opacity", 0.9);
-          div
-            .html(`x: ${d.x} <br> y: ${d.y}`)
-            .style("left", d3.event.pageX + "px")
-            .style("top", d3.event.pageY - 28 + "px");
+          Object.entries(d.metadata).forEach(([key, value]) => {
+            console.log(key + " " + value);
+            let b = document.createElement("b");
+            let t = document.createTextNode(`${key}:`);
+            b.appendChild(t);
+            let p = document.createElement("p");
+            p.appendChild(b);
+            t = document.createTextNode(`${value}`);
+            p.appendChild(t);
+            p.style.marginBottom = "3px";
+            console.log("p", p);
+            metadatadiv.appendChild(p);
+          });
         })
         .on("mouseout", function(d) {
-          div
-            .transition()
-            .duration(500)
-            .style("opacity", 0);
+          metadatadiv.innerHTML = "";
         });
     },
 
@@ -335,7 +321,8 @@ export default {
           ) {
             let chartElement = {
               x: xValue,
-              y: yValue
+              y: yValue,
+              metadata: row
             };
             chartData.push(chartElement);
           }
