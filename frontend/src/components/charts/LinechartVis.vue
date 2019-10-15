@@ -3,14 +3,19 @@
     <a-row>
       <a-col :span="8" :offset="1">
         <a-row>
-          <a-button style="float: left;" type="primary" @click="removeChart()">Eliminar Grafico</a-button>
+          <a-button type="primary" @click="removeChart()" style="float: left;">Eliminar Grafico</a-button>
         </a-row>
-        <h3 style="font-weight: bold; margin-bottom: 0;">Detalles</h3>
-        <small>(Pose el mouse sobre los puntos del grafico para ver los detalles)</small>
+        <a-row>
+          <h3 style="font-weight: bold; margin: 10px auto 0 auto; float: left;">Detalles</h3>
+          <br />
+          <small
+            style="text-align: left;float: left; width: 100%;"
+          >(Pose el mouse sobre los puntos del grafico para ver los detalles)</small>
+        </a-row>
         <a-row ref="metadata" style="text-align: left; margin: 5px 0; font-size: 12px;"></a-row>
       </a-col>
       <a-col :span="15">
-        <h3 style="margin-top: 15px; font-weight: bold;">{{ this.conf.ejey }} / {{ this.conf.ejex }}</h3>
+        <h3 style="font-weight: bold;">{{ this.conf.ejey }} / {{ this.conf.ejex }}</h3>
         <div ref="chart" width="800" height="600" />
       </a-col>
     </a-row>
@@ -102,7 +107,7 @@ export default {
 
     draw(data) {
       // set the dimensios and margins of the graph
-      let margin = { top: 10, right: 30, bottom: 200, left: 200 },
+      let margin = { top: 10, right: 100, bottom: 200, left: 100 },
         width = 800 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
 
@@ -263,7 +268,7 @@ export default {
             })
         );
 
-      // Add the scatterplot
+      // Add dots
       let metadatadiv = this.$refs.metadata.$el;
       svg
         .selectAll("dot")
@@ -279,7 +284,6 @@ export default {
         })
         .on("mouseover", function(d) {
           Object.entries(d.metadata).forEach(([key, value]) => {
-            console.log(key + " " + value);
             let b = document.createElement("b");
             let t = document.createTextNode(`${key}:`);
             b.appendChild(t);
@@ -288,7 +292,6 @@ export default {
             t = document.createTextNode(`${value}`);
             p.appendChild(t);
             p.style.marginBottom = "3px";
-            console.log("p", p);
             metadatadiv.appendChild(p);
           });
         })

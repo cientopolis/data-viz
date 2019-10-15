@@ -2,16 +2,13 @@
   <div style="padding: 10px 50px;">
     <h3>Violencia contra Personas LGBTI en América</h3>
     <small>
-      Fuente de informacion: 
+      Fuente de informacion:
       <a
         href="http://www.oas.org/es/cidh/multimedia/2015/violencia-lgbti/violencia-lgbti.html"
-      >
-        CIDHLGBTIViolencia
-      </a>
+      >CIDHLGBTIViolencia</a>
     </small>
     <LGTBI-violencia />
-    <div id="violencialgtbi_charts">
-    </div>
+    <div id="violencialgtbi_charts" style="margin-bottom: 100px;"></div>
   </div>
 </template>
 
