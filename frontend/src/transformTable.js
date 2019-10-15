@@ -19,7 +19,8 @@ const transformTable = (conf) => {
   let tableVis = new ComponentClass({
     propsData: {
       niceTableParam: niceTable,
-      chartsDiv: conf.chartsDiv
+      chartsDiv: conf.chartsDiv,
+      paginationParam: conf.pagination !== undefined ? conf.pagination : true
     }
   })
   tableVis.$mount() // pass nothing

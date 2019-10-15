@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 50px; 0;">
+  <div style="padding-top: 50px;">
     <a-row>
       <a-col :span="8" :offset="1">
         <a-row>
@@ -12,11 +12,11 @@
         <a-row
           v-for="(element, index) in sortedData"
           :key="index"
-          style="text-align: left; margin: 5px 0; font-weight: 700; font-size: 12px;"
+          style="text-align: left; margin: 5px 0; font-size: 12px;"
         >
           <a-col :span="2" class="dot" :style="`background-color: ${element.color}`"></a-col>
           <a-col :span="20" :offset="1">
-            <p>{{element.legend}}: {{element.value}}</p>
+            <p><b>{{element.legend}}:</b> {{element.value}}</p>
           </a-col>
         </a-row>
       </a-col>

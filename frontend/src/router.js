@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
+import Example from '@/views/Example'
 import Appear from '@/views/Appear'
 import CazaMosquitos from '@/views/CazaMosquitos'
 import GeoVin from '@/views/GeoVin'
@@ -18,24 +19,29 @@ const router = new Router({
     // },
     {
       path: '/',
-      name: 'AppEAR',
-      component: Appear,
+      name: 'example',
+      component: Example
     },
-    {
-      path: '/cazamosquitos',
-      name: 'Caza Mosquitos',
-      component: CazaMosquitos,
-    },
-    {
-      path: '/geovin',
-      name: 'GeoVin',
-      component: GeoVin
-    },
-    {
-      path: '/odglobe',
-      name: 'ODGlobe',
-      component: OdGlobe
-    }
+    // {
+    //   path: '/appear',
+    //   name: 'AppEAR',
+    //   component: Appear,
+    // },
+    // {
+    //   path: '/cazamosquitos',
+    //   name: 'Caza Mosquitos',
+    //   component: CazaMosquitos,
+    // },
+    // {
+    //   path: '/geovin',
+    //   name: 'GeoVin',
+    //   component: GeoVin
+    // },
+    // {
+    //   path: '/odglobe',
+    //   name: 'ODGlobe',
+    //   component: OdGlobe
+    // }
   ]
 })
 

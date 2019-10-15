@@ -223,11 +223,12 @@ export default {
         required: true,
         max: 1
       });
+      // TODO: lets build it only with x axis
       fields.push({
         name: "Eje y",
-        type: [],
+        type: [utils.number],
         model: "ejey",
-        required: true,
+        required: false,
         max: 1
       });
       let form = {

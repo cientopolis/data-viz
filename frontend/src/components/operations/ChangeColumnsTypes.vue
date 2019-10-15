@@ -1,7 +1,7 @@
 <template>
   <!-- select data types -->
   <a-modal
-    title="Crear Tabla Infovis"
+    title="Cambiar tipos de las columnas"
     v-model="modalVisible"
     @cancel="handleCancel"
     :footer="null"

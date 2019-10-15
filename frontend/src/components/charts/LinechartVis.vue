@@ -59,6 +59,12 @@ export default {
     }
   },
 
+  data () {
+    return {
+      hoverData: null
+    }
+  },
+
   mounted() {
     let data = this.transformData();
     this.draw(data);
@@ -76,9 +82,10 @@ export default {
         required: true,
         max: 1
       });
+      // TODO: lets build it only with x axis
       fields.push({
         name: "Eje y",
-        type: [utils.number, utils.text, utils.lat, utils.lng],
+        type: [utils.number],
         model: "ejey",
         required: true,
         max: 1
@@ -253,6 +260,55 @@ export default {
               return y(d.y);
             })
         );
+
+      // Define the div for the tooltip
+      var div = d3
+        .select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("text-align", "center")
+        .style("width", "100px")
+        .style("height", "80px")
+        .style("padding", "5px")
+        .style("overflow", "hidden")
+        .style("font", "12px sans-serif")
+        .style("background-color", "#d1e8e3")
+        .style("border", "0px")
+        .style("color", "black")
+        .style("font-weight", "bold")
+        .style("border-radius", "8px")
+        .style("pointer-events", "none")
+        .style("opacity", 0);
+
+      // Add the scatterplot
+      svg
+        .selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("r", 3.5)
+        .attr("cx", function(d) {
+          return x(d.x);
+        })
+        .attr("cy", function(d) {
+          return y(d.y);
+        })
+        .on("mouseover", function(d) {
+          div
+            .transition()
+            .duration(200)
+            .style("opacity", 0.9);
+          div
+            .html(`x: ${d.x} <br> y: ${d.y}`)
+            .style("left", d3.event.pageX + "px")
+            .style("top", d3.event.pageY - 28 + "px");
+        })
+        .on("mouseout", function(d) {
+          div
+            .transition()
+            .duration(500)
+            .style("opacity", 0);
+        });
     },
 
     // Processing data

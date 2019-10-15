@@ -52,7 +52,7 @@
           <span 
             style="margin: 10px;"
           >
-            Selecciona las columnas para tu gráfico.
+            Selecciona la/s columna/s para tu gráfico.
           </span>
           <a-alert style="margin-bottom: 10px;" :message="selectedChartType.instruction" banner />
           <a-row>

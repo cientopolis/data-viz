@@ -15,7 +15,7 @@
       </a-button>
     </template>
     <a-row>
-      <h3>Selecciona las columnas que quieras incluir en tu tabla</h3>
+      <h3>Selecciona las columnas que quieras incluir en la tabla</h3>
     </a-row>
     <a-row>
       <a-button
@@ -64,10 +64,11 @@ export default {
     }
   },
 
-  watch: {
-    niceTable: function(niceTable) {
-      const columns = niceTable.getColumns()
+  methods: {
+    showModal () {
       this.allColumns = []
+      this.filteredColumns = []
+      let columns = this.niceTable.getColumns()
       columns.forEach(column => {
         this.allColumns.push({
           'value': column.dataIndex,
@@ -77,11 +78,6 @@ export default {
           this.filteredColumns.push(column.dataIndex)
         }
       })
-    }
-  },
-
-  methods: {
-    showModal () {
       this.modalVisible = true
     },
 

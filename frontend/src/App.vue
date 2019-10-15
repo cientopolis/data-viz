@@ -3,15 +3,18 @@
     id="app"
     ref="container"
   >
-    <a-menu
+    <!-- <a-menu
       v-model="current"
       mode="horizontal"
     >
-      <!-- <a-menu-item key="home">
-        <router-link to="/">Inicio</router-link>
-      </a-menu-item> -->
       <a-menu-item key="home">
-        <router-link to="/">Ejemplo 1</router-link>
+        <router-link to="/">Inicio</router-link>
+      </a-menu-item>
+      <a-menu-item key="example">
+        <router-link to="/example">Ejemplo</router-link>
+      </a-menu-item>
+      <a-menu-item key="appear">
+        <router-link to="/appear">Appear</router-link>
       </a-menu-item>
       <a-menu-item key="cazamosquitos">
         <router-link to="/cazamosquitos">Ejemplo 2</router-link>
@@ -23,7 +26,7 @@
         <router-link to="/odglobe">Ejemplo 4</router-link>
       </a-menu-item>
     </a-menu>
-    <table />
+    <table /> -->
     <router-view />
   </div>
 </template>
