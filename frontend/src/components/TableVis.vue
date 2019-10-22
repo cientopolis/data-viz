@@ -461,6 +461,7 @@ export default {
       } else {
         this.renderChart(type, conf);
       }
+      this.selectedRowKeys = [];
     }
   }
 };
@@ -469,5 +470,9 @@ export default {
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   padding: 8px !important;
+}
+.anticon-search {
+  font-size: 15px !important;
+  color: black !important;
 }
 </style>
