@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="tablevis">
     <!-- operations buttons -->
     <a-row>
       <a-button style="float: left; margin: 10px 5px;" @click="filterColumns()">Filtrar Columnas</a-button>
@@ -28,27 +28,19 @@
         size="small"
         style="float: left; width: 180px; margin: 10px 5px;"
         @click="checkAllRows()"
-      >
-        Marcar todas las filas
-      </a-button>
+      >Marcar todas las filas</a-button>
       <a-button
         size="small"
         style="float: left; width: 180px; margin: 10px 5px;"
         @click="uncheckAllRows()"
-      >
-        Desmarcar todas las filas
-      </a-button>
+      >Desmarcar todas las filas</a-button>
     </a-row>
     <a-row>
       <span style="float: left; margin: 10px 5px;">
         <template
           v-if="selectedRowKeys.length > 0"
-        >{{`${selectedRowKeys.length} filas seleccionadas`}}</template>
-        <a-alert
-          v-else
-          message="Selecciona filas para incluir en tu gráfico"
-          banner
-        />
+        >{{`${selectedRowKeys.length} de ${rows.length} filas seleccionadas`}}</template>
+        <a-alert v-else message="Selecciona filas para incluir en tu gráfico" banner />
       </span>
     </a-row>
     <!-- end rows management -->
@@ -247,13 +239,20 @@ export default {
         return this.paginationParam;
       }
       return {
-        position: 'bottom'
+        position: "bottom"
       };
     }
   },
 
   created() {
     this.loadTable();
+  },
+
+  mounted() {
+    this.$refs.tablevis
+      .getElementsByTagName("thead")[0]
+      .getElementsByClassName("ant-checkbox-inner")[0]
+      .remove();
   },
 
   methods: {

@@ -1,7 +1,7 @@
 ## TableVis
 
 ### Install
-`$ npm install infovis`
+`npm install infovis`
 
 ### How to use in VueJS projects
 ```html
