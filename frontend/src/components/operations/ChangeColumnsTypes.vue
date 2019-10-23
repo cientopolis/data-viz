@@ -9,6 +9,9 @@
     <vue-good-wizard
       v-if="steps.length > 0"
       ref="wizard"
+      nextStepLabel="Siguiente"
+      previousStepLabel="Atrás"
+      finalStepLabel="Guardar"
       :steps="steps"
       :onNext="nextClicked"
       :onBack="backClicked"
@@ -21,7 +24,7 @@
         <a-card>
           <p><strong>Nombre:</strong> {{column.title}}</p>
           <p><strong>Ejemplo:</strong> {{example[column.dataIndex]}}</p>
-          <p>Select a data type</p>
+          <p>Seleccioná un tipo de dato</p>
           <a-select
             style="width: 100%"
             placeholder="Select data type"
@@ -39,7 +42,7 @@
             style="margin-top: 10px;"
             v-if="selectedType === 'Date'"
           >
-            <p>Select a date format</p>
+            <p>Seleccioná un formato de fecha</p>
             <a-select
               style="width: 100%;"
               placeholder="Select date format"
@@ -115,7 +118,7 @@ export default {
       this.selectedType = this.columns[0].type
       this.columns.forEach(column => {
         this.steps.push({
-          label: 'Select type',
+          label: 'Seleccioná un tipo',
           slot: column.dataIndex
         })
         this.example[column.dataIndex] = NiceTable.getExample(column.dataIndex, this.niceTable.getRows())

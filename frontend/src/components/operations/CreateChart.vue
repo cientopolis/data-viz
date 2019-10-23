@@ -1,7 +1,15 @@
 <template>
   <!-- create chart modal -->
   <a-modal v-model="modalVisible" @cancel="handleCancel" :footer="null">
-    <vue-good-wizard ref="my-wizard" :steps="steps" :onNext="nextClicked" :onBack="backClicked">
+    <vue-good-wizard
+      ref="my-wizard"
+      nextStepLabel="Siguiente"
+      previousStepLabel="Atrás"
+      finalStepLabel="Guardar"
+      :steps="steps"
+      :onNext="nextClicked"
+      :onBack="backClicked"
+    >
       <div slot="selectChartType" style="margin-top: 20px;">
         <span style="margin-right: 10px; margin-left: 5px;">Selecciona un tipo de gráfico</span>
         <a-select
