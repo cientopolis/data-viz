@@ -15,6 +15,7 @@ import rendering from "@/utils/rendering";
 import types from "@/utils/types";
 import moment from "moment";
 import { Button } from "ant-design-vue";
+import _ from 'lodash';
 
 const utils = { ...rendering, ...types };
 
@@ -117,7 +118,7 @@ export default {
       //   d.date = parseDate(d.date);
       // });
 
-      data = this._.sortBy(data, ["date"]);
+      data = _.sortBy(data, ["date"]);
 
       var yValues = color.domain().map(function(name) {
         return {

@@ -33,6 +33,7 @@ import * as d3 from "d3";
 import rendering from "@/utils/rendering";
 import types from "@/utils/types";
 import { Row, Col, Button } from "ant-design-vue";
+import _ from 'lodash';
 
 const utils = { ...rendering, ...types };
 
@@ -78,7 +79,7 @@ export default {
     },
 
     sortedData() {
-      return this._.orderBy(this.data, ["value"], ["desc"]);
+      return _.orderBy(this.data, ["value"], ["desc"]);
     }
   },
 

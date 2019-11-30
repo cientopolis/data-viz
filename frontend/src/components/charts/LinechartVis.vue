@@ -27,6 +27,7 @@ import moment from "moment";
 import rendering from "@/utils/rendering";
 import types from "@/utils/types";
 import { Row, Col, Button } from "ant-design-vue";
+import _ from 'lodash';
 
 const utils = { ...rendering, ...types };
 
@@ -131,7 +132,7 @@ export default {
       let yValues = data.map(element => element.y);
       let x, y;
 
-      data = this._.sortBy(data, ["x", "y"], ["asc", "asc"]);
+      data = _.sortBy(data, ["x", "y"], ["asc", "asc"]);
 
       if (xType === utils.number) {
         data = data.filter(x => x.x !== "");
@@ -141,7 +142,7 @@ export default {
             y: element.y
           };
         });
-        data = this._.sortBy(data, ["x", "y"], ["asc", "asc"]);
+        data = _.sortBy(data, ["x", "y"], ["asc", "asc"]);
         let domainXTo = Math.max(...xValues);
         x = d3.scale
           .linear()
@@ -174,7 +175,7 @@ export default {
               y: element.y
             };
           });
-        data = this._.sortBy(data, ["x"]);
+        data = _.sortBy(data, ["x"]);
         let dates = data.map(element => element.x);
         let datesDomain = [dates[0], dates[dates.length - 1]];
         x = d3.time
