@@ -1,5 +1,7 @@
 ## TableVis
 
+### Live demo [here](https://optimistic-roentgen-99a869.netlify.com/)
+
 ### Install
 `npm install infovis`
 
