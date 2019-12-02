@@ -8,20 +8,27 @@
 ### How to use in VueJS projects
 ```html
 <script>
-import infovis from 'infovis'
-import 'infovis/dist/infovis.css'
+import infovis from "infovis";
+import "infovis/dist/infovis.css";
 
 export default {
   mounted () {
     const conf = {
-      extractor: infovis.extractors.tableIdExtractor.getTable('sometableid'),
-      newTableInDiv: document.getElementById('sometableid'),
+      // ’tableId’ is the id of our html table
+      extractor: infovis.extractors.tableIdExtractor.getTable('tableId'),
+      // our new table will be inserted
+      // in div with id ’divId’
+      newTableInDiv: document.getElementById('divId'),
+      // replace will be the method to insert our new table
+      // options are: append, insertBefore, replace 
       tableInsertMethod: 'replace',
-      chartsDiv: document.getElementById('chartsdiv')
+      // div with id ’chartsDiv’ will be used
+      // to insert our new table
+      chartsDiv: document.getElementById('chartsDiv')
     }
     infovis.transformTable(conf)
   }
-}
+};
 </script>
 ```
 
@@ -35,14 +42,27 @@ export default {
 ```
 ```html
 <script>
-new Vue({
-  const conf = {
-    extractor: infovis.extractors.tableIdExtractor.getTable('sometableid'),
-    newTableInDiv: document.getElementById('sometableid'),
-    tableInsertMethod: 'replace',
-    chartsDiv: document.getElementById('charts')
-  }
-  infovis.transformTable(chartsdiv)
-})
-</script>
+    new Vue({
+      created () {
+        const conf = {
+          // ’tableId’ is the id of our html table
+          extractor: infovis.default.extractors.tableIdExtractor.getTable('tableId'),
+          // our new table will be inserted
+          // in div with id ’divId’
+          newTableInDiv: document.getElementById('divId'),
+          // replace will be the method to insert our new table
+          // options are: append, insertBefore, replace 
+          tableInsertMethod: 'replace',
+          // div with id ’chartsDiv’ will be used
+          // to insert our new table
+          chartsDiv: document.getElementById('chartsDiv'),
+          // persistence could be true or false
+          // depending if we want to persis our actions out not
+          // by default is true
+          persistence: false
+        }
+        infovis.default.transformTable(conf)
+      }
+    })
+  </script>
 ```
