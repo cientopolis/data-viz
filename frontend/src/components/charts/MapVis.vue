@@ -111,7 +111,10 @@ Icon.Default.mergeOptions({
 
 const chartType = "Mapvis";
 
-function isBetween(x, min, max) {
+function isBetween(_x, _min, _max) {
+  let x = parseFloat(_x)
+  let min = parseFloat(_min)
+  let max = parseFloat(_max)
   return x >= min && x <= max;
 }
 
