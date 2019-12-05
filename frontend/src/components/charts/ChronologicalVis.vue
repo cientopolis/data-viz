@@ -99,7 +99,7 @@ export default {
         });
 
       var svg = d3
-        .select("body")
+        .select(this.$refs.chart)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
